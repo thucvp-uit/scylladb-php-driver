@@ -55,36 +55,38 @@ afterAll(function () use ($keyspace) {
     dropKeyspace($keyspace);
 });
 
-it('Create a simple statement with a client-side timestamp', function () use ($table, $keyspace, $insertQuery, $dataProvider) {
+it('Create a simple statement with a client-side timestamps', function () use ($table, $keyspace, $insertQuery, $dataProvider) {
     $session = scyllaDbConnection($keyspace);
 
-    $arguments = ['song_id' => new Uuid('756716f7-2e54-4715-9f00-91dcbea6cf50'), ...$dataProvider['Joséphine Baker']];
-    $options = ['arguments' => $arguments, 'timestamp' => 1234];
+    $songId = new Uuid('756716f7-2e54-4715-9f00-91dcbea6cf50');
+    $songData = $dataProvider['Joséphine Baker'];
+    $options = ['arguments' => ['song_id' => $songId, ...$songData], 'timestamp' => 1234];
 
     $session->execute($insertQuery, $options);
 
     $result = $session->execute("SELECT artist, title, album, WRITETIME(song_id) FROM $keyspace.$table")->first();
 
-    expect($result['artist'])->toBe($dataProvider['Joséphine Baker']['artist'])
-        ->and($result['title'])->toBe($dataProvider['Joséphine Baker']['title'])
-        ->and($result['album'])->toBe($dataProvider['Joséphine Baker']['album'])
+    expect($result['artist'])->toBe($songData['artist'])
+        ->and($result['title'])->toBe($songData['title'])
+        ->and($result['album'])->toBe($songData['album'])
         ->and($result['writetime(song_id)']->value())->toBe('1234');
 });
 
 it('Create a new session using a timestamp generator', function () use ($table, $keyspace, $dataProvider, $insertQuery) {
     $session = scyllaDbConnection($keyspace);
+    $songId = new Uuid('756716f7-2e54-4715-9f00-91dcbea6cf50');
+    $songData = $dataProvider['Joséphine Baker'];
+    $options = ['arguments' => ['song_id' => $songId, ...$songData], 'timestamp' => 1234];
 
     for ($i = 0; $i < 10; $i++) {
-        $arguments = ['song_id' => new Uuid('756716f7-2e54-4715-9f00-91dcbea6cf50'), ...$dataProvider['Joséphine Baker']];
-        $options = ['arguments' => $arguments, 'timestamp' => 1234];
         $session->execute($insertQuery, $options);
     }
 
     $result = $session->execute("SELECT artist, title, album, song_id FROM $keyspace.$table")->first();
 
-    expect($result['artist'])->toBe($dataProvider['Joséphine Baker']['artist'])
-        ->and($result['title'])->toBe($dataProvider['Joséphine Baker']['title'])
-        ->and($result['album'])->toBe($dataProvider['Joséphine Baker']['album'])
+    expect($result['artist'])->toBe($songData['artist'])
+        ->and($result['title'])->toBe($songData['title'])
+        ->and($result['album'])->toBe($songData['album'])
         ->and($result['song_id']->uuid())->toBe('756716f7-2e54-4715-9f00-91dcbea6cf50');
 });
 
