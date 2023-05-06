@@ -41,7 +41,6 @@ is_linux() {
 # install bison re2c libxml2-dev libicu-dev libsqlite3-dev libbzip2-dev libcurl4-openssl-dev
 install_deps() {
     if which_linux "Ubuntu"; then
-    
         sudo apt-get install \
             libssl-dev \
             bison \
@@ -104,7 +103,6 @@ compile_php() {
         --with-gettext
         --with-mysqli
         --with-sodium
-        --enable-phar=shared
     )
 
     local OUTPUT_PATH=""
