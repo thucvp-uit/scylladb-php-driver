@@ -23,7 +23,7 @@ set(PHP_SCYLLADB_VERSION "${PHP_SCYLLADB_VERSION_MAJOR}.${PHP_SCYLLADB_VERSION_M
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 20)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake" "${PROJECT_SOURCE_DIR}/third-party/sanitizers-cmake/cmake")
 
 option(PHP_SCYLLADB_ENABLE_SANITIZERS "Enable sanitizers" OFF)
 option(PHP_SCYLLADB_ENABLE_COVERAGE "Enable coverage" OFF)
@@ -33,6 +33,7 @@ option(PHP_SCYLLADB_LIBUV_STATIC "Statically link libuv" OFF)
 option(PHP_SCYLLADB_LIBSCYLLADB_STATIC "Statically link libscylladb" OFF)
 
 find_package(PHP REQUIRED)
+find_package(Sanitizers REQUIRED)
 
 if (PHP_SCYLLADB_LIBUV_STATIC)
     set(LIBUV_BUILD_SHARED OFF)
@@ -117,12 +118,9 @@ elseif (${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo" OR ${CMAKE_BUILD_TYPE} STR
 endif ()
 
 if (PHP_SCYLLADB_ENABLE_SANITIZERS)
-    target_compile_options(
-            ext_scylladb PRIVATE
-            -fsanitize=address
-            -fsanitize=undefined
-            -fno-omit-frame-pointer
-    )
+    message("Adding sanitizers")
+    add_sanitize_undefined(ext_scylladb)
+    add_sanitize_address(ext_scylladb)
 endif ()
 
 target_include_directories(

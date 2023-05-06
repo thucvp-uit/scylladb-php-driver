@@ -11,6 +11,8 @@ target_sources(
 )
 
 find_package(PHP REQUIRED)
+find_package(Sanitizers REQUIRED)
+
 set_target_properties(cluster_builder PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_include_directories(
         cluster_builder
@@ -29,12 +31,6 @@ elseif (${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo" OR ${CMAKE_BUILD_TYPE} STR
 endif ()
 
 if (PHP_SCYLLADB_ENABLE_SANITIZERS)
-    target_compile_options(
-            cluster_builder PRIVATE
-            -fsanitize=address
-            -fsanitize=undefined
-            -fno-omit-frame-pointer
-
-
-    )
+    add_sanitize_undefined(cluster_builder)
+    add_sanitize_address(cluster_builder)
 endif ()

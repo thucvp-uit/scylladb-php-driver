@@ -6,8 +6,16 @@
         <option name="buildArgs">
           <list>
             <DockerEnvVarImpl>
-              <option name="name" value="PHP_IMAGE" />
-              <option name="value" value="php:8.2-cli" />
+              <option name="name" value="PHP_VERSION" />
+              <option name="value" value="$env:8.2.5" />
+            </DockerEnvVarImpl>
+            <DockerEnvVarImpl>
+              <option name="name" value="PHP_ZTS" />
+              <option name="value" value="$env:no" />
+            </DockerEnvVarImpl>
+            <DockerEnvVarImpl>
+              <option name="name" value="PHP_DEBUG" />
+              <option name="value" value="$env:no" />
             </DockerEnvVarImpl>
           </list>
         </option>

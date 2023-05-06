@@ -7,14 +7,14 @@ on:
         type: string
         description: 'Image Tag'
         required: true
-        default: 'php-8.2'
+        default: 'php-8.2.5'
   workflow_call:
     inputs:
       image:
         type: string
         description: 'Image Tag'
         required: true
-        default: 'php-8.2'
+        default: 'php-8.2.5'
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -30,8 +30,8 @@ jobs:
           fetch-depth: 1
       - name: Compile using CMake
         run: |
-          cmake --preset Release
-          cd out/Release
+          cmake --preset RelWithInfo
+          cd out/RelWithInfo
           ninja install
           cd ../..
           cp cassandra.ini /usr/local/etc/php/conf.d/cassandra.ini

@@ -28,8 +28,8 @@ jobs:
   test_php82:
     uses: he4rt/scylladb-php-driver/.github/workflows/test.yml@v1.3.x
     with:
-      image: php-8.2
+      image: php-8.2.5
   test_php82_zts:
     uses: he4rt/scylladb-php-driver/.github/workflows/test.yml@v1.3.x
     with:
-      image: php-8.2-zts
+      image: php-8.2.5-zts
