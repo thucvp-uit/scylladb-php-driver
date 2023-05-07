@@ -37,13 +37,13 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Build and push API
         id: docker_build_zts
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v4
         if: ${{ github.event.inputs.zts == 'yes' }}
         with:
           file: Dockerfile
           context: .
           push: true
-          pull: truez
+          pull: true
           platforms: linux/amd64
           target: base
           tags: ${{ secrets.DOCKER_USERNAME }}/scylladb-php-driver:php-${{ github.event.inputs.php }}-zts
@@ -55,13 +55,13 @@ jobs:
             PHP_DEBUG="no"
       - name: Build and push API
         id: docker_build_nts
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v4
         if: ${{ github.event.inputs.zts == 'no' }}
         with:
           file: Dockerfile
           context: .
           push: true
-          pull: truez
+          pull: true
           platforms: linux/amd64
           target: base
           tags: ${{ secrets.DOCKER_USERNAME }}/scylladb-php-driver:php-${{ github.event.inputs.php }}
