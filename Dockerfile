@@ -7,6 +7,11 @@ ARG PHP_CONF_DIR=/usr/local/etc/php/conf.d
 RUN apt-get update -y \
     && apt-get upgrade -y \
     && apt-get install -y \
+        autoconf \
+        pkg-config \
+        sudo \
+        wget \
+        git \
         gcc \
         g++ \
         gdb \
@@ -25,7 +30,7 @@ COPY . /ext-scylladb
 
 WORKDIR /ext-scylladb
 
-RUN ./docs/compile-php -v $PHP_VERSION -s -d $PHP_DEBUG -zts $PHP_ZTS
+RUN ./scripts/compile-php.sh -v $PHP_VERSION -s -d $PHP_DEBUG -zts $PHP_ZTS
 
 FROM base as build
 
