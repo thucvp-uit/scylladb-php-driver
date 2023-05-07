@@ -38,6 +38,7 @@ jobs:
       - name: Build and push API
         id: docker_build
         uses: docker/build-push-action@v2
+        if: ${{ github.event.inputs.zts == 'yes' }}
         with:
           file: Dockerfile
           context: .
@@ -46,6 +47,24 @@ jobs:
           platforms: linux/amd64
           target: base
           tags: ${{ secrets.DOCKER_USERNAME }}/scylladb-php-driver:php-${{ github.event.inputs.php }}-zts
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+          build-args: |
+            PHP_VERSION=${{ github.event.inputs.php }}
+            PHP_ZTS=${{ github.event.inputs.zts }}
+            PHP_DEBUG="no"
+      - name: Build and push API
+        id: docker_build
+        uses: docker/build-push-action@v2
+        if: ${{ github.event.inputs.zts == 'no' }}
+        with:
+          file: Dockerfile
+          context: .
+          push: true
+          pull: truez
+          platforms: linux/amd64
+          target: base
+          tags: ${{ secrets.DOCKER_USERNAME }}/scylladb-php-driver:php-${{ github.event.inputs.php }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
           build-args: |
