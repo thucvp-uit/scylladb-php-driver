@@ -30,6 +30,8 @@ target_sources(
 )
 
 find_package(PHP REQUIRED)
+find_package(Sanitizers REQUIRED)
+
 set_target_properties(exceptions PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_include_directories(
         exceptions
@@ -48,12 +50,6 @@ elseif (${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo" OR ${CMAKE_BUILD_TYPE} STR
 endif ()
 
 if (PHP_SCYLLADB_ENABLE_SANITIZERS)
-    target_compile_options(
-            exceptions PRIVATE
-            -fsanitize=address
-            -fsanitize=undefined
-            -fno-omit-frame-pointer
-
-
-    )
+    add_sanitize_undefined(exceptions)
+    add_sanitize_address(exceptions)
 endif ()

@@ -10,6 +10,8 @@ target_sources(
 )
 
 find_package(PHP REQUIRED)
+find_package(Sanitizers REQUIRED)
+
 set_target_properties(retry_policy PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_include_directories(
         retry_policy
@@ -28,12 +30,6 @@ elseif (${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo" OR ${CMAKE_BUILD_TYPE} STR
 endif ()
 
 if (PHP_SCYLLADB_ENABLE_SANITIZERS)
-    target_compile_options(
-            retry_policy PRIVATE
-            -fsanitize=address
-            -fsanitize=undefined
-            -fno-omit-frame-pointer
-
-
-    )
+    add_sanitize_undefined(retry_policy)
+    add_sanitize_address(retry_policy)
 endif ()

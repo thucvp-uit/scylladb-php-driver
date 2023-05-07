@@ -7,6 +7,8 @@ target_sources(
 )
 
 find_package(PHP REQUIRED)
+find_package(Sanitizers REQUIRED)
+
 set_target_properties(ssl_options PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_include_directories(
         ssl_options
@@ -25,12 +27,6 @@ elseif (${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo" OR ${CMAKE_BUILD_TYPE} STR
 endif ()
 
 if (PHP_SCYLLADB_ENABLE_SANITIZERS)
-    target_compile_options(
-            ssl_options PRIVATE
-            -fsanitize=address
-            -fsanitize=undefined
-            -fno-omit-frame-pointer
-
-
-    )
+    add_sanitize_undefined(ssl_options)
+    add_sanitize_address(ssl_options)
 endif ()
