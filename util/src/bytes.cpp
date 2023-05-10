@@ -20,8 +20,8 @@
 
 static const char hex_str[] = "0123456789abcdef";
 
-void php_driver_bytes_to_hex(const char* bin, int len, const char** out,
-                             int* out_len) {
+void php_driver_bytes_to_hex(const char* bin, size_t len, char** out,
+                             size_t* out_len) {
   const size_t size = len * 2 + 2;
   char* value = (char*)emalloc(sizeof(char) * (size + 1));
 
