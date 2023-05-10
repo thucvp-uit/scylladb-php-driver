@@ -16,6 +16,5 @@
 
 #pragma once
 
-#include <php.h>
-
-void php_driver_bytes_to_hex(const char* bin, int len, char** out, int* out_len);
+void php_driver_bytes_to_hex(const char* bin, int len, char** out,
+                             int* out_len);

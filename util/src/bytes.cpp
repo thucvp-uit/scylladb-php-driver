@@ -14,24 +14,26 @@
  * limitations under the License.
  */
 
-#include <stdlib.h>
-
 #include "bytes.h"
 
-void
-php_driver_bytes_to_hex(const char* bin, int len, char** out, int* out_len)
-{
-  char hex_str[] = "0123456789abcdef";
-  int i;
+#include <php.h>
 
-  *out_len            = len * 2 + 2;
-  *out                = (char*) emalloc(sizeof(char) * (len * 2 + 3));
-  (*out)[0]           = '0';
-  (*out)[1]           = 'x';
-  (*out)[len * 2 + 2] = '\0';
+static const char hex_str[] = "0123456789abcdef";
 
-  for (i = 0; i < len; i++) {
-    (*out)[i * 2 + 2] = hex_str[(bin[i] >> 4) & 0x0F];
-    (*out)[i * 2 + 3] = hex_str[(bin[i]) & 0x0F];
+void php_driver_bytes_to_hex(const char* bin, int len, const char** out,
+                             int* out_len) {
+  const size_t size = len * 2 + 2;
+  char* value = (char*)emalloc(sizeof(char) * (size + 1));
+
+  value[0] = '0';
+  value[1] = 'x';
+  value[size] = '\0';
+
+  for (size_t i = 0; i < len; i++) {
+    value[i * 2 + 2] = hex_str[(bin[i] >> 4) & 0x0F];
+    value[i * 2 + 3] = hex_str[(bin[i]) & 0x0F];
   }
+
+  *out = value;
+  *out_len = (int)size;
 }
