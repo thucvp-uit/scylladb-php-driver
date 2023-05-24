@@ -150,17 +150,26 @@ compile_php() {
 
   if is_linux; then
     {
-      sudo update-alternatives --remove php "$OUTPUT_PATH/bin/php"
-      sudo update-alternatives --remove phpize "$OUTPUT_PATH/bin/phpize"
-      sudo update-alternatives --remove php-config "$OUTPUT_PATH/bin/php-config"
-      sudo update-alternatives --remove php-cgi "$OUTPUT_PATH/bin/php-cgi"
-      sudo update-alternatives --remove phpdbg "$OUTPUT_PATH/bin/phpdbg"
+      if [ "$(command -v update-alternatives)" ]; then
+        sudo update-alternatives --remove php "$OUTPUT_PATH/bin/php"
+        sudo update-alternatives --remove phpize "$OUTPUT_PATH/bin/phpize"
+        sudo update-alternatives --remove php-config "$OUTPUT_PATH/bin/php-config"
+        sudo update-alternatives --remove php-cgi "$OUTPUT_PATH/bin/php-cgi"
+        sudo update-alternatives --remove phpdbg "$OUTPUT_PATH/bin/phpdbg"
 
-      sudo update-alternatives --install /bin/php php "$OUTPUT_PATH/bin/php" 1
-      sudo update-alternatives --install /bin/php-config php-config "$OUTPUT_PATH/bin/php-config" 1
-      sudo update-alternatives --install /bin/phpize phpize "$OUTPUT_PATH/bin/phpize" 1
-      sudo update-alternatives --install /bin/php-cgi php-cgi "$OUTPUT_PATH/bin/php-cgi" 1
-      sudo update-alternatives --install /bin/phpdbg phpdbg "$OUTPUT_PATH/bin/phpdbg" 1
+        sudo update-alternatives --install /bin/php php "$OUTPUT_PATH/bin/php" 1
+        sudo update-alternatives --install /bin/php-config php-config "$OUTPUT_PATH/bin/php-config" 1
+        sudo update-alternatives --install /bin/phpize phpize "$OUTPUT_PATH/bin/phpize" 1
+        sudo update-alternatives --install /bin/php-cgi php-cgi "$OUTPUT_PATH/bin/php-cgi" 1
+        sudo update-alternatives --install /bin/phpdbg phpdbg "$OUTPUT_PATH/bin/phpdbg" 1
+      else
+        sudo ln -sf "$OUTPUT_PATH/bin/php" /bin/php
+        sudo ln -sf "$OUTPUT_PATH/bin/phpize" /bin/phpize
+        sudo ln -sf "$OUTPUT_PATH/bin/php-config" /bin/php-config
+        sudo ln -sf "$OUTPUT_PATH/bin/php-cgi" /bin/php-cgi
+        sudo ln -sf "$OUTPUT_PATH/bin/phpdbg" /bin/phpdbg
+      fi
+
     } >>/dev/null
   fi
 }
@@ -191,7 +200,7 @@ if [[ -z "$PHP_ZTS" ]]; then
 fi
 
 if [[ -z "$ENABLE_DEBUG" ]]; then
-  ENABLE_DEBUG="no"
+  ENABLE_DEBUG="yes"
 fi
 
 if [[ -z "$OUTPUT" ]]; then
