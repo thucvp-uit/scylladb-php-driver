@@ -51,3 +51,4 @@ missing
 ex*.php
 debug.ini
 cassandra.log
+/scripts/PHP-Parser*
