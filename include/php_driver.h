@@ -51,8 +51,8 @@ extern "C"
 #define LL_FORMAT "%lld"
 #endif
 
-#if PHP_VERSION_ID < 80000
-#error PHP 8.0.0 or later is required in order to build the driver
+#if PHP_VERSION_ID < 80100
+#error PHP 8.1.0 or later is required in order to build the driver
 #endif
 
 
