@@ -17,5 +17,5 @@
 #pragma once
 
 BEGIN_EXTERN_C()
-void php_driver_date_init(INTERNAL_FUNCTION_PARAMETERS);
+zend_result php_driver_date_init(zend_long seconds, zend_bool isNull, zval *returnValueOrThis);
 END_EXTERN_C()

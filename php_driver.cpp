@@ -56,11 +56,10 @@ BEGIN_EXTERN_C()
 /* Resources */
 #define PHP_DRIVER_CLUSTER_RES_NAME PHP_DRIVER_NAMESPACE " Cluster"
 #define PHP_DRIVER_SESSION_RES_NAME PHP_DRIVER_NAMESPACE " Session"
-#define PHP_DRIVER_PREPARED_STATEMENT_RES_NAME \
-  PHP_DRIVER_NAMESPACE " PreparedStatement"
+#define PHP_DRIVER_PREPARED_STATEMENT_RES_NAME PHP_DRIVER_NAMESPACE " PreparedStatement"
 
 static uv_once_t log_once = UV_ONCE_INIT;
-static char *log_location = NULL;
+static char *log_location = nullptr;
 static uv_rwlock_t log_lock;
 
 #if CURRENT_CPP_DRIVER_VERSION < CPP_DRIVER_VERSION(2, 16, 2)
@@ -72,47 +71,49 @@ ZEND_DECLARE_MODULE_GLOBALS(php_driver)
 static PHP_GINIT_FUNCTION(php_driver);
 static PHP_GSHUTDOWN_FUNCTION(php_driver);
 
+// clang-format off
 const zend_function_entry php_driver_functions[] = {
     PHP_FE_END /* Must be the last line in php_driver_functions[] */
 };
+// clang-format on
 
-static zend_module_dep php_driver_deps[] = {ZEND_MOD_REQUIRED("spl")
-                                                ZEND_MOD_END};
+static zend_module_dep php_driver_deps[] = {ZEND_MOD_REQUIRED("spl") ZEND_MOD_END};
 
+// clang-format off
 zend_module_entry php_driver_module_entry = {
-    STANDARD_MODULE_HEADER_EX,
-    NULL,
-    php_driver_deps,
-    PHP_DRIVER_NAME,
-    php_driver_functions,      /* Functions */
-    PHP_MINIT(php_driver),     /* MINIT */
-    PHP_MSHUTDOWN(php_driver), /* MSHUTDOWN */
-    PHP_RINIT(php_driver),     /* RINIT */
-    PHP_RSHUTDOWN(php_driver), /* RSHUTDOWN */
-    PHP_MINFO(php_driver),     /* MINFO */
-    PHP_DRIVER_VERSION,
-    PHP_MODULE_GLOBALS(php_driver),
-    PHP_GINIT(php_driver),
-    PHP_GSHUTDOWN(php_driver),
-    NULL,
-    STANDARD_MODULE_PROPERTIES_EX};
+  STANDARD_MODULE_HEADER_EX,
+  nullptr,
+  php_driver_deps,
+  PHP_DRIVER_NAME,
+  php_driver_functions,      /* Functions */
+  PHP_MINIT(php_driver),     /* MINIT */
+  PHP_MSHUTDOWN(php_driver), /* MSHUTDOWN */
+  PHP_RINIT(php_driver),     /* RINIT */
+  PHP_RSHUTDOWN(php_driver), /* RSHUTDOWN */
+  PHP_MINFO(php_driver),     /* MINFO */
+  PHP_DRIVER_VERSION,
+  PHP_MODULE_GLOBALS(php_driver),
+  PHP_GINIT(php_driver),
+  PHP_GSHUTDOWN(php_driver),
+  nullptr,
+  STANDARD_MODULE_PROPERTIES_EX
+};
+// clang-format on
 
 #ifdef COMPILE_DL_CASSANDRA
 BEGIN_EXTERN_C()
 
-ZEND_DLEXPORT zend_module_entry *get_module() {
-  return &php_driver_module_entry;
-}
+ZEND_DLEXPORT zend_module_entry *get_module() { return &php_driver_module_entry; }
 END_EXTERN_C()
 
 #endif
 
+// clang-format off
 PHP_INI_BEGIN()
-PHP_INI_ENTRY(PHP_DRIVER_NAME ".log", PHP_DRIVER_DEFAULT_LOG, PHP_INI_ALL,
-              OnUpdateLog)
-PHP_INI_ENTRY(PHP_DRIVER_NAME ".log_level", PHP_DRIVER_DEFAULT_LOG_LEVEL,
-              PHP_INI_ALL, OnUpdateLogLevel)
+  PHP_INI_ENTRY(PHP_DRIVER_NAME ".log", PHP_DRIVER_DEFAULT_LOG, PHP_INI_ALL, OnUpdateLog)
+  PHP_INI_ENTRY(PHP_DRIVER_NAME ".log_level", PHP_DRIVER_DEFAULT_LOG_LEVEL, PHP_INI_ALL, OnUpdateLogLevel)
 PHP_INI_END()
+// clang-format on
 
 static int le_php_driver_cluster_res;
 int php_le_php_driver_cluster() { return le_php_driver_cluster_res; }
@@ -121,8 +122,9 @@ static void php_driver_cluster_dtor(php5to7_zend_resource rsrc) {
 
   if (cluster) {
     cass_cluster_free(cluster);
-    PHP_DRIVER_G(persistent_clusters)
-    --;
+    // clang-format off
+    PHP_DRIVER_G(persistent_clusters)--;
+    // clang-format on
     rsrc->ptr = nullptr;
   }
 }
@@ -136,16 +138,16 @@ static void php_driver_session_dtor(php5to7_zend_resource rsrc) {
     cass_future_free(psession->future);
     php_driver_del_peref(&psession->session, 1);
     pefree(psession, 1);
-    PHP_DRIVER_G(persistent_sessions)
-    --;
-    rsrc->ptr = NULL;
+    // clang-format off
+    PHP_DRIVER_G(persistent_sessions)--;
+    // clang-format on
+
+    rsrc->ptr = nullptr;
   }
 }
 
 static int le_php_driver_prepared_statement_res;
-int php_le_php_driver_prepared_statement() {
-  return le_php_driver_prepared_statement_res;
-}
+int php_le_php_driver_prepared_statement() { return le_php_driver_prepared_statement_res; }
 static void php_driver_prepared_statement_dtor(php5to7_zend_resource rsrc) {
   auto *preparedStmt = (php_driver_pprepared_statement *)rsrc->ptr;
 
@@ -153,8 +155,11 @@ static void php_driver_prepared_statement_dtor(php5to7_zend_resource rsrc) {
     cass_future_free(preparedStmt->future);
     php_driver_del_peref(&preparedStmt->ref, 1);
     pefree(preparedStmt, 1);
-    PHP_DRIVER_G(persistent_prepared_statements)
-    --;
+
+    // clang-format off
+    PHP_DRIVER_G(persistent_prepared_statements)--;
+    // clang-format on
+
     rsrc->ptr = nullptr;
   }
 }
@@ -172,7 +177,7 @@ static void php_driver_log_cleanup() {
 static void php_driver_log_initialize() {
   uv_rwlock_init(&log_lock);
   cass_log_set_level(CASS_LOG_ERROR);
-  cass_log_set_callback(php_driver_log, NULL);
+  cass_log_set_callback(php_driver_log, nullptr);
 }
 
 static void php_driver_log(const CassLogMessage *message, void *data) {
@@ -190,29 +195,26 @@ static void php_driver_log(const CassLogMessage *message, void *data) {
   log[log_length] = '\0';
 
   if (log_length > 0) {
-    FILE *fd = NULL;
+    FILE *fd = nullptr;
     fd = fopen(log, "a");
     if (fd) {
       time_t log_time;
-      struct tm log_tm;
+      struct tm log_tm {};
       char log_time_str[64];
       size_t needed = 0;
-      char *tmp = NULL;
+      char *tmp = nullptr;
 
       time(&log_time);
       php_localtime_r(&log_time, &log_tm);
-      strftime(log_time_str, sizeof(log_time_str), "%d-%m-%Y %H:%M:%S %Z",
-               &log_tm);
+      strftime(log_time_str, sizeof(log_time_str), "%d-%m-%Y %H:%M:%S %Z", &log_tm);
 
-      needed =
-          snprintf(NULL, 0, "%s [%s] %s (%s:%d)%s", log_time_str,
-                   cass_log_level_string(message->severity), message->message,
-                   message->file, message->line, PHP_EOL);
+      needed = snprintf(nullptr, 0, "%s [%s] %s (%s:%d)%s", log_time_str,
+                        cass_log_level_string(message->severity), message->message, message->file,
+                        message->line, PHP_EOL);
 
       tmp = (char *)malloc(needed + 1);
-      sprintf(tmp, "%s [%s] %s (%s:%d)%s", log_time_str,
-              cass_log_level_string(message->severity), message->message,
-              message->file, message->line, PHP_EOL);
+      sprintf(tmp, "%s [%s] %s (%s:%d)%s", log_time_str, cass_log_level_string(message->severity),
+              message->message, message->file, message->line, PHP_EOL);
 
       fwrite(tmp, 1, needed, fd);
       free(tmp);
@@ -226,9 +228,8 @@ static void php_driver_log(const CassLogMessage *message, void *data) {
    * logging function are thread-safe.
    */
 
-  fprintf(stderr, PHP_DRIVER_NAME " | [%s] %s (%s:%d)%s",
-          cass_log_level_string(message->severity), message->message,
-          message->file, message->line, PHP_EOL);
+  fprintf(stderr, PHP_DRIVER_NAME " | [%s] %s (%s:%d)%s", cass_log_level_string(message->severity),
+          message->message, message->file, message->line, PHP_EOL);
 }
 
 zend_class_entry *exception_class(CassError rc) {
@@ -300,8 +301,7 @@ zend_class_entry *exception_class(CassError rc) {
   }
 }
 
-void throw_invalid_argument(zval *object, const char *object_name,
-                            const char *expected_type) {
+void throw_invalid_argument(zval *object, const char *object_name, const char *expected_type) {
   if (Z_TYPE_P(object) == IS_OBJECT) {
     const char *cls_name = NULL;
     size_t cls_len;
@@ -311,24 +311,20 @@ void throw_invalid_argument(zval *object, const char *object_name,
     cls_len = str->len;
     if (cls_name) {
       zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,
-                              "%s must be %s, an instance of %.*s given",
-                              object_name, expected_type, (int)cls_len,
-                              cls_name);
+                              "%s must be %s, an instance of %.*s given", object_name,
+                              expected_type, (int)cls_len, cls_name);
       zend_string_release(str);
     } else {
-      zend_throw_exception_ex(
-          php_driver_invalid_argument_exception_ce, 0,
-          "%s must be %s, an instance of Unknown Class given", object_name,
-          expected_type);
+      zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,
+                              "%s must be %s, an instance of Unknown Class given", object_name,
+                              expected_type);
     }
   } else if (Z_TYPE_P(object) == IS_STRING) {
     zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,
-                            "%s must be %s, '%Z' given", object_name,
-                            expected_type, object);
+                            "%s must be %s, '%Z' given", object_name, expected_type, object);
   } else {
-    zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,
-                            "%s must be %s, %Z given", object_name,
-                            expected_type, object);
+    zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0, "%s must be %s, %Z given",
+                            object_name, expected_type, object);
   }
 }
 
@@ -339,25 +335,21 @@ PHP_INI_MH(OnUpdateLogLevel) {
     return SUCCESS;
   }
 
-  if (strncasecmp(ZSTR_VAL(new_value), "critical", sizeof("critical")) == 0) {
-    cass_log_set_level(CASS_LOG_DISABLED);
-  }
-
-  else if (strncasecmp(ZSTR_VAL(new_value), "error", sizeof("error")) == 0) {
+  if (strncasecmp(ZSTR_VAL(new_value), ZEND_STRS("critical")) == 0) {
+    cass_log_set_level(CASS_LOG_CRITICAL);
+  } else if (strncasecmp(ZSTR_VAL(new_value), ZEND_STRS("error")) == 0) {
     cass_log_set_level(CASS_LOG_ERROR);
-  } else if (strncasecmp(ZSTR_VAL(new_value), "warn", sizeof("warn")) == 0) {
+  } else if (strncasecmp(ZSTR_VAL(new_value), ZEND_STRS("warn")) == 0) {
     cass_log_set_level(CASS_LOG_WARN);
-  } else if (strncasecmp(ZSTR_VAL(new_value), "info", sizeof("info")) == 0) {
+  } else if (strncasecmp(ZSTR_VAL(new_value), ZEND_STRS("info")) == 0) {
     cass_log_set_level(CASS_LOG_INFO);
-  } else if (strncasecmp(ZSTR_VAL(new_value), "debug", sizeof("debug")) == 0) {
+  } else if (strncasecmp(ZSTR_VAL(new_value), ZEND_STRS("debug")) == 0) {
     cass_log_set_level(CASS_LOG_DEBUG);
-  } else if (strncasecmp(ZSTR_VAL(new_value), "trace", sizeof("trace")) == 0) {
+  } else if (strncasecmp(ZSTR_VAL(new_value), ZEND_STRS("trace")) == 0) {
     cass_log_set_level(CASS_LOG_TRACE);
   } else {
-    php_error_docref(NULL, E_NOTICE,
-                     PHP_DRIVER_NAME " | Unknown log level '%s', using 'ERROR'",
+    php_error_docref(nullptr, E_NOTICE, PHP_DRIVER_NAME " | Unknown log level '%s', using 'ERROR'",
                      ZSTR_VAL(new_value));
-
     cass_log_set_level(CASS_LOG_ERROR);
   }
 
@@ -370,18 +362,18 @@ PHP_INI_MH(OnUpdateLog) {
   uv_rwlock_wrlock(&log_lock);
   if (log_location) {
     free(log_location);
-    log_location = NULL;
+    log_location = nullptr;
   }
   if (new_value) {
-    if (PHP5TO7_STRCMP(new_value, "syslog") != 0) {
+    if (strcmp(ZSTR_VAL(new_value), "syslog") != 0) {
       char realpath[MAXPATHLEN + 1];
       if (VCWD_REALPATH(PHP5TO7_STRVAL(new_value), realpath)) {
         log_location = strdup(realpath);
       } else {
-        log_location = strdup(PHP5TO7_STRVAL(new_value));
+        log_location = strdup(ZSTR_VAL(new_value));
       }
     } else {
-      log_location = strdup(PHP5TO7_STRVAL(new_value));
+      log_location = strdup(ZSTR_VAL(new_value));
     }
   }
   uv_rwlock_wrunlock(&log_lock);
@@ -392,7 +384,7 @@ PHP_INI_MH(OnUpdateLog) {
 static PHP_GINIT_FUNCTION(php_driver) {
   uv_once(&log_once, php_driver_log_initialize);
 
-  php_driver_globals->uuid_gen = NULL;
+  php_driver_globals->uuid_gen = nullptr;
   php_driver_globals->uuid_gen_pid = 0;
   php_driver_globals->persistent_clusters = 0;
   php_driver_globals->persistent_sessions = 0;
@@ -427,15 +419,13 @@ PHP_MINIT_FUNCTION(php_driver) {
   REGISTER_INI_ENTRIES();
 
   le_php_driver_cluster_res = zend_register_list_destructors_ex(
-      NULL, php_driver_cluster_dtor, PHP_DRIVER_CLUSTER_RES_NAME,
-      module_number);
+      nullptr, php_driver_cluster_dtor, PHP_DRIVER_CLUSTER_RES_NAME, module_number);
   le_php_driver_session_res = zend_register_list_destructors_ex(
-      NULL, php_driver_session_dtor, PHP_DRIVER_SESSION_RES_NAME,
-      module_number);
+      nullptr, php_driver_session_dtor, PHP_DRIVER_SESSION_RES_NAME, module_number);
 
-  le_php_driver_prepared_statement_res = zend_register_list_destructors_ex(
-      NULL, php_driver_prepared_statement_dtor,
-      PHP_DRIVER_PREPARED_STATEMENT_RES_NAME, module_number);
+  le_php_driver_prepared_statement_res =
+      zend_register_list_destructors_ex(nullptr, php_driver_prepared_statement_dtor,
+                                        PHP_DRIVER_PREPARED_STATEMENT_RES_NAME, module_number);
 
   php_driver_define_Exception();
   php_driver_define_InvalidArgumentException();
@@ -548,11 +538,7 @@ PHP_MINIT_FUNCTION(php_driver) {
   return SUCCESS;
 }
 
-PHP_MSHUTDOWN_FUNCTION(php_driver) {
-  /* UNREGISTER_INI_ENTRIES(); */
-
-  return SUCCESS;
-}
+PHP_MSHUTDOWN_FUNCTION(php_driver) { return SUCCESS; }
 
 PHP_RINIT_FUNCTION(php_driver) {
 #define XX_SCALAR(name, value) PHP5TO7_ZVAL_UNDEF(PHP_DRIVER_G(type_##name));
@@ -563,8 +549,7 @@ PHP_RINIT_FUNCTION(php_driver) {
 }
 
 PHP_RSHUTDOWN_FUNCTION(php_driver) {
-#define XX_SCALAR(name, value) \
-  PHP5TO7_ZVAL_MAYBE_DESTROY(PHP_DRIVER_G(type_##name));
+#define XX_SCALAR(name, value) PHP5TO7_ZVAL_MAYBE_DESTROY(PHP_DRIVER_G(type_##name));
   PHP_DRIVER_SCALAR_TYPES_MAP(XX_SCALAR)
 #undef XX_SCALAR
 
@@ -590,8 +575,7 @@ PHP_MINFO_FUNCTION(php_driver) {
   snprintf(buf, sizeof(buf), "%d", PHP_DRIVER_G(persistent_sessions));
   php_info_print_table_row(2, "Persistent Sessions", buf);
 
-  snprintf(buf, sizeof(buf), "%d",
-           PHP_DRIVER_G(persistent_prepared_statements));
+  snprintf(buf, sizeof(buf), "%d", PHP_DRIVER_G(persistent_prepared_statements));
   php_info_print_table_row(2, "Persistent Prepared Statements", buf);
 
   php_info_print_table_end();

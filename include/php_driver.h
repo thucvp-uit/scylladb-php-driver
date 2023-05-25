@@ -127,7 +127,6 @@ extern "C"
 #define PHP5TO7_SMART_STR_VAL(ss) ((ss).s ? (ss).s->val : NULL)
 #define PHP5TO7_SMART_STR_LEN(ss) ((ss).s ? (ss).s->len : 0)
 
-#define PHP5TO7_STRCMP(s, c) strcmp((s)->val, (c))
 #define PHP5TO7_STRVAL(s) ((s)->val)
 
 #define PHP5TO7_ZEND_ACC_FINAL ZEND_ACC_FINAL
