@@ -72,6 +72,7 @@ else ()
     set(CASS_BUILD_SHARED ON)
 endif ()
 
+message(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 
 CPMAddPackage(
         NAME libscylladb
@@ -87,7 +88,7 @@ CPMAddPackage(
         "CASS_USE_LIBSSH2 ON"
         "CASS_USE_ZLIB ON"
         "CMAKE_C_FLAGS ${CMAKE_C_FLAGS} -fPIC"
-        "CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fPIC"
+        "CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fPIC -Wno-error=redundant-move"
         "LIBUV_LIBRARY ${LIBUV_LIBRARY}"
         "LIBUV_INCLUDE_DIR ${libuv_SOURCE_DIR}/include"
 )
@@ -96,6 +97,7 @@ add_subdirectory(ZendCPP)
 add_subdirectory(util)
 add_subdirectory(src)
 add_subdirectory(src/Cluster)
+add_subdirectory(src/DateTime)
 add_subdirectory(src/Exception)
 add_subdirectory(src/RetryPolicy)
 add_subdirectory(src/SSLOptions)
@@ -139,6 +141,7 @@ target_link_libraries(
         ext_scylladb::src
         ext_scylladb::utils
         ext_scylladb::type
+        ext_scylladb::datetime
         ext_scylladb::ssl_options
         ext_scylladb::exceptions
         ext_scylladb::cluster::builder

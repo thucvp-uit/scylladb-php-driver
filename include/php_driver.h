@@ -260,7 +260,6 @@ extern "C"
 #define PHP5TO7_Z_TYPE_MAYBE_P(zv) Z_TYPE(zv)
 #define PHP5TO7_Z_ARRVAL_MAYBE_P(zv) Z_ARRVAL(zv)
 #define PHP5TO7_Z_OBJCE_MAYBE_P(zv) Z_OBJCE(zv)
-#define PHP5TO7_Z_LVAL_MAYBE_P(zv) Z_LVAL(zv)
 #define PHP5TO7_Z_STRVAL_MAYBE_P(zv) Z_STRVAL(zv)
 #define PHP5TO7_Z_STRLEN_MAYBE_P(zv) Z_STRLEN(zv)
 

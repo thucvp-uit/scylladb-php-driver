@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+#include <util/hash.h>
+#include <util/types.h>
+
+#include <ZendCPP/ZendCPP.hpp>
 #include <ctime>
 
 #include "php_driver.h"
 #include "php_driver_types.h"
-#include "util/hash.h"
-#include "util/types.h"
+
 BEGIN_EXTERN_C()
 
 #include <ext/date/php_date.h>
@@ -29,30 +32,22 @@ zend_class_entry *php_driver_date_ce = nullptr;
 void php_driver_date_init(INTERNAL_FUNCTION_PARAMETERS) {
   zend_long seconds = 0;
   bool isNull = false;
-  php_driver_date *self;
 
   ZEND_PARSE_PARAMETERS_START(0, 1)
   Z_PARAM_OPTIONAL
   Z_PARAM_LONG_OR_NULL(seconds, isNull)
   ZEND_PARSE_PARAMETERS_END();
 
-  if (zend_parse_parameters(ZEND_NUM_ARGS(), "|z", &seconds) == FAILURE) {
-    return;
-  }
+  php_driver_date *self;
 
-  if (getThis() &&
-      instanceof_function(Z_OBJCE_P(getThis()), php_driver_date_ce)) {
-    self = PHP_DRIVER_GET_DATE(getThis());
+  if (getThis()) {
+    self = ZendCPP::ObjectFetch<php_driver_date>(getThis());
   } else {
     object_init_ex(return_value, php_driver_date_ce);
-    self = PHP_DRIVER_GET_DATE(return_value);
+    self = ZendCPP::ObjectFetch<php_driver_date>(return_value);
   }
 
-  if (isNull) {
-    self->date = cass_date_from_epoch(time(nullptr));
-  } else {
-    self->date = cass_date_from_epoch(seconds);
-  }
+  self->date = cass_date_from_epoch(isNull ? time(nullptr) : seconds);
 }
 
 /* {{{ Date::__construct(string) */
@@ -63,14 +58,14 @@ PHP_METHOD(Date, __construct) {
 
 /* {{{ Date::type() */
 PHP_METHOD(Date, type) {
-  php5to7_zval type = php_driver_type_scalar(CASS_VALUE_TYPE_DATE);
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(type), 1, 1);
+  zval type = php_driver_type_scalar(CASS_VALUE_TYPE_DATE);
+  RETURN_ZVAL(&type, 1, 1);
 }
 /* }}} */
 
 /* {{{ Date::seconds() */
 PHP_METHOD(Date, seconds) {
-  php_driver_date *self = PHP_DRIVER_GET_DATE(getThis());
+  auto *self = ZendCPP::ObjectFetch<php_driver_date>(getThis());
 
   RETURN_LONG(cass_date_time_to_epoch(self->date, 0));
 }
@@ -116,12 +111,12 @@ PHP_METHOD(Date, fromDateTime) {
   zval *datetime;
 
   ZEND_PARSE_PARAMETERS_START(1, 1)
-  Z_PARAM_OBJECT_OF_CLASS(datetime, php_date_get_date_ce())
+  Z_PARAM_OBJECT_OF_CLASS(datetime, php_date_get_interface_ce())
   ZEND_PARSE_PARAMETERS_END();
 
   zval getTimeStampResult;
-  zend_call_method_with_0_params(Z_OBJ_P(datetime), php_date_get_date_ce(),
-                                 nullptr, "gettimestamp", &getTimeStampResult);
+  zend_call_method_with_0_params(Z_OBJ_P(datetime), php_date_get_interface_ce(),
+                                 nullptr, "getTimestamp", &getTimeStampResult);
 
   if (!Z_ISUNDEF(getTimeStampResult) &&
       Z_TYPE_P(&getTimeStampResult) == IS_LONG) {
@@ -140,7 +135,7 @@ PHP_METHOD(Date, __toString) {
   php_driver_date *self = PHP_DRIVER_GET_DATE(getThis());
 
   char *ret = nullptr;
-  spprintf(&ret, 0, PHP_DRIVER_NAMESPACE "\\Date(seconds=%lld)",
+  spprintf(&ret, 0, PHP_DRIVER_NAMESPACE "\\Date(seconds=%ld)",
            cass_date_time_to_epoch(self->date, 0));
   RETVAL_STRING(ret);
   efree(ret);
@@ -207,7 +202,7 @@ static HashTable *php_driver_date_properties(zend_object *object) {
 }
 
 static int php_driver_date_compare(zval *obj1, zval *obj2) {
-  ZEND_COMPARE_OBJECTS_FALLBACK(obj1, obj2);
+  ZEND_COMPARE_OBJECTS_FALLBACK(obj1, obj2)
 
   if (Z_OBJCE_P(obj1) != Z_OBJCE_P(obj2)) return 1; /* different classes */
 
@@ -222,23 +217,18 @@ static unsigned php_driver_date_hash_value(zval *obj) {
   return 31 * 17 + self->date;
 }
 
-static void php_driver_date_free(php5to7_zend_object_free *object) {
-  php_driver_date *self = PHP5TO7_ZEND_OBJECT_GET(date, object);
-  zend_object_std_dtor(&self->zval);
-}
-
-static php5to7_zend_object php_driver_date_new(zend_class_entry *ce) {
-  auto *self = PHP5TO7_ZEND_OBJECT_ECALLOC(date, ce);
-
+static zend_object *php_driver_date_new(zend_class_entry *ce) {
+  auto *self = ZendCPP::Allocate<php_driver_date>(
+      ce, (zend_object_handlers *)&php_driver_date_handlers);
   self->date = 0;
-
-  PHP5TO7_ZEND_OBJECT_INIT(date, self, ce);
+  zend_object_std_init(&self->zval, ce);
+  return &self->zval;
 }
 
 void php_driver_define_Date() {
   zend_class_entry ce;
 
-  INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\Date", php_driver_date_methods);
+  INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\Date", php_driver_date_methods)
   php_driver_date_ce = zend_register_internal_class(&ce);
   zend_class_implements(php_driver_date_ce, 1, php_driver_value_ce);
   memcpy(&php_driver_date_handlers, zend_get_std_object_handlers(),
@@ -247,6 +237,7 @@ void php_driver_define_Date() {
   php_driver_date_handlers.std.get_gc = php_driver_date_gc;
   php_driver_date_handlers.std.compare = php_driver_date_compare;
   php_driver_date_handlers.hash_value = php_driver_date_hash_value;
+  php_driver_date_handlers.std.offset = XtOffsetOf(php_driver_date, zval);
 
   php_driver_date_ce->ce_flags |= PHP5TO7_ZEND_ACC_FINAL;
   php_driver_date_ce->create_object = php_driver_date_new;

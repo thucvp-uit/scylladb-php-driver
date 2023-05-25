@@ -11,7 +11,6 @@ target_sources(
         Column.cpp
         Core.cpp
         Custom.cpp
-        Date.cpp
         Decimal.cpp
         DefaultAggregate.cpp
         DefaultColumn.cpp
@@ -50,10 +49,7 @@ target_sources(
         SSLOptions.cpp
         Statement.cpp
         Table.cpp
-        Time.cpp
-        Timestamp.cpp
         TimestampGenerator.cpp
-        Timeuuid.cpp
         Tinyint.cpp
         Tuple.cpp
         Type.cpp

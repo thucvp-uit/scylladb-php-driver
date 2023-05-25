@@ -21,6 +21,29 @@
 #include "src/Type/Tuple.h"
 #include "src/Type/UserType.h"
 BEGIN_EXTERN_C()
+#define PHP_DRIVER_SCALAR_TYPES_MAP(XX)    \
+  XX(ascii, CASS_VALUE_TYPE_ASCII)         \
+  XX(bigint, CASS_VALUE_TYPE_BIGINT)       \
+  XX(smallint, CASS_VALUE_TYPE_SMALL_INT)  \
+  XX(tinyint, CASS_VALUE_TYPE_TINY_INT)    \
+  XX(blob, CASS_VALUE_TYPE_BLOB)           \
+  XX(boolean, CASS_VALUE_TYPE_BOOLEAN)     \
+  XX(counter, CASS_VALUE_TYPE_COUNTER)     \
+  XX(decimal, CASS_VALUE_TYPE_DECIMAL)     \
+  XX(double, CASS_VALUE_TYPE_DOUBLE)       \
+  XX(duration, CASS_VALUE_TYPE_DURATION)   \
+  XX(float, CASS_VALUE_TYPE_FLOAT)         \
+  XX(int, CASS_VALUE_TYPE_INT)             \
+  XX(text, CASS_VALUE_TYPE_TEXT)           \
+  XX(timestamp, CASS_VALUE_TYPE_TIMESTAMP) \
+  XX(date, CASS_VALUE_TYPE_DATE)           \
+  XX(time, CASS_VALUE_TYPE_TIME)           \
+  XX(uuid, CASS_VALUE_TYPE_UUID)           \
+  XX(varchar, CASS_VALUE_TYPE_VARCHAR)     \
+  XX(varint, CASS_VALUE_TYPE_VARINT)       \
+  XX(timeuuid, CASS_VALUE_TYPE_TIMEUUID)   \
+  XX(inet, CASS_VALUE_TYPE_INET)
+
 zend_class_entry *php_driver_type_ce = NULL;
 
 #define XX_SCALAR_METHOD(name, value) PHP_METHOD(Type, name) \
