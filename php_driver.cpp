@@ -77,7 +77,13 @@ const zend_function_entry php_driver_functions[] = {
 };
 // clang-format on
 
-static zend_module_dep php_driver_deps[] = {ZEND_MOD_REQUIRED("spl") ZEND_MOD_END};
+// clang-format off
+static zend_module_dep php_driver_deps[] = {
+  ZEND_MOD_REQUIRED("spl")
+  ZEND_MOD_REQUIRED("date")
+  ZEND_MOD_END
+};
+// clang-format on
 
 // clang-format off
 zend_module_entry php_driver_module_entry = {
