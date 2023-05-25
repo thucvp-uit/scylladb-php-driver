@@ -8,10 +8,10 @@ namespace Cassandra {
      * @strict-properties
      */
     final class Date implements Value {
-        public function __construct(int $value = null) {}
+        public function __construct(int $value = UNKNOWN) {}
 
         public static function fromDateTime(\DateTimeInterface $datetime): Date {}
-        public function toDateTime(?Time $time = null): \DateTime {}
+        public function toDateTime(Time $time = UNKNOWN): \DateTime {}
         public function seconds(): int {}
         public function type(): Type\Scalar {}
 
