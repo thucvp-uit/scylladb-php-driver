@@ -163,6 +163,8 @@ compile_php() {
         sudo update-alternatives --install /bin/php-cgi php-cgi "$OUTPUT_PATH/bin/php-cgi" 1
         sudo update-alternatives --install /bin/phpdbg phpdbg "$OUTPUT_PATH/bin/phpdbg" 1
       else
+        sudo rm -f /bin/php /bin/phpize /bin/php-config /bin/php-cgi /bin/phpdbg
+
         sudo ln -sf "$OUTPUT_PATH/bin/php" /bin/php
         sudo ln -sf "$OUTPUT_PATH/bin/phpize" /bin/phpize
         sudo ln -sf "$OUTPUT_PATH/bin/php-config" /bin/php-config
@@ -189,7 +191,7 @@ while getopts "v:z:o:sd:" option; do
   "v") PHP_VERSION="$OPTARG" ;;
   "z") PHP_ZTS="$OPTARG" ;;
   "o") OUTPUT="$OPTARG" ;;
-  "d") ENABLE_DEBUG="$OPTARG" ;;
+  "d") ENABLE_DEBUG="yes" ;;
   "s") ENABLE_SANITIZERS="yes" ;;
   *) print_usage ;;
   esac
@@ -200,7 +202,7 @@ if [[ -z "$PHP_ZTS" ]]; then
 fi
 
 if [[ -z "$ENABLE_DEBUG" ]]; then
-  ENABLE_DEBUG="yes"
+  ENABLE_DEBUG="no"
 fi
 
 if [[ -z "$OUTPUT" ]]; then

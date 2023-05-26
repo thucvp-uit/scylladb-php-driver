@@ -51,8 +51,8 @@ extern "C"
 #define LL_FORMAT "%lld"
 #endif
 
-#if PHP_VERSION_ID < 80000
-#error PHP 8.0.0 or later is required in order to build the driver
+#if PHP_VERSION_ID < 80100
+#error PHP 8.1.0 or later is required in order to build the driver
 #endif
 
 
@@ -127,7 +127,6 @@ extern "C"
 #define PHP5TO7_SMART_STR_VAL(ss) ((ss).s ? (ss).s->val : NULL)
 #define PHP5TO7_SMART_STR_LEN(ss) ((ss).s ? (ss).s->len : 0)
 
-#define PHP5TO7_STRCMP(s, c) strcmp((s)->val, (c))
 #define PHP5TO7_STRVAL(s) ((s)->val)
 
 #define PHP5TO7_ZEND_ACC_FINAL ZEND_ACC_FINAL
@@ -260,7 +259,6 @@ extern "C"
 #define PHP5TO7_Z_TYPE_MAYBE_P(zv) Z_TYPE(zv)
 #define PHP5TO7_Z_ARRVAL_MAYBE_P(zv) Z_ARRVAL(zv)
 #define PHP5TO7_Z_OBJCE_MAYBE_P(zv) Z_OBJCE(zv)
-#define PHP5TO7_Z_LVAL_MAYBE_P(zv) Z_LVAL(zv)
 #define PHP5TO7_Z_STRVAL_MAYBE_P(zv) Z_STRVAL(zv)
 #define PHP5TO7_Z_STRLEN_MAYBE_P(zv) Z_STRLEN(zv)
 

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include "types.h"
+
 #include <php_driver.h>
 #include <php_driver_globals.h>
 #include <php_driver_types.h>
@@ -21,22 +23,43 @@
 
 #include "src/Bigint.h"
 #include "src/Blob.h"
-#include "src/Date.h"
+#include "src/DateTime/Date.h"
+#include "src/DateTime/Time.h"
+#include "src/DateTime/Timestamp.h"
+#include "src/DateTime/Timeuuid.h"
 #include "src/Decimal.h"
 #include "src/Duration.h"
 #include "src/Float.h"
 #include "src/Inet.h"
 #include "src/Smallint.h"
-#include "src/Time.h"
-#include "src/Timestamp.h"
-#include "src/Timeuuid.h"
 #include "src/Tinyint.h"
 #include "src/Type/Tuple.h"
 #include "src/Type/UserType.h"
 #include "src/Uuid.h"
 #include "src/Varint.h"
 
-#include "types.h"
+#define PHP_DRIVER_SCALAR_TYPES_MAP(XX)    \
+  XX(ascii, CASS_VALUE_TYPE_ASCII)         \
+  XX(bigint, CASS_VALUE_TYPE_BIGINT)       \
+  XX(smallint, CASS_VALUE_TYPE_SMALL_INT)  \
+  XX(tinyint, CASS_VALUE_TYPE_TINY_INT)    \
+  XX(blob, CASS_VALUE_TYPE_BLOB)           \
+  XX(boolean, CASS_VALUE_TYPE_BOOLEAN)     \
+  XX(counter, CASS_VALUE_TYPE_COUNTER)     \
+  XX(decimal, CASS_VALUE_TYPE_DECIMAL)     \
+  XX(double, CASS_VALUE_TYPE_DOUBLE)       \
+  XX(duration, CASS_VALUE_TYPE_DURATION)   \
+  XX(float, CASS_VALUE_TYPE_FLOAT)         \
+  XX(int, CASS_VALUE_TYPE_INT)             \
+  XX(text, CASS_VALUE_TYPE_TEXT)           \
+  XX(timestamp, CASS_VALUE_TYPE_TIMESTAMP) \
+  XX(date, CASS_VALUE_TYPE_DATE)           \
+  XX(time, CASS_VALUE_TYPE_TIME)           \
+  XX(uuid, CASS_VALUE_TYPE_UUID)           \
+  XX(varchar, CASS_VALUE_TYPE_VARCHAR)     \
+  XX(varint, CASS_VALUE_TYPE_VARINT)       \
+  XX(timeuuid, CASS_VALUE_TYPE_TIMEUUID)   \
+  XX(inet, CASS_VALUE_TYPE_INET)
 
 struct node_s {
   struct node_s* parent;
@@ -47,9 +70,7 @@ struct node_s {
   struct node_s* next_sibling;
   struct node_s* prev_sibling;
 };
-static int
-hex_value(int c)
-{
+static int hex_value(int c) {
   if (c >= '0' && c <= '9') {
     return c - '0';
   } else if (c >= 'A' && c <= 'F') {
@@ -60,9 +81,7 @@ hex_value(int c)
   return -1;
 }
 
-static char*
-php_driver_from_hex(const char* hex, size_t hex_length)
-{
+static char* php_driver_from_hex(const char* hex, size_t hex_length) {
   size_t i, c = 0;
   size_t size = hex_length / 2;
   char* result;
@@ -77,62 +96,48 @@ php_driver_from_hex(const char* hex, size_t hex_length)
       efree(result);
       return NULL;
     }
-    result[c++] = (char) (((uint8_t) half0 << 4) | (uint8_t) half1);
+    result[c++] = (char)(((uint8_t)half0 << 4) | (uint8_t)half1);
   }
   result[size] = '\0';
   return result;
 }
 
-static php5to7_zval
-php_driver_create_type(struct node_s* node );
+static php5to7_zval php_driver_create_type(struct node_s* node);
 
-static php5to7_zval
-php_driver_tuple_from_data_type(const CassDataType* data_type )
-{
+static php5to7_zval php_driver_tuple_from_data_type(const CassDataType* data_type) {
   php5to7_zval ztype;
   php_driver_type* type;
   size_t i, count;
 
   count = cass_data_type_sub_type_count(data_type);
   ztype = php_driver_type_tuple();
-  type  = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(ztype));
+  type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(ztype));
   for (i = 0; i < count; ++i) {
     php5to7_zval sub_type =
-      php_driver_type_from_data_type(
-        cass_data_type_sub_data_type(data_type, i) );
-    php_driver_type_tuple_add(type,
-                              PHP5TO7_ZVAL_MAYBE_P(sub_type)
-                                );
+        php_driver_type_from_data_type(cass_data_type_sub_data_type(data_type, i));
+    php_driver_type_tuple_add(type, PHP5TO7_ZVAL_MAYBE_P(sub_type));
   }
 
   return ztype;
 }
 
-static php5to7_zval
-php_driver_tuple_from_node(struct node_s* node )
-{
+static php5to7_zval php_driver_tuple_from_node(struct node_s* node) {
   php5to7_zval ztype;
   php_driver_type* type;
   struct node_s* current;
 
   ztype = php_driver_type_tuple();
-  type  = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(ztype));
+  type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(ztype));
 
-  for (current = node->first_child;
-       current != NULL;
-       current = current->next_sibling) {
-    php5to7_zval sub_type = php_driver_create_type(current );
-    php_driver_type_tuple_add(type,
-                              PHP5TO7_ZVAL_MAYBE_P(sub_type)
-                                );
+  for (current = node->first_child; current != NULL; current = current->next_sibling) {
+    php5to7_zval sub_type = php_driver_create_type(current);
+    php_driver_type_tuple_add(type, PHP5TO7_ZVAL_MAYBE_P(sub_type));
   }
 
   return ztype;
 }
 
-static php5to7_zval
-php_driver_user_type_from_data_type(const CassDataType* data_type )
-{
+static php5to7_zval php_driver_user_type_from_data_type(const CassDataType* data_type) {
   php5to7_zval ztype;
   php_driver_type* type;
   const char *type_name, *keyspace;
@@ -141,7 +146,7 @@ php_driver_user_type_from_data_type(const CassDataType* data_type )
 
   count = cass_data_type_sub_type_count(data_type);
   ztype = php_driver_type_user_type();
-  type  = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(ztype));
+  type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(ztype));
 
   cass_data_type_type_name(data_type, &type_name, &type_name_len);
   type->data.udt.type_name = estrndup(type_name, type_name_len);
@@ -152,61 +157,49 @@ php_driver_user_type_from_data_type(const CassDataType* data_type )
     const char* name;
     size_t name_length;
     php5to7_zval sub_type =
-      php_driver_type_from_data_type(
-        cass_data_type_sub_data_type(data_type, i) );
+        php_driver_type_from_data_type(cass_data_type_sub_data_type(data_type, i));
     cass_data_type_sub_type_name(data_type, i, &name, &name_length);
-    php_driver_type_user_type_add(type,
-                                  name, name_length,
-                                  PHP5TO7_ZVAL_MAYBE_P(sub_type) );
+    php_driver_type_user_type_add(type, name, name_length, PHP5TO7_ZVAL_MAYBE_P(sub_type));
   }
 
   return ztype;
 }
 
-static php5to7_zval
-php_driver_user_type_from_node(struct node_s* node )
-{
+static php5to7_zval php_driver_user_type_from_node(struct node_s* node) {
   php5to7_zval ztype;
   php_driver_type* type;
   struct node_s* current = node->first_child;
 
   ztype = php_driver_type_user_type();
-  type  = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(ztype));
+  type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(ztype));
 
   if (current) {
-    type->data.udt.keyspace = estrndup(current->name,
-                                       current->name_length);
-    current                 = current->next_sibling;
+    type->data.udt.keyspace = estrndup(current->name, current->name_length);
+    current = current->next_sibling;
   }
 
   if (current) {
-    type->data.udt.type_name = php_driver_from_hex(current->name,
-                                                   current->name_length);
-    current                  = current->next_sibling;
+    type->data.udt.type_name = php_driver_from_hex(current->name, current->name_length);
+    current = current->next_sibling;
   }
 
   for (; current; current = current->next_sibling) {
     php5to7_zval sub_type;
-    char* name = php_driver_from_hex(current->name,
-                                     current->name_length);
-    current    = current->next_sibling;
+    char* name = php_driver_from_hex(current->name, current->name_length);
+    current = current->next_sibling;
     if (!current) {
       efree(name);
       break;
     }
-    sub_type = php_driver_create_type(current );
-    php_driver_type_user_type_add(type,
-                                  name, strlen(name),
-                                  PHP5TO7_ZVAL_MAYBE_P(sub_type) );
+    sub_type = php_driver_create_type(current);
+    php_driver_type_user_type_add(type, name, strlen(name), PHP5TO7_ZVAL_MAYBE_P(sub_type));
     efree(name);
   }
 
   return ztype;
 }
 
-php5to7_zval
-php_driver_type_from_data_type(const CassDataType* data_type )
-{
+php5to7_zval php_driver_type_from_data_type(const CassDataType* data_type) {
   php5to7_zval ztype;
   php5to7_zval key_type;
   php5to7_zval value_type;
@@ -217,116 +210,110 @@ php_driver_type_from_data_type(const CassDataType* data_type )
   PHP5TO7_ZVAL_UNDEF(ztype);
 
   switch (type) {
-#define XX_SCALAR(name, value)                       \
-  case value:                                        \
-    ztype = php_driver_type_scalar(value ); \
+#define XX_SCALAR(name, value)             \
+  case value:                              \
+    ztype = php_driver_type_scalar(value); \
     break;
     PHP_DRIVER_SCALAR_TYPES_MAP(XX_SCALAR)
 #undef XX_SCALAR
 
-  case CASS_VALUE_TYPE_CUSTOM:
-    cass_data_type_class_name(data_type, &class_name, &class_name_length);
-    ztype = php_driver_type_custom(class_name, class_name_length );
-    break;
+    case CASS_VALUE_TYPE_CUSTOM:
+      cass_data_type_class_name(data_type, &class_name, &class_name_length);
+      ztype = php_driver_type_custom(class_name, class_name_length);
+      break;
 
-  case CASS_VALUE_TYPE_LIST:
-    value_type = php_driver_type_from_data_type(
-      cass_data_type_sub_data_type(data_type, 0) );
-    ztype = php_driver_type_collection(PHP5TO7_ZVAL_MAYBE_P(value_type) );
-    break;
+    case CASS_VALUE_TYPE_LIST:
+      value_type = php_driver_type_from_data_type(cass_data_type_sub_data_type(data_type, 0));
+      ztype = php_driver_type_collection(PHP5TO7_ZVAL_MAYBE_P(value_type));
+      break;
 
-  case CASS_VALUE_TYPE_MAP:
-    key_type = php_driver_type_from_data_type(
-      cass_data_type_sub_data_type(data_type, 0) );
-    value_type = php_driver_type_from_data_type(
-      cass_data_type_sub_data_type(data_type, 1) );
-    ztype = php_driver_type_map(PHP5TO7_ZVAL_MAYBE_P(key_type),
-                                PHP5TO7_ZVAL_MAYBE_P(value_type) );
-    break;
+    case CASS_VALUE_TYPE_MAP:
+      key_type = php_driver_type_from_data_type(cass_data_type_sub_data_type(data_type, 0));
+      value_type = php_driver_type_from_data_type(cass_data_type_sub_data_type(data_type, 1));
+      ztype = php_driver_type_map(PHP5TO7_ZVAL_MAYBE_P(key_type), PHP5TO7_ZVAL_MAYBE_P(value_type));
+      break;
 
-  case CASS_VALUE_TYPE_SET:
-    value_type = php_driver_type_from_data_type(
-      cass_data_type_sub_data_type(data_type, 0) );
-    ztype = php_driver_type_set(PHP5TO7_ZVAL_MAYBE_P(value_type) );
-    break;
+    case CASS_VALUE_TYPE_SET:
+      value_type = php_driver_type_from_data_type(cass_data_type_sub_data_type(data_type, 0));
+      ztype = php_driver_type_set(PHP5TO7_ZVAL_MAYBE_P(value_type));
+      break;
 
-  case CASS_VALUE_TYPE_TUPLE:
-    ztype = php_driver_tuple_from_data_type(data_type );
-    break;
+    case CASS_VALUE_TYPE_TUPLE:
+      ztype = php_driver_tuple_from_data_type(data_type);
+      break;
 
-  case CASS_VALUE_TYPE_UDT:
-    ztype = php_driver_user_type_from_data_type(data_type );
-    break;
+    case CASS_VALUE_TYPE_UDT:
+      ztype = php_driver_user_type_from_data_type(data_type);
+      break;
 
-  default:
-    break;
+    default:
+      break;
   }
 
   return ztype;
 }
 
-int
-php_driver_type_validate(zval* object, const char* object_name )
-{
-  if (!instanceof_function(Z_OBJCE_P(object), php_driver_type_scalar_ce ) && !instanceof_function(Z_OBJCE_P(object), php_driver_type_collection_ce ) && !instanceof_function(Z_OBJCE_P(object), php_driver_type_map_ce ) && !instanceof_function(Z_OBJCE_P(object), php_driver_type_set_ce ) && !instanceof_function(Z_OBJCE_P(object), php_driver_type_tuple_ce ) && !instanceof_function(Z_OBJCE_P(object), php_driver_type_user_type_ce )) {
-    throw_invalid_argument(object, object_name, "a valid " PHP_DRIVER_NAMESPACE "\\Type" );
+int php_driver_type_validate(zval* object, const char* object_name) {
+  if (!instanceof_function(Z_OBJCE_P(object), php_driver_type_scalar_ce) &&
+      !instanceof_function(Z_OBJCE_P(object), php_driver_type_collection_ce) &&
+      !instanceof_function(Z_OBJCE_P(object), php_driver_type_map_ce) &&
+      !instanceof_function(Z_OBJCE_P(object), php_driver_type_set_ce) &&
+      !instanceof_function(Z_OBJCE_P(object), php_driver_type_tuple_ce) &&
+      !instanceof_function(Z_OBJCE_P(object), php_driver_type_user_type_ce)) {
+    throw_invalid_argument(object, object_name, "a valid " PHP_DRIVER_NAMESPACE "\\Type");
     return 0;
   }
   return 1;
 }
 
-static inline int
-collection_compare(php_driver_type* type1, php_driver_type* type2 )
-{
-  return php_driver_type_compare(PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type1->data.collection.value_type)),
-                                 PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type2->data.collection.value_type)) );
+static inline int collection_compare(php_driver_type* type1, php_driver_type* type2) {
+  return php_driver_type_compare(
+      PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type1->data.collection.value_type)),
+      PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type2->data.collection.value_type)));
 }
 
-static inline int
-map_compare(php_driver_type* type1, php_driver_type* type2 )
-{
+static inline int map_compare(php_driver_type* type1, php_driver_type* type2) {
   int result;
-  result = php_driver_type_compare(PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type1->data.map.key_type)),
-                                   PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type2->data.map.key_type)) );
-  if (result != 0)
-    return result;
-  result = php_driver_type_compare(PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type1->data.map.value_type)),
-                                   PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type2->data.map.value_type)) );
-  if (result != 0)
-    return result;
+  result =
+      php_driver_type_compare(PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type1->data.map.key_type)),
+                              PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type2->data.map.key_type)));
+  if (result != 0) return result;
+  result = php_driver_type_compare(
+      PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type1->data.map.value_type)),
+      PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type2->data.map.value_type)));
+  if (result != 0) return result;
   return 0;
 }
 
-static inline int
-set_compare(php_driver_type* type1, php_driver_type* type2 )
-{
-  return php_driver_type_compare(PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type1->data.set.value_type)),
-                                 PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type2->data.set.value_type)) );
+static inline int set_compare(php_driver_type* type1, php_driver_type* type2) {
+  return php_driver_type_compare(
+      PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type1->data.set.value_type)),
+      PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type2->data.set.value_type)));
 }
 
-static inline int
-tuple_compare(php_driver_type* type1, php_driver_type* type2 )
-{
+static inline int tuple_compare(php_driver_type* type1, php_driver_type* type2) {
   HashPosition pos1;
   HashPosition pos2;
   php5to7_zval* current1;
   php5to7_zval* current2;
 
-  if (zend_hash_num_elements(&type1->data.tuple.types) != zend_hash_num_elements(&type2->data.tuple.types)) {
-    return zend_hash_num_elements(&type1->data.tuple.types) < zend_hash_num_elements(&type2->data.tuple.types) ? -1 : 1;
+  if (zend_hash_num_elements(&type1->data.tuple.types) !=
+      zend_hash_num_elements(&type2->data.tuple.types)) {
+    return zend_hash_num_elements(&type1->data.tuple.types) <
+                   zend_hash_num_elements(&type2->data.tuple.types)
+               ? -1
+               : 1;
   }
 
   zend_hash_internal_pointer_reset_ex(&type1->data.tuple.types, &pos1);
   zend_hash_internal_pointer_reset_ex(&type2->data.tuple.types, &pos2);
 
-  while (PHP5TO7_ZEND_HASH_GET_CURRENT_DATA_EX(&type1->data.tuple.types, current1, &pos1) && PHP5TO7_ZEND_HASH_GET_CURRENT_DATA_EX(&type2->data.tuple.types, current2, &pos2)) {
-    php_driver_type* sub_type1 =
-      PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_DEREF(current1));
-    php_driver_type* sub_type2 =
-      PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_DEREF(current2));
-    int result = php_driver_type_compare(sub_type1, sub_type2 );
-    if (result != 0)
-      return result;
+  while (PHP5TO7_ZEND_HASH_GET_CURRENT_DATA_EX(&type1->data.tuple.types, current1, &pos1) &&
+         PHP5TO7_ZEND_HASH_GET_CURRENT_DATA_EX(&type2->data.tuple.types, current2, &pos2)) {
+    php_driver_type* sub_type1 = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_DEREF(current1));
+    php_driver_type* sub_type2 = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_DEREF(current2));
+    int result = php_driver_type_compare(sub_type1, sub_type2);
+    if (result != 0) return result;
     zend_hash_move_forward_ex(&type1->data.tuple.types, &pos1);
     zend_hash_move_forward_ex(&type2->data.tuple.types, &pos2);
   }
@@ -334,9 +321,7 @@ tuple_compare(php_driver_type* type1, php_driver_type* type2 )
   return 0;
 }
 
-static inline int
-user_type_compare(php_driver_type* type1, php_driver_type* type2 )
-{
+static inline int user_type_compare(php_driver_type* type1, php_driver_type* type2) {
   HashPosition pos1;
   HashPosition pos2;
   php5to7_string key1;
@@ -344,25 +329,30 @@ user_type_compare(php_driver_type* type1, php_driver_type* type2 )
   php5to7_zval* current1;
   php5to7_zval* current2;
 
-  if (zend_hash_num_elements(&type1->data.udt.types) != zend_hash_num_elements(&type2->data.udt.types)) {
-    return zend_hash_num_elements(&type1->data.udt.types) < zend_hash_num_elements(&type2->data.udt.types) ? -1 : 1;
+  if (zend_hash_num_elements(&type1->data.udt.types) !=
+      zend_hash_num_elements(&type2->data.udt.types)) {
+    return zend_hash_num_elements(&type1->data.udt.types) <
+                   zend_hash_num_elements(&type2->data.udt.types)
+               ? -1
+               : 1;
   }
 
   zend_hash_internal_pointer_reset_ex(&type1->data.udt.types, &pos1);
   zend_hash_internal_pointer_reset_ex(&type2->data.udt.types, &pos2);
 
-  while (PHP5TO7_ZEND_HASH_GET_CURRENT_KEY_EX(&type1->data.udt.types, &key1, NULL, &pos1) == HASH_KEY_IS_STRING && PHP5TO7_ZEND_HASH_GET_CURRENT_KEY_EX(&type2->data.udt.types, &key2, NULL, &pos2) == HASH_KEY_IS_STRING && PHP5TO7_ZEND_HASH_GET_CURRENT_DATA_EX(&type1->data.udt.types, current1, &pos1) && PHP5TO7_ZEND_HASH_GET_CURRENT_DATA_EX(&type2->data.udt.types, current2, &pos2)) {
+  while (PHP5TO7_ZEND_HASH_GET_CURRENT_KEY_EX(&type1->data.udt.types, &key1, NULL, &pos1) ==
+             HASH_KEY_IS_STRING &&
+         PHP5TO7_ZEND_HASH_GET_CURRENT_KEY_EX(&type2->data.udt.types, &key2, NULL, &pos2) ==
+             HASH_KEY_IS_STRING &&
+         PHP5TO7_ZEND_HASH_GET_CURRENT_DATA_EX(&type1->data.udt.types, current1, &pos1) &&
+         PHP5TO7_ZEND_HASH_GET_CURRENT_DATA_EX(&type2->data.udt.types, current2, &pos2)) {
     int result;
-    php_driver_type* sub_type1 =
-      PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_DEREF(current1));
-    php_driver_type* sub_type2 =
-      PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_DEREF(current2));
+    php_driver_type* sub_type1 = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_DEREF(current1));
+    php_driver_type* sub_type2 = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_DEREF(current2));
     result = php5to7_string_compare(key1, key2);
-    if (result != 0)
-      return result;
-    result = php_driver_type_compare(sub_type1, sub_type2 );
-    if (result != 0)
-      return result;
+    if (result != 0) return result;
+    result = php_driver_type_compare(sub_type1, sub_type2);
+    if (result != 0) return result;
     zend_hash_move_forward_ex(&type1->data.udt.types, &pos1);
     zend_hash_move_forward_ex(&type2->data.udt.types, &pos2);
   }
@@ -370,93 +360,81 @@ user_type_compare(php_driver_type* type1, php_driver_type* type2 )
   return 0;
 }
 
-static inline int
-is_string_type(CassValueType type)
-{
+static inline int is_string_type(CassValueType type) {
   return type == CASS_VALUE_TYPE_VARCHAR || type == CASS_VALUE_TYPE_TEXT;
 }
 
-int
-php_driver_type_compare(php_driver_type* type1, php_driver_type* type2 )
-{
+int php_driver_type_compare(php_driver_type* type1, php_driver_type* type2) {
   if (type1->type != type2->type) {
-    if (is_string_type(type1->type) && is_string_type(type2->type)) { /* varchar and text are aliases */
+    if (is_string_type(type1->type) &&
+        is_string_type(type2->type)) { /* varchar and text are aliases */
       return 0;
     }
     return type1->type < type2->type ? -1 : 1;
   } else {
     switch (type1->type) {
-    case CASS_VALUE_TYPE_LIST:
-      return collection_compare(type1, type2 );
+      case CASS_VALUE_TYPE_LIST:
+        return collection_compare(type1, type2);
 
-    case CASS_VALUE_TYPE_MAP:
-      return map_compare(type1, type2 );
+      case CASS_VALUE_TYPE_MAP:
+        return map_compare(type1, type2);
 
-    case CASS_VALUE_TYPE_SET:
-      return set_compare(type1, type2 );
+      case CASS_VALUE_TYPE_SET:
+        return set_compare(type1, type2);
 
-    case CASS_VALUE_TYPE_TUPLE:
-      return tuple_compare(type1, type2 );
+      case CASS_VALUE_TYPE_TUPLE:
+        return tuple_compare(type1, type2);
 
-    case CASS_VALUE_TYPE_UDT:
-      return user_type_compare(type1, type2 );
+      case CASS_VALUE_TYPE_UDT:
+        return user_type_compare(type1, type2);
 
-    default:
-      break;
+      default:
+        break;
     }
     return 0;
   }
 }
 
-static inline void
-collection_string(php_driver_type* type, smart_str* string )
-{
+static inline void collection_string(php_driver_type* type, smart_str* string) {
   smart_str_appendl(string, "list<", 5);
-  php_driver_type_string(PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type->data.collection.value_type)), string );
+  php_driver_type_string(
+      PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type->data.collection.value_type)), string);
   smart_str_appendl(string, ">", 1);
 }
 
-static inline void
-map_string(php_driver_type* type, smart_str* string )
-{
+static inline void map_string(php_driver_type* type, smart_str* string) {
   smart_str_appendl(string, "map<", 4);
-  php_driver_type_string(PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type->data.map.key_type)), string );
+  php_driver_type_string(PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type->data.map.key_type)),
+                         string);
   smart_str_appendl(string, ", ", 2);
-  php_driver_type_string(PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type->data.map.value_type)), string );
+  php_driver_type_string(PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type->data.map.value_type)),
+                         string);
   smart_str_appendl(string, ">", 1);
 }
 
-static inline void
-set_string(php_driver_type* type, smart_str* string )
-{
+static inline void set_string(php_driver_type* type, smart_str* string) {
   smart_str_appendl(string, "set<", 4);
-  php_driver_type_string(PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type->data.set.value_type)), string );
+  php_driver_type_string(PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type->data.set.value_type)),
+                         string);
   smart_str_appendl(string, ">", 1);
 }
 
-static inline void
-tuple_string(php_driver_type* type, smart_str* string )
-{
+static inline void tuple_string(php_driver_type* type, smart_str* string) {
   php5to7_zval* current;
   int first = 1;
 
   smart_str_appendl(string, "tuple<", 6);
-  PHP5TO7_ZEND_HASH_FOREACH_VAL(&type->data.tuple.types, current)
-  {
-    php_driver_type* sub_type =
-      PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_DEREF(current));
-    if (!first)
-      smart_str_appendl(string, ", ", 2);
+  PHP5TO7_ZEND_HASH_FOREACH_VAL(&type->data.tuple.types, current) {
+    php_driver_type* sub_type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_DEREF(current));
+    if (!first) smart_str_appendl(string, ", ", 2);
     first = 0;
-    php_driver_type_string(sub_type, string );
+    php_driver_type_string(sub_type, string);
   }
   PHP5TO7_ZEND_HASH_FOREACH_END(&type->data.tuple.types);
   smart_str_appendl(string, ">", 1);
 }
 
-static inline void
-user_type_string(php_driver_type* type, smart_str* string )
-{
+static inline void user_type_string(php_driver_type* type, smart_str* string) {
   char* name;
   php5to7_zval* current;
   int first = 1;
@@ -469,25 +447,20 @@ user_type_string(php_driver_type* type, smart_str* string )
     smart_str_appendl(string, type->data.udt.type_name, strlen(type->data.udt.type_name));
   } else {
     smart_str_appendl(string, "userType<", 9);
-    PHP5TO7_ZEND_HASH_FOREACH_STR_KEY_VAL(&type->data.udt.types, name, current)
-    {
-      php_driver_type* sub_type =
-        PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_DEREF(current));
-      if (!first)
-        smart_str_appendl(string, ", ", 2);
+    PHP5TO7_ZEND_HASH_FOREACH_STR_KEY_VAL(&type->data.udt.types, name, current) {
+      php_driver_type* sub_type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_DEREF(current));
+      if (!first) smart_str_appendl(string, ", ", 2);
       first = 0;
       smart_str_appendl(string, name, strlen(name));
       smart_str_appendl(string, ":", 1);
-      php_driver_type_string(sub_type, string );
+      php_driver_type_string(sub_type, string);
     }
     PHP5TO7_ZEND_HASH_FOREACH_END(&type->data.udt.types);
     smart_str_appendl(string, ">", 1);
   }
 }
 
-void
-php_driver_type_string(php_driver_type* type, smart_str* string )
-{
+void php_driver_type_string(php_driver_type* type, smart_str* string) {
   switch (type->type) {
 #define XX_SCALAR(name, value)                       \
   case value:                                        \
@@ -496,133 +469,138 @@ php_driver_type_string(php_driver_type* type, smart_str* string )
     PHP_DRIVER_SCALAR_TYPES_MAP(XX_SCALAR)
 #undef XX_SCALAR
 
-  case CASS_VALUE_TYPE_LIST:
-    collection_string(type, string );
-    break;
+    case CASS_VALUE_TYPE_LIST:
+      collection_string(type, string);
+      break;
 
-  case CASS_VALUE_TYPE_MAP:
-    map_string(type, string );
-    break;
+    case CASS_VALUE_TYPE_MAP:
+      map_string(type, string);
+      break;
 
-  case CASS_VALUE_TYPE_SET:
-    set_string(type, string );
-    break;
+    case CASS_VALUE_TYPE_SET:
+      set_string(type, string);
+      break;
 
-  case CASS_VALUE_TYPE_TUPLE:
-    tuple_string(type, string );
-    break;
+    case CASS_VALUE_TYPE_TUPLE:
+      tuple_string(type, string);
+      break;
 
-  case CASS_VALUE_TYPE_UDT:
-    user_type_string(type, string );
-    break;
+    case CASS_VALUE_TYPE_UDT:
+      user_type_string(type, string);
+      break;
 
-  default:
-    smart_str_appendl(string, "invalid", 7);
-    break;
+    default:
+      smart_str_appendl(string, "invalid", 7);
+      break;
   }
 }
 
-static php5to7_zval
-php_driver_type_scalar_new(CassValueType type )
-{
-  php5to7_zval ztype;
-  php_driver_type* scalar;
-
-  PHP5TO7_ZVAL_MAYBE_MAKE(ztype);
-  object_init_ex(PHP5TO7_ZVAL_MAYBE_P(ztype), php_driver_type_scalar_ce);
-  scalar            = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(ztype));
-  scalar->type      = type;
+static zval php_driver_type_scalar_new(CassValueType type) {
+  zval ztype;
+  object_init_ex(&ztype, php_driver_type_scalar_ce);
+  php_driver_type* scalar = PHP_DRIVER_GET_TYPE(&ztype);
+  scalar->type = type;
   scalar->data_type = cass_data_type_new(type);
 
   return ztype;
 }
 
-const char*
-php_driver_scalar_type_name(CassValueType type )
-{
+const char* php_driver_scalar_type_name(CassValueType type) {
   switch (type) {
 #define XX_SCALAR(name, value) \
   case value:                  \
     return #name;
     PHP_DRIVER_SCALAR_TYPES_MAP(XX_SCALAR)
 #undef XX_SCALAR
-  default:
-    return "invalid";
+    default:
+      return "invalid";
   }
 }
 
-static void
-php_driver_varchar_init(INTERNAL_FUNCTION_PARAMETERS)
-{
-  char* string;
-  php5to7_size string_len;
+static void php_driver_varchar_init(INTERNAL_FUNCTION_PARAMETERS) {
+  zend_string* string;
 
-  if (zend_parse_parameters(ZEND_NUM_ARGS() , "s", &string, &string_len) == FAILURE) {
-    return;
-  }
+  // clang-format off
+  ZEND_PARSE_PARAMETERS_START(1, 1)
+    Z_PARAM_STR(string)
+  ZEND_PARSE_PARAMETERS_END();
+  // clang-format on
 
-  PHP5TO7_RETVAL_STRINGL(string, string_len);
+  RETURN_STR(string);
 }
 
-static void
-php_driver_ascii_init(INTERNAL_FUNCTION_PARAMETERS)
-{
+static void php_driver_ascii_init(INTERNAL_FUNCTION_PARAMETERS) {
   php_driver_varchar_init(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 
-static void
-php_driver_boolean_init(INTERNAL_FUNCTION_PARAMETERS)
-{
+static void php_driver_boolean_init(INTERNAL_FUNCTION_PARAMETERS) {
   zend_bool value;
 
-  if (zend_parse_parameters(ZEND_NUM_ARGS() , "b", &value) == FAILURE) {
-    return;
-  }
+  // clang-format off
+  ZEND_PARSE_PARAMETERS_START(1, 1)
+    Z_PARAM_BOOL(value)
+  ZEND_PARSE_PARAMETERS_END();
+  // clang-format on
 
   RETURN_BOOL(value);
 }
 
-static void
-php_driver_counter_init(INTERNAL_FUNCTION_PARAMETERS)
-{
+static void php_driver_counter_init(INTERNAL_FUNCTION_PARAMETERS) {
   php_driver_bigint_init(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 
-static void
-php_driver_double_init(INTERNAL_FUNCTION_PARAMETERS)
-{
+static void php_driver_double_init(INTERNAL_FUNCTION_PARAMETERS) {
   double value;
 
-  if (zend_parse_parameters(ZEND_NUM_ARGS() , "d", &value) == FAILURE) {
-    return;
-  }
+  // clang-format off
+  ZEND_PARSE_PARAMETERS_START(1, 1)
+    Z_PARAM_DOUBLE(value)
+  ZEND_PARSE_PARAMETERS_END();
+  // clang-format on
 
   RETURN_DOUBLE(value);
 }
 
-static void
-php_driver_int_init(INTERNAL_FUNCTION_PARAMETERS)
-{
-  long value;
+static void php_driver_int_init(INTERNAL_FUNCTION_PARAMETERS) {
+  zend_long value;
 
-  if (zend_parse_parameters(ZEND_NUM_ARGS() , "l", &value) == FAILURE) {
-    return;
-  }
+  // clang-format off
+  ZEND_PARSE_PARAMETERS_START(1, 1)
+    Z_PARAM_LONG(value)
+  ZEND_PARSE_PARAMETERS_END();
+  // clang-format on
 
   RETURN_LONG(value);
 }
 
-static void
-php_driver_text_init(INTERNAL_FUNCTION_PARAMETERS)
-{
+static void php_driver_text_init(INTERNAL_FUNCTION_PARAMETERS) {
   php_driver_varchar_init(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 
 #define TYPE_INIT_METHOD(t) php_driver_##t##_init
 
-void
-php_driver_scalar_init(INTERNAL_FUNCTION_PARAMETERS)
-{
+#define TYPES_MAP(XX)                      \
+  XX(ascii, CASS_VALUE_TYPE_ASCII)         \
+  XX(bigint, CASS_VALUE_TYPE_BIGINT)       \
+  XX(smallint, CASS_VALUE_TYPE_SMALL_INT)  \
+  XX(tinyint, CASS_VALUE_TYPE_TINY_INT)    \
+  XX(blob, CASS_VALUE_TYPE_BLOB)           \
+  XX(boolean, CASS_VALUE_TYPE_BOOLEAN)     \
+  XX(counter, CASS_VALUE_TYPE_COUNTER)     \
+  XX(decimal, CASS_VALUE_TYPE_DECIMAL)     \
+  XX(double, CASS_VALUE_TYPE_DOUBLE)       \
+  XX(duration, CASS_VALUE_TYPE_DURATION)   \
+  XX(float, CASS_VALUE_TYPE_FLOAT)         \
+  XX(int, CASS_VALUE_TYPE_INT)             \
+  XX(text, CASS_VALUE_TYPE_TEXT)           \
+  XX(timestamp, CASS_VALUE_TYPE_TIMESTAMP) \
+  XX(time, CASS_VALUE_TYPE_TIME)           \
+  XX(uuid, CASS_VALUE_TYPE_UUID)           \
+  XX(varchar, CASS_VALUE_TYPE_VARCHAR)     \
+  XX(varint, CASS_VALUE_TYPE_VARINT)       \
+  XX(inet, CASS_VALUE_TYPE_INET)
+
+void php_driver_scalar_init(INTERNAL_FUNCTION_PARAMETERS) {
   php_driver_type* self = PHP_DRIVER_GET_TYPE(getThis());
 
 #define XX_SCALAR(name, value)          \
@@ -630,220 +608,210 @@ php_driver_scalar_init(INTERNAL_FUNCTION_PARAMETERS)
     TYPE_INIT_METHOD(name)              \
     (INTERNAL_FUNCTION_PARAM_PASSTHRU); \
   }
-  PHP_DRIVER_SCALAR_TYPES_MAP(XX_SCALAR)
+  TYPES_MAP(XX_SCALAR)
 #undef XX_SCALAR
+#undef TYPES_MAP
+  if (self->type == CASS_VALUE_TYPE_DATE) {
+    zend_long seconds = -1;
+
+    // clang-format off
+    ZEND_PARSE_PARAMETERS_START(0, 1)
+      Z_PARAM_OPTIONAL
+      Z_PARAM_LONG(seconds)
+    ZEND_PARSE_PARAMETERS_END();
+    // clang-format on
+
+    if (php_driver_date_init(seconds, return_value) == FAILURE) {
+      zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,
+                              "Cannot create Cassandra\\Date from invalid value");
+    }
+    return;
+  }
+
+  if (self->type == CASS_VALUE_TYPE_TIMEUUID) {
+    zend_string* str;
+    zend_long timestamp = 0;
+    bool isNull = false;
+
+    // clang-format off
+    ZEND_PARSE_PARAMETERS_START(0, 1)
+      Z_PARAM_OPTIONAL
+      Z_PARAM_STR_OR_LONG_OR_NULL(str, timestamp, isNull)
+    ZEND_PARSE_PARAMETERS_END();
+    // clang-format on
+
+    if (php_driver_timeuuid_init(str, timestamp, isNull, return_value) != SUCCESS) {
+      zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,
+                              "Cannot create Timeuuid from invalid value");
+    }
+  }
 }
 #undef TYPE_INIT_METHOD
 
 #define TYPE_CODE(m) type_##m
 
-php5to7_zval
-php_driver_type_scalar(CassValueType type )
-{
-  php5to7_zval result;
-  PHP5TO7_ZVAL_UNDEF(result);
+zval php_driver_type_scalar(CassValueType type) {
+  zval result;
+  ZVAL_UNDEF(&result);
 
-#define XX_SCALAR(name, value)                                                    \
-  if (value == type) {                                                            \
-    if (PHP5TO7_ZVAL_IS_UNDEF(PHP_DRIVER_G(TYPE_CODE(name)))) {                   \
-      PHP_DRIVER_G(TYPE_CODE(name)) = php_driver_type_scalar_new(type ); \
-    }                                                                             \
-    Z_ADDREF_P(PHP5TO7_ZVAL_MAYBE_P(PHP_DRIVER_G(TYPE_CODE(name))));              \
-    return PHP_DRIVER_G(TYPE_CODE(name));                                         \
+#define XX_SCALAR(name, value)                                          \
+  if (value == type) {                                                  \
+    if (Z_ISUNDEF(PHP_DRIVER_G(TYPE_CODE(name)))) {                     \
+      PHP_DRIVER_G(TYPE_CODE(name)) = php_driver_type_scalar_new(type); \
+    }                                                                   \
+    Z_ADDREF_P(&PHP_DRIVER_G(TYPE_CODE(name)));                         \
+    return PHP_DRIVER_G(TYPE_CODE(name));                               \
   }
   PHP_DRIVER_SCALAR_TYPES_MAP(XX_SCALAR)
 #undef XX_SCALAR
-
-  zend_throw_exception_ex(php_driver_invalid_argument_exception_ce,
-                          0 , "Invalid type");
+  zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0, "Invalid type");
   return result;
 }
 #undef TYPE_CODE
 
-php5to7_zval
-php_driver_type_map(zval* key_type,
-                    zval* value_type )
-{
-  php5to7_zval ztype;
+zval php_driver_type_map(zval* key_type, zval* value_type) {
+  zval ztype;
   php_driver_type* map;
   php_driver_type* sub_type;
 
-  PHP5TO7_ZVAL_MAYBE_MAKE(ztype);
-  object_init_ex(PHP5TO7_ZVAL_MAYBE_P(ztype), php_driver_type_map_ce);
-  map = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(ztype));
+  object_init_ex(&ztype, php_driver_type_map_ce);
+  map = PHP_DRIVER_GET_TYPE(&ztype);
 
-  if (!PHP5TO7_ZVAL_IS_UNDEF_P(key_type)) {
+  if (!Z_ISUNDEF_P(key_type)) {
     sub_type = PHP_DRIVER_GET_TYPE(key_type);
     cass_data_type_add_sub_type(map->data_type, sub_type->data_type);
   }
 
-  if (!PHP5TO7_ZVAL_IS_UNDEF_P(value_type)) {
+  if (!Z_ISUNDEF_P(value_type)) {
     sub_type = PHP_DRIVER_GET_TYPE(value_type);
     cass_data_type_add_sub_type(map->data_type, sub_type->data_type);
   }
 
-#if PHP_MAJOR_VERSION >= 7
-  map->data.map.key_type   = *key_type;
+  map->data.map.key_type = *key_type;
   map->data.map.value_type = *value_type;
-#else
-  map->data.map.key_type                 = key_type;
-  map->data.map.value_type               = value_type;
-#endif
 
   return ztype;
 }
 
-php5to7_zval
-php_driver_type_map_from_value_types(CassValueType key_type,
-                                     CassValueType value_type )
-{
+php5to7_zval php_driver_type_map_from_value_types(CassValueType key_type,
+                                                  CassValueType value_type) {
   php5to7_zval ztype;
   php_driver_type* map;
   php_driver_type* sub_type;
 
-  PHP5TO7_ZVAL_MAYBE_MAKE(ztype);
-  object_init_ex(PHP5TO7_ZVAL_MAYBE_P(ztype), php_driver_type_map_ce);
-  map                      = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(ztype));
-  map->data.map.key_type   = php_driver_type_scalar(key_type );
-  map->data.map.value_type = php_driver_type_scalar(value_type );
+  object_init_ex(&ztype, php_driver_type_map_ce);
+  map = PHP_DRIVER_GET_TYPE(&ztype);
+  map->data.map.key_type = php_driver_type_scalar(key_type);
+  map->data.map.value_type = php_driver_type_scalar(value_type);
 
-  sub_type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(map->data.map.key_type));
+  sub_type = PHP_DRIVER_GET_TYPE(&map->data.map.key_type);
   cass_data_type_add_sub_type(map->data_type, sub_type->data_type);
-  sub_type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(map->data.map.value_type));
+  sub_type = PHP_DRIVER_GET_TYPE(&map->data.map.value_type);
   cass_data_type_add_sub_type(map->data_type, sub_type->data_type);
 
   return ztype;
 }
 
-php5to7_zval
-php_driver_type_set(zval* value_type )
-{
+php5to7_zval php_driver_type_set(zval* value_type) {
   php5to7_zval ztype;
   php_driver_type* set;
   php_driver_type* sub_type;
 
-  PHP5TO7_ZVAL_MAYBE_MAKE(ztype);
-  object_init_ex(PHP5TO7_ZVAL_MAYBE_P(ztype), php_driver_type_set_ce);
-  set = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(ztype));
+  object_init_ex(&(ztype), php_driver_type_set_ce);
+  set = PHP_DRIVER_GET_TYPE(&(ztype));
 
-  if (!PHP5TO7_ZVAL_IS_UNDEF_P(value_type)) {
+  if (!Z_ISUNDEF_P(value_type)) {
     sub_type = PHP_DRIVER_GET_TYPE(value_type);
     cass_data_type_add_sub_type(set->data_type, sub_type->data_type);
   }
 
-#if PHP_MAJOR_VERSION >= 7
   set->data.set.value_type = *value_type;
-#else
-  set->data.set.value_type               = value_type;
-#endif
 
   return ztype;
 }
 
-php5to7_zval
-php_driver_type_set_from_value_type(CassValueType type )
-{
+php5to7_zval php_driver_type_set_from_value_type(CassValueType type) {
   php5to7_zval ztype;
   php_driver_type* set;
   php_driver_type* sub_type;
 
-  PHP5TO7_ZVAL_MAYBE_MAKE(ztype);
-  object_init_ex(PHP5TO7_ZVAL_MAYBE_P(ztype), php_driver_type_set_ce);
-  set                      = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(ztype));
-  set->data.set.value_type = php_driver_type_scalar(type );
+  object_init_ex(&(ztype), php_driver_type_set_ce);
+  set = PHP_DRIVER_GET_TYPE(&ztype);
+  set->data.set.value_type = php_driver_type_scalar(type);
 
-  sub_type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(set->data.set.value_type));
+  sub_type = PHP_DRIVER_GET_TYPE(&set->data.set.value_type);
   cass_data_type_add_sub_type(set->data_type, sub_type->data_type);
 
   return ztype;
 }
 
-php5to7_zval
-php_driver_type_collection(zval* value_type )
-{
-  php5to7_zval ztype;
+zval php_driver_type_collection(zval* value_type) {
+  zval ztype;
   php_driver_type* collection;
   php_driver_type* sub_type;
 
-  PHP5TO7_ZVAL_MAYBE_MAKE(ztype);
-  object_init_ex(PHP5TO7_ZVAL_MAYBE_P(ztype), php_driver_type_collection_ce);
-  collection = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(ztype));
+  object_init_ex(&ztype, php_driver_type_collection_ce);
+  collection = PHP_DRIVER_GET_TYPE(&ztype);
 
-  if (!PHP5TO7_ZVAL_IS_UNDEF_P(value_type)) {
+  if (!Z_ISUNDEF_P(value_type)) {
     sub_type = PHP_DRIVER_GET_TYPE(value_type);
     cass_data_type_add_sub_type(collection->data_type, sub_type->data_type);
   }
 
-#if PHP_MAJOR_VERSION >= 7
   collection->data.collection.value_type = *value_type;
-#else
-  collection->data.collection.value_type = value_type;
-#endif
 
   return ztype;
 }
 
-php5to7_zval
-php_driver_type_collection_from_value_type(CassValueType type )
-{
+php5to7_zval php_driver_type_collection_from_value_type(CassValueType type) {
   php5to7_zval ztype;
   php_driver_type* collection;
   php_driver_type* sub_type;
 
-  PHP5TO7_ZVAL_MAYBE_MAKE(ztype);
-  object_init_ex(PHP5TO7_ZVAL_MAYBE_P(ztype), php_driver_type_collection_ce);
-  collection                             = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(ztype));
-  collection->data.collection.value_type = php_driver_type_scalar(type );
+  object_init_ex(&ztype, php_driver_type_collection_ce);
+  collection = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(ztype));
+  collection->data.collection.value_type = php_driver_type_scalar(type);
 
-  sub_type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(collection->data.collection.value_type));
+  sub_type = PHP_DRIVER_GET_TYPE(&collection->data.collection.value_type);
   cass_data_type_add_sub_type(collection->data_type, sub_type->data_type);
 
   return ztype;
 }
 
-php5to7_zval
-php_driver_type_tuple()
-{
-  php5to7_zval ztype;
+zval php_driver_type_tuple() {
+  zval ztype;
 
-  PHP5TO7_ZVAL_MAYBE_MAKE(ztype);
-  object_init_ex(PHP5TO7_ZVAL_MAYBE_P(ztype), php_driver_type_tuple_ce);
+  object_init_ex(&ztype, php_driver_type_tuple_ce);
 
   return ztype;
 }
 
-php5to7_zval
-php_driver_type_user_type()
-{
-  php5to7_zval ztype;
+zval php_driver_type_user_type() {
+  zval ztype;
   php_driver_type* user_type;
 
-  PHP5TO7_ZVAL_MAYBE_MAKE(ztype);
-  object_init_ex(PHP5TO7_ZVAL_MAYBE_P(ztype), php_driver_type_user_type_ce);
-  user_type            = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(ztype));
+  object_init_ex(&ztype, php_driver_type_user_type_ce);
+  user_type = PHP_DRIVER_GET_TYPE(&ztype);
   user_type->data_type = cass_data_type_new(CASS_VALUE_TYPE_UDT);
 
   return ztype;
 }
 
-php5to7_zval
-php_driver_type_custom(const char* name, size_t name_length )
-{
+php5to7_zval php_driver_type_custom(const char* name, size_t name_length) {
   php5to7_zval ztype;
   php_driver_type* custom;
 
-  PHP5TO7_ZVAL_MAYBE_MAKE(ztype);
-  object_init_ex(PHP5TO7_ZVAL_MAYBE_P(ztype), php_driver_type_custom_ce);
-  custom                         = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(ztype));
+  object_init_ex(&ztype, php_driver_type_custom_ce);
+  custom = PHP_DRIVER_GET_TYPE(&ztype);
   custom->data.custom.class_name = estrndup(name, name_length);
 
   return ztype;
 }
 
 #define EXPECTING_TOKEN(expected)                                                              \
-  zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0 ,               \
+  zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,                         \
                           "Unexpected %s at position %d in string \"%s\", expected " expected, \
-                          describe_token(token), ((int) (str - validator) - 1), validator);    \
+                          describe_token(token), ((int)(str - validator) - 1), validator);     \
   return FAILURE;
 
 enum token_type {
@@ -856,55 +824,36 @@ enum token_type {
   TOKEN_END
 };
 
-enum parser_state {
-  STATE_CLASS = 0,
-  STATE_AFTER_CLASS,
-  STATE_AFTER_PARENS,
-  STATE_END
-};
+enum parser_state { STATE_CLASS = 0, STATE_AFTER_CLASS, STATE_AFTER_PARENS, STATE_END };
 
-static const char*
-describe_token(enum token_type token)
-{
+static const char* describe_token(enum token_type token) {
   switch (token) {
-  case TOKEN_ILLEGAL:
-    return "illegal character";
-    break;
-  case TOKEN_PAREN_OPEN:
-    return "opening parenthesis";
-    break;
-  case TOKEN_PAREN_CLOSE:
-    return "closing parenthesis";
-    break;
-  case TOKEN_COMMA:
-    return "comma";
-    break;
-  case TOKEN_COLON:
-    return "colon";
-    break;
-  case TOKEN_NAME:
-    return "alphanumeric character";
-    break;
-  case TOKEN_END:
-    return "end of string";
-    break;
-  default:
-    return "unknown token";
+    case TOKEN_ILLEGAL:
+      return "illegal character";
+    case TOKEN_PAREN_OPEN:
+      return "opening parenthesis";
+    case TOKEN_PAREN_CLOSE:
+      return "closing parenthesis";
+    case TOKEN_COMMA:
+      return "comma";
+    case TOKEN_COLON:
+      return "colon";
+    case TOKEN_NAME:
+      return "alphanumeric character";
+    case TOKEN_END:
+      return "end of string";
+    default:
+      return "unknown token";
   }
 }
 
-static int
-isletter(char ch)
-{
-  return isalnum(ch) || ch == '.';
-}
+static int isletter(char ch) { return isalnum(ch) || ch == '.'; }
 
-static enum token_type
-next_token(const char* str, size_t len, const char** token_str, size_t* token_len, const char** str_out, size_t* len_out)
-{
+static enum token_type next_token(const char* str, size_t len, const char** token_str,
+                                  size_t* token_len, const char** str_out, size_t* len_out) {
   enum token_type type;
   unsigned int i = 0;
-  char c         = str[i];
+  char c = str[i];
 
   if (len == 0) {
     return TOKEN_END;
@@ -920,76 +869,69 @@ next_token(const char* str, size_t len, const char** token_str, size_t* token_le
     }
   } else {
     switch (c) {
-    case '\0':
-      type = TOKEN_END;
-      break;
-    case '(':
-      type = TOKEN_PAREN_OPEN;
-      i++;
-      break;
-    case ')':
-      type = TOKEN_PAREN_CLOSE;
-      i++;
-      break;
-    case ',':
-      type = TOKEN_COMMA;
-      i++;
-      break;
-    case ':':
-      type = TOKEN_COLON;
-      i++;
-      break;
-    default:
-      type = TOKEN_ILLEGAL;
+      case '\0':
+        type = TOKEN_END;
+        break;
+      case '(':
+        type = TOKEN_PAREN_OPEN;
+        i++;
+        break;
+      case ')':
+        type = TOKEN_PAREN_CLOSE;
+        i++;
+        break;
+      case ',':
+        type = TOKEN_COMMA;
+        i++;
+        break;
+      case ':':
+        type = TOKEN_COLON;
+        i++;
+        break;
+      default:
+        type = TOKEN_ILLEGAL;
     }
   }
 
   *token_str = &(str[0]);
   *token_len = i;
-  *str_out   = &(str[i]);
-  *len_out   = len - i;
+  *str_out = &(str[i]);
+  *len_out = len - i;
 
   return type;
 }
 
-static struct node_s*
-php_driver_parse_node_new()
-{
+static struct node_s* php_driver_parse_node_new() {
   struct node_s* node;
-  node               = static_cast<node_s*>(emalloc(sizeof(struct node_s)));
-  node->parent       = NULL;
-  node->name         = NULL;
-  node->name_length  = 0;
-  node->first_child  = NULL;
-  node->last_child   = NULL;
-  node->next_sibling = NULL;
-  node->prev_sibling = NULL;
+  node = static_cast<node_s*>(emalloc(sizeof(struct node_s)));
+  node->parent = nullptr;
+  node->name = nullptr;
+  node->name_length = 0;
+  node->first_child = nullptr;
+  node->last_child = nullptr;
+  node->next_sibling = nullptr;
+  node->prev_sibling = nullptr;
 
   return node;
 }
 
-static void
-php_driver_parse_node_free(struct node_s* node)
-{
+static void php_driver_parse_node_free(struct node_s* node) {
   if (node->first_child) {
     php_driver_parse_node_free(node->first_child);
-    node->first_child = NULL;
+    node->first_child = nullptr;
   }
-  node->last_child = NULL;
+  node->last_child = nullptr;
 
   if (node->next_sibling) {
     php_driver_parse_node_free(node->next_sibling);
-    node->next_sibling = NULL;
+    node->next_sibling = nullptr;
   }
 
   efree(node);
 }
 
-static int
-php_driver_parse_class_name(const char* validator,
-                            size_t validator_len,
-                            struct node_s** result )
-{
+static int php_driver_parse_class_name(const char* validator, size_t validator_len,
+                                       struct node_s** result) {
   const char* str;
   size_t len;
   const char* token_str;
@@ -1002,19 +944,19 @@ php_driver_parse_class_name(const char* validator,
 
   token_str = NULL;
   token_len = 0;
-  state     = STATE_CLASS;
-  str       = validator;
-  len       = validator_len;
-  root      = php_driver_parse_node_new();
-  node      = root;
+  state = STATE_CLASS;
+  str = validator;
+  len = validator_len;
+  root = php_driver_parse_node_new();
+  node = root;
 
   while (1) {
     token = next_token(str, len, &token_str, &token_len, &str, &len);
 
     if (token == TOKEN_ILLEGAL) {
-      zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0 ,
-                              "Illegal character \"%c\" at position %d in \"%s\"",
-                              *token_str, ((int) (str - validator) - 1), validator);
+      zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,
+                              "Illegal character \"%c\" at position %d in \"%s\"", *token_str,
+                              ((int)(str - validator) - 1), validator);
       php_driver_parse_node_free(root);
       return FAILURE;
     }
@@ -1026,10 +968,10 @@ php_driver_parse_class_name(const char* validator,
         }
         state = STATE_CLASS;
 
-        child                    = php_driver_parse_node_new();
-        child->parent            = node->parent;
-        child->prev_sibling      = node;
-        node->next_sibling       = child;
+        child = php_driver_parse_node_new();
+        child->parent = node->parent;
+        child->prev_sibling = node;
+        node->next_sibling = child;
         node->parent->last_child = child;
 
         node = child;
@@ -1052,7 +994,7 @@ php_driver_parse_class_name(const char* validator,
       if (token == TOKEN_PAREN_OPEN) {
         state = STATE_CLASS;
 
-        child         = php_driver_parse_node_new();
+        child = php_driver_parse_node_new();
         child->parent = node;
 
         if (node->first_child == NULL) {
@@ -1064,17 +1006,17 @@ php_driver_parse_class_name(const char* validator,
         }
 
         child->prev_sibling = node->last_child;
-        node->last_child    = child;
+        node->last_child = child;
 
         node = child;
         continue;
       } else if (token == TOKEN_COMMA || token == TOKEN_COLON) {
         state = STATE_CLASS;
 
-        child                    = php_driver_parse_node_new();
-        child->parent            = node->parent;
-        child->prev_sibling      = node;
-        node->next_sibling       = child;
+        child = php_driver_parse_node_new();
+        child->parent = node->parent;
+        child->prev_sibling = node;
+        node->next_sibling = child;
         node->parent->last_child = child;
 
         node = child;
@@ -1099,7 +1041,7 @@ php_driver_parse_class_name(const char* validator,
       }
       state = STATE_AFTER_CLASS;
 
-      node->name        = token_str;
+      node->name = token_str;
       node->name_length = token_len;
     }
   }
@@ -1108,9 +1050,7 @@ php_driver_parse_class_name(const char* validator,
   return SUCCESS;
 }
 
-static CassValueType
-php_driver_lookup_type(struct node_s* node )
-{
+static CassValueType php_driver_lookup_type(struct node_s* node) {
   if (strncmp("org.apache.cassandra.db.marshal.AsciiType", node->name, node->name_length) == 0) {
     return CASS_VALUE_TYPE_ASCII;
   }
@@ -1135,7 +1075,8 @@ php_driver_lookup_type(struct node_s* node )
     return CASS_VALUE_TYPE_BOOLEAN;
   }
 
-  if (strncmp("org.apache.cassandra.db.marshal.CounterColumnType", node->name, node->name_length) == 0) {
+  if (strncmp("org.apache.cassandra.db.marshal.CounterColumnType", node->name, node->name_length) ==
+      0) {
     return CASS_VALUE_TYPE_COUNTER;
   }
 
@@ -1155,7 +1096,8 @@ php_driver_lookup_type(struct node_s* node )
     return CASS_VALUE_TYPE_FLOAT;
   }
 
-  if (strncmp("org.apache.cassandra.db.marshal.InetAddressType", node->name, node->name_length) == 0) {
+  if (strncmp("org.apache.cassandra.db.marshal.InetAddressType", node->name, node->name_length) ==
+      0) {
     return CASS_VALUE_TYPE_INET;
   }
 
@@ -1167,11 +1109,14 @@ php_driver_lookup_type(struct node_s* node )
     return CASS_VALUE_TYPE_VARCHAR;
   }
 
-  if (strncmp("org.apache.cassandra.db.marshal.TimestampType", node->name, node->name_length) == 0 || strncmp("org.apache.cassandra.db.marshal.DateType", node->name, node->name_length) == 0) {
+  if (strncmp("org.apache.cassandra.db.marshal.TimestampType", node->name, node->name_length) ==
+          0 ||
+      strncmp("org.apache.cassandra.db.marshal.DateType", node->name, node->name_length) == 0) {
     return CASS_VALUE_TYPE_TIMESTAMP;
   }
 
-  if (strncmp("org.apache.cassandra.db.marshal.SimpleDateType", node->name, node->name_length) == 0) {
+  if (strncmp("org.apache.cassandra.db.marshal.SimpleDateType", node->name, node->name_length) ==
+      0) {
     return CASS_VALUE_TYPE_DATE;
   }
 
@@ -1214,9 +1159,7 @@ php_driver_lookup_type(struct node_s* node )
   return CASS_VALUE_TYPE_CUSTOM;
 }
 
-static void
-php_driver_node_dump_to(struct node_s* node, smart_str* text)
-{
+static void php_driver_node_dump_to(struct node_s* node, smart_str* text) {
   smart_str_appendl(text, node->name, node->name_length);
 
   if (node->first_child) {
@@ -1231,18 +1174,21 @@ php_driver_node_dump_to(struct node_s* node, smart_str* text)
   }
 }
 
-static php5to7_zval
-php_driver_create_type(struct node_s* node )
-{
+static php5to7_zval php_driver_create_type(struct node_s* node) {
   CassValueType type = CASS_VALUE_TYPE_UNKNOWN;
 
   /* Skip wrapper types */
-  while (node && (strncmp("org.apache.cassandra.db.marshal.FrozenType", node->name, node->name_length) == 0 || strncmp("org.apache.cassandra.db.marshal.ReversedType", node->name, node->name_length) == 0 || strncmp("org.apache.cassandra.db.marshal.CompositeType", node->name, node->name_length) == 0)) {
+  while (node && (strncmp("org.apache.cassandra.db.marshal.FrozenType", node->name,
+                          node->name_length) == 0 ||
+                  strncmp("org.apache.cassandra.db.marshal.ReversedType", node->name,
+                          node->name_length) == 0 ||
+                  strncmp("org.apache.cassandra.db.marshal.CompositeType", node->name,
+                          node->name_length) == 0)) {
     node = node->first_child;
   }
 
   if (node) {
-    type = php_driver_lookup_type(node );
+    type = php_driver_lookup_type(node);
   }
 
   if (type == CASS_VALUE_TYPE_UNKNOWN) {
@@ -1256,7 +1202,7 @@ php_driver_create_type(struct node_s* node )
     smart_str class_name = PHP5TO7_SMART_STR_INIT;
     php_driver_node_dump_to(node, &class_name);
     ztype = php_driver_type_custom(PHP5TO7_SMART_STR_VAL(class_name),
-                                   PHP5TO7_SMART_STR_LEN(class_name) );
+                                   PHP5TO7_SMART_STR_LEN(class_name));
     smart_str_free(&class_name);
     return ztype;
   } else if (type == CASS_VALUE_TYPE_MAP) {
@@ -1264,71 +1210,67 @@ php_driver_create_type(struct node_s* node )
     php5to7_zval value_type;
 
     if (node->first_child) {
-      key_type   = php_driver_create_type(node->first_child );
-      value_type = php_driver_create_type(node->first_child->next_sibling );
+      key_type = php_driver_create_type(node->first_child);
+      value_type = php_driver_create_type(node->first_child->next_sibling);
     } else {
       PHP5TO7_ZVAL_UNDEF(key_type);
       PHP5TO7_ZVAL_UNDEF(value_type);
     }
-    return php_driver_type_map(PHP5TO7_ZVAL_MAYBE_P(key_type),
-                               PHP5TO7_ZVAL_MAYBE_P(value_type) );
+    return php_driver_type_map(PHP5TO7_ZVAL_MAYBE_P(key_type), PHP5TO7_ZVAL_MAYBE_P(value_type));
   } else if (type == CASS_VALUE_TYPE_LIST) {
     php5to7_zval value_type;
     if (node->first_child) {
-      value_type = php_driver_create_type(node->first_child );
+      value_type = php_driver_create_type(node->first_child);
     } else {
       PHP5TO7_ZVAL_UNDEF(value_type);
     }
-    return php_driver_type_collection(PHP5TO7_ZVAL_MAYBE_P(value_type) );
+    return php_driver_type_collection(PHP5TO7_ZVAL_MAYBE_P(value_type));
   } else if (type == CASS_VALUE_TYPE_SET) {
     php5to7_zval value_type;
     if (node->first_child) {
-      value_type = php_driver_create_type(node->first_child );
+      value_type = php_driver_create_type(node->first_child);
     } else {
       PHP5TO7_ZVAL_UNDEF(value_type);
     }
-    return php_driver_type_set(PHP5TO7_ZVAL_MAYBE_P(value_type) );
+    return php_driver_type_set(PHP5TO7_ZVAL_MAYBE_P(value_type));
   } else if (type == CASS_VALUE_TYPE_TUPLE) {
-    return php_driver_tuple_from_node(node );
+    return php_driver_tuple_from_node(node);
   } else if (type == CASS_VALUE_TYPE_UDT) {
-    return php_driver_user_type_from_node(node );
+    return php_driver_user_type_from_node(node);
   }
 
-  return php_driver_type_scalar(type );
+  return php_driver_type_scalar(type);
 }
 
-int
-php_driver_parse_column_type(const char* validator,
-                             size_t validator_len,
-                             int* reversed_out,
-                             int* frozen_out,
-                             php5to7_zval* type_out )
-{
+int php_driver_parse_column_type(const char* validator, size_t validator_len, int* reversed_out,
+                                 int* frozen_out, php5to7_zval* type_out) {
   struct node_s* root;
-  struct node_s* node  = nullptr;
+  struct node_s* node = nullptr;
   cass_bool_t reversed = cass_false;
-  cass_bool_t frozen   = cass_false;
+  cass_bool_t frozen = cass_false;
 
-  if (php_driver_parse_class_name(validator, validator_len, &root ) == FAILURE) {
+  if (php_driver_parse_class_name(validator, validator_len, &root) == FAILURE) {
     return FAILURE;
   }
 
   node = root;
 
   while (node) {
-    if (strncmp("org.apache.cassandra.db.marshal.ReversedType", node->name, node->name_length) == 0) {
+    if (strncmp("org.apache.cassandra.db.marshal.ReversedType", node->name, node->name_length) ==
+        0) {
       reversed = cass_true;
-      node     = node->first_child;
+      node = node->first_child;
       continue;
     }
 
     if (strncmp("org.apache.cassandra.db.marshal.FrozenType", node->name, node->name_length) == 0) {
       frozen = cass_true;
-      node   = node->first_child;
+      node = node->first_child;
       continue;
     }
 
-    if (strncmp("org.apache.cassandra.db.marshal.CompositeType", node->name, node->name_length) == 0) {
+    if (strncmp("org.apache.cassandra.db.marshal.CompositeType", node->name, node->name_length) ==
+        0) {
       node = node->first_child;
       continue;
     }
@@ -1338,14 +1280,13 @@ php_driver_parse_column_type(const char* validator,
 
   if (node == nullptr) {
     php_driver_parse_node_free(root);
-    zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0 ,
-                            "Invalid type");
+    zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0, "Invalid type");
     return FAILURE;
   }
 
   *reversed_out = reversed;
-  *frozen_out   = frozen;
-  *type_out     = php_driver_create_type(node );
+  *frozen_out = frozen;
+  *type_out = php_driver_create_type(node);
 
   php_driver_parse_node_free(root);
 
