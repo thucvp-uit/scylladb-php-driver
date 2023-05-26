@@ -23,7 +23,8 @@ RUN apt-get update -y \
         ninja-build \
         libasan8 \
         libubsan1 \
-    && pip3 install cmake cqlsh
+    && pip3 install cmake cqlsh \
+    && apt-get clean
 
 COPY . /ext-scylladb
 
@@ -32,8 +33,10 @@ ENV PATH="$PATH:$HOME/.local/bin"
 WORKDIR /ext-scylladb
 
 RUN ./scripts/compile-php.sh -v $PHP_VERSION -s -d $PHP_DEBUG -zts $PHP_ZTS \
-    && apt-get install composer \
-    && apt-get clean
+    && php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
+    && php composer-setup.php \
+    && php -r "unlink('composer-setup.php');"
+
 
 ENTRYPOINT ["bash"]
 
