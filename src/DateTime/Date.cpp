@@ -31,7 +31,8 @@ BEGIN_EXTERN_C()
 
 zend_class_entry *php_driver_date_ce = nullptr;
 
-zend_result php_driver_date_init(zend_long seconds, zval *returnValueOrThis) {
+zend_result php_driver_date_init(zval *returnValueOrThis, zend_string *secondsStr = nullptr,
+                                 zend_long seconds = -1) {
   if (returnValueOrThis == nullptr) {
     return FAILURE;
   }
@@ -42,47 +43,47 @@ zend_result php_driver_date_init(zend_long seconds, zval *returnValueOrThis) {
     ZVAL_OBJ(returnValueOrThis, Z_OBJ(val));
   }
 
+  cass_int64_t secs = -1;
+
+  if (secondsStr != nullptr) {
+    secs = std::strtol(ZSTR_VAL(secondsStr), nullptr, 10);
+  } else if (seconds != -1) {
+    secs = seconds;
+  }
+
   auto self = ZendCPP::ObjectFetch<php_driver_date>(returnValueOrThis);
-  self->date = cass_date_from_epoch(seconds == -1 ? time(nullptr) : seconds);
+  self->date = cass_date_from_epoch(secs == -1 ? time(nullptr) : seconds);
 
   return SUCCESS;
 }
 
-/* {{{ Date::__construct(string) */
 ZEND_METHOD(Cassandra_Date, __construct) {
+  zend_string *secondsStr = nullptr;
   zend_long seconds = -1;
 
   // clang-format off
   ZEND_PARSE_PARAMETERS_START(0, 1)
     Z_PARAM_OPTIONAL
-    Z_PARAM_LONG(seconds)
+    Z_PARAM_STR_OR_LONG(secondsStr, seconds)
   ZEND_PARSE_PARAMETERS_END();
   // clang-format on
 
-  if (php_driver_date_init(seconds, getThis()) == FAILURE) {
+  if (php_driver_date_init(getThis(), secondsStr, seconds) == FAILURE) {
     zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,
                             "Cannot create Cassandra\\Date from invalid value");
     return;
   }
 }
-/* }}} */
-
-/* {{{ Date->type() */
 ZEND_METHOD(Cassandra_Date, type) {
   zval type = php_driver_type_scalar(CASS_VALUE_TYPE_DATE);
   RETURN_ZVAL(&type, 1, 1);
 }
-/* }}} */
 
-/* {{{ Date->seconds() */
 ZEND_METHOD(Cassandra_Date, seconds) {
   auto *self = ZendCPP::ObjectFetch<php_driver_date>(getThis());
-
   RETURN_LONG(cass_date_time_to_epoch(self->date, 0));
 }
-/* }}} */
 
-/* {{{ Date->toDateTime() */
 ZEND_METHOD(Cassandra_Date, toDateTime) {
   zval *ztime = nullptr;
 
@@ -114,9 +115,7 @@ ZEND_METHOD(Cassandra_Date, toDateTime) {
   php_date_initialize(datetime_obj, str, str_len, "U", nullptr, 0);
   RETVAL_ZVAL(&datetime, 0, 1);
 }
-/* }}} */
 
-/* {{{ Date::fromDateTime() */
 ZEND_METHOD(Cassandra_Date, fromDateTime) {
   zval *datetime;
 
@@ -135,9 +134,7 @@ ZEND_METHOD(Cassandra_Date, fromDateTime) {
   self->date = cass_date_from_epoch(Z_LVAL(getTimeStampResult));
   zval_ptr_dtor(&getTimeStampResult);
 }
-/* }}} */
 
-/* {{{ Date->__toString() */
 ZEND_METHOD(Cassandra_Date, __toString) {
   ZEND_PARSE_PARAMETERS_NONE();
 
@@ -149,7 +146,6 @@ ZEND_METHOD(Cassandra_Date, __toString) {
   RETVAL_STRING(ret);
   efree(ret);
 }
-/* }}} */
 
 static php_driver_value_handlers php_driver_date_handlers;
 

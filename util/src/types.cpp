@@ -594,7 +594,6 @@ static void php_driver_text_init(INTERNAL_FUNCTION_PARAMETERS) {
   XX(int, CASS_VALUE_TYPE_INT)             \
   XX(text, CASS_VALUE_TYPE_TEXT)           \
   XX(timestamp, CASS_VALUE_TYPE_TIMESTAMP) \
-  XX(time, CASS_VALUE_TYPE_TIME)           \
   XX(uuid, CASS_VALUE_TYPE_UUID)           \
   XX(varchar, CASS_VALUE_TYPE_VARCHAR)     \
   XX(varint, CASS_VALUE_TYPE_VARINT)       \
@@ -611,17 +610,38 @@ void php_driver_scalar_init(INTERNAL_FUNCTION_PARAMETERS) {
   TYPES_MAP(XX_SCALAR)
 #undef XX_SCALAR
 #undef TYPES_MAP
+#undef TYPE_INIT_METHOD
+  if (self->type == CASS_VALUE_TYPE_TIME) {
+    zend_string* nanosecondsStr = nullptr;
+    zend_long nanoseconds = -1;
+
+    // clang-format off
+    ZEND_PARSE_PARAMETERS_START(0, 1)
+      Z_PARAM_OPTIONAL
+      Z_PARAM_STR_OR_LONG(nanosecondsStr, nanoseconds)
+    ZEND_PARSE_PARAMETERS_END();
+    // clang-format on
+
+    if (php_driver_time_init(return_value, nanosecondsStr, nanoseconds) == FAILURE) {
+      zend_throw_exception_ex(php_driver_runtime_exception_ce, 0,
+                              "Cannot create Cassandra\\Date from invalid value");
+    }
+
+    return;
+  }
+
   if (self->type == CASS_VALUE_TYPE_DATE) {
+    zend_string* secondsStr = nullptr;
     zend_long seconds = -1;
 
     // clang-format off
     ZEND_PARSE_PARAMETERS_START(0, 1)
       Z_PARAM_OPTIONAL
-      Z_PARAM_LONG(seconds)
+      Z_PARAM_STR_OR_LONG(secondsStr, seconds)
     ZEND_PARSE_PARAMETERS_END();
     // clang-format on
 
-    if (php_driver_date_init(seconds, return_value) == FAILURE) {
+    if (php_driver_date_init(return_value, secondsStr, seconds) == FAILURE) {
       zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,
                               "Cannot create Cassandra\\Date from invalid value");
     }
@@ -629,24 +649,22 @@ void php_driver_scalar_init(INTERNAL_FUNCTION_PARAMETERS) {
   }
 
   if (self->type == CASS_VALUE_TYPE_TIMEUUID) {
-    zend_string* str;
+    zend_string* str = nullptr;
     zend_long timestamp = 0;
-    bool isNull = false;
 
     // clang-format off
     ZEND_PARSE_PARAMETERS_START(0, 1)
       Z_PARAM_OPTIONAL
-      Z_PARAM_STR_OR_LONG_OR_NULL(str, timestamp, isNull)
+      Z_PARAM_STR_OR_LONG(str, timestamp)
     ZEND_PARSE_PARAMETERS_END();
     // clang-format on
 
-    if (php_driver_timeuuid_init(str, timestamp, isNull, return_value) != SUCCESS) {
+    if (php_driver_timeuuid_init(return_value, str, timestamp) != SUCCESS) {
       zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,
                               "Cannot create Timeuuid from invalid value");
     }
   }
 }
-#undef TYPE_INIT_METHOD
 
 #define TYPE_CODE(m) type_##m
 

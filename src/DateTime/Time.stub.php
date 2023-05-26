@@ -8,7 +8,7 @@ namespace Cassandra {
      * @strict-properties
      */
     final class Time implements Value {
-        public function __construct(int $nanoseconds = UNKNOWN) {}
+        public function __construct(int|string $nanoseconds = UNKNOWN) {}
 
         public function type(): Type\Scalar {}
         public function seconds(): int {}

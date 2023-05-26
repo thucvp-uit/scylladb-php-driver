@@ -17,6 +17,6 @@
 #pragma once
 
 BEGIN_EXTERN_C()
-zend_result php_driver_timeuuid_init(zend_string *str, zend_long timestamp,
-                                     zend_bool isNull, zval *returnValueOrThis);
+zend_result php_driver_timeuuid_init(zval *returnValueOrThis, zend_string *str = nullptr,
+                                     zend_long timestamp = -1);
 END_EXTERN_C()

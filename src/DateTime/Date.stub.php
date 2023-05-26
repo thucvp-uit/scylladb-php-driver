@@ -8,7 +8,7 @@ namespace Cassandra {
      * @strict-properties
      */
     final class Date implements Value {
-        public function __construct(int $value = UNKNOWN) {}
+        public function __construct(int|string $value = UNKNOWN) {}
 
         public static function fromDateTime(\DateTimeInterface $datetime): Date {}
         public function toDateTime(Time $time = UNKNOWN): \DateTime {}

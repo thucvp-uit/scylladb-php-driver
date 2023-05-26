@@ -36,15 +36,10 @@ void php_driver_timestamp_init(INTERNAL_FUNCTION_PARAMETERS) {
   }
 
   if (ZEND_NUM_ARGS() == 0) {
-#ifdef WIN32
-    seconds = (cass_int64_t)time(0);
-#else
     struct timeval time {};
-
     gettimeofday(&time, nullptr);
     seconds = time.tv_sec;
     microseconds = (time.tv_usec / 1000) * 1000;
-#endif
   }
 
   value += microseconds / 1000;
@@ -60,26 +55,18 @@ void php_driver_timestamp_init(INTERNAL_FUNCTION_PARAMETERS) {
   self->timestamp = value;
 }
 
-/* {{{ Timestamp::__construct(string) */
-PHP_METHOD(Timestamp, __construct) { php_driver_timestamp_init(INTERNAL_FUNCTION_PARAM_PASSTHRU); }
-/* }}} */
 
-/* {{{ Timestamp::type() */
 PHP_METHOD(Timestamp, type) {
   php5to7_zval type = php_driver_type_scalar(CASS_VALUE_TYPE_TIMESTAMP);
   RETURN_ZVAL(&type, 1, 1);
 }
-/* }}} */
 
-/* {{{ Timestamp::time */
 PHP_METHOD(Timestamp, time) {
   php_driver_timestamp *self = PHP_DRIVER_GET_TIMESTAMP(getThis());
 
   RETURN_LONG(self->timestamp / 1000);
 }
-/* }}} */
 
-/* {{{ Timestamp::microtime(bool) */
 PHP_METHOD(Timestamp, microtime) {
   zend_bool get_as_float = false;
   php_driver_timestamp *self;
@@ -105,12 +92,9 @@ PHP_METHOD(Timestamp, microtime) {
 
   spprintf(&ret, 0, "%.8F %ld", usec, sec);
 
-  PHP5TO7_RETVAL_STRING(ret);  // return_value = ret;
+  PHP5TO7_RETVAL_STRING(ret);
   efree(ret);
 }
-/* }}} */
-
-/* {{{ Timestamp::toDateTime() */
 PHP_METHOD(Timestamp, toDateTime) {
   php_driver_timestamp *self;
   zval datetime_object;

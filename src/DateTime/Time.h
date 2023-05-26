@@ -17,5 +17,6 @@
 #pragma once
 
 BEGIN_EXTERN_C()
-void php_driver_time_init(INTERNAL_FUNCTION_PARAMETERS);
+zend_result php_driver_time_init(zval *returnValue, zend_string *nanosecondsStr = nullptr,
+                                 zend_long nanoseconds = -1);
 END_EXTERN_C()
