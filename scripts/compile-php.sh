@@ -37,7 +37,6 @@ is_linux() {
   return 1
 }
 
-# install bison re2c libxml2-dev libicu-dev libsqlite3-dev libbzip2-dev libcurl4-openssl-dev
 install_deps() {
   if which_linux "Ubuntu"; then
     sudo apt-get install \
@@ -80,6 +79,7 @@ install_deps() {
 compile_php() {
   local ZTS="$1"
   local WITH_DEBUG="$2"
+  local DELETE_PHP_SOURCE="$3"
 
   local config=(
     --enable-embed=static
@@ -127,13 +127,17 @@ compile_php() {
     config+=("--enable-address-sanitizer" "--enable-undefined-sanitizer")
   fi
 
-  {
-    rm -rf "$OUTPUT_PATH" || exit 1
-    wget -O "php-$PHP_VERSION.tar.gz" "https://github.com/php/php-src/archive/refs/tags/php-$PHP_VERSION.tar.gz" || exit 1
-    tar -C "/tmp" -xzf "php-$PHP_VERSION.tar.gz" || exit 1
+  rm -rf "$OUTPUT_PATH" || exit 1
 
+  if [!-f "php-$PHP_VERSION.tar.gz" ]; then
+    wget -O "php-$PHP_VERSION.tar.gz" "https://github.com/php/php-src/archive/refs/tags/php-$PHP_VERSION.tar.gz" || exit 1
+  fi
+
+  tar -C "/tmp" -xzf "php-$PHP_VERSION.tar.gz" || exit 1
+
+  if [[ "$DELETE_PHP_SOURCE" == "yes" ]]; then
     rm -f "php-$PHP_VERSION.tar.gz" || exit 1
-  } >>/dev/null
+  fi
 
   pushd "/tmp/php-src-php-$PHP_VERSION" || exit 1
 
@@ -192,6 +196,7 @@ while getopts "v:z:o:sd:" option; do
   "z") PHP_ZTS="$OPTARG" ;;
   "o") OUTPUT="$OPTARG" ;;
   "d") ENABLE_DEBUG="yes" ;;
+  "k") KEEP_PHP_SOURCE="yes" ;;
   "s") ENABLE_SANITIZERS="yes" ;;
   *) print_usage ;;
   esac
@@ -199,6 +204,10 @@ done
 
 if [[ -z "$PHP_ZTS" ]]; then
   PHP_ZTS="no"
+fi
+
+if [[ -z "$KEEP_PHP_SOURCE" ]]; then
+  KEEP_PHP_SOURCE="no"
 fi
 
 if [[ -z "$ENABLE_DEBUG" ]]; then
@@ -225,4 +234,4 @@ PHP_BASE_VERSION=$(echo "$PHP_VERSION" | cut -d. -f1,2)
 
 install_deps || exit 1
 
-compile_php "$PHP_ZTS" "$ENABLE_DEBUG" || exit 1
+compile_php "$PHP_ZTS" "$ENABLE_DEBUG" "$KEEP_PHP_SOURCE" || exit 1
