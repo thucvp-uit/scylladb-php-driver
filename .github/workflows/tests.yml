@@ -9,26 +9,18 @@ on:
       - v1.3.x
 
 jobs:
-#  test_php80:
-#    uses: he4rt/scylladb-php-driver/.github/workflows/test.yml@v1.3.x
-#    with:
-#      image: php-8.0
-#  test_php80_zts:
-#    uses: he4rt/scylladb-php-driver/.github/workflows/test.yml@v1.3.x
-#    with:
-#      image: php-8.0-zts
   test_php81:
     uses: he4rt/scylladb-php-driver/.github/workflows/test.yml@v1.3.x
     with:
-      image: php-8.1
+      image: php-8.1.18
   test_php81_zts:
     uses: he4rt/scylladb-php-driver/.github/workflows/test.yml@v1.3.x
     with:
-      image: php-8.1-zts
+      image: php-8.1.18-zts
   test_php82:
     uses: he4rt/scylladb-php-driver/.github/workflows/test.yml@v1.3.x
     with:
-      image: php-8.2.5
+      image: php-8.2.5-zts
   test_php82_zts:
     uses: he4rt/scylladb-php-driver/.github/workflows/test.yml@v1.3.x
     with:

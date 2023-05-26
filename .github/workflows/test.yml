@@ -31,11 +31,7 @@ jobs:
           submodules: recursive
       - name: Compile using CMake
         run: |
-          cmake --preset RelWithInfo
-          cd out/RelWithInfo
-          ninja install
-          cd ../..
-          cp cassandra.ini /usr/local/etc/php/conf.d/cassandra.ini
+          ./scripts/compile-extensions.sh
       - name: Composer install
         run: |
           composer install
