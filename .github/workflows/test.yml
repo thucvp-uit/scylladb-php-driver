@@ -31,7 +31,7 @@ jobs:
           submodules: recursive
       - name: Compile using CMake
         run: |
-          ./scripts/compile-extensions.sh
+          ./scripts/compile-extension.sh
       - name: Composer install
         run: |
           composer install
