@@ -10,7 +10,7 @@ $builder = Cassandra::cluster()
         ->withCredentials('cassandra', 'cassandra')
         ->withPersistentSessions(true)
         ->withTokenAwareRouting(true)
-        ->withConnectTimeout(10.0)
+        ->withConnectTimeout(15.0)
         ->build();
 
 

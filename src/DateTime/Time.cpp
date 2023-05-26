@@ -100,25 +100,25 @@ void php_driver_time_init(INTERNAL_FUNCTION_PARAMETERS) {
 }
 
 /* {{{ Time::__construct(string) */
-PHP_METHOD(Time, __construct) { php_driver_time_init(INTERNAL_FUNCTION_PARAM_PASSTHRU); }
+ZEND_METHOD(Cassandra_Time, __construct) { php_driver_time_init(INTERNAL_FUNCTION_PARAM_PASSTHRU); }
 /* }}} */
 
 /* {{{ Time::type() */
-PHP_METHOD(Time, type) {
+ZEND_METHOD(Cassandra_Time, type) {
   php5to7_zval type = php_driver_type_scalar(CASS_VALUE_TYPE_TIME);
   RETURN_ZVAL(&type, 1, 1);
 }
 /* }}} */
 
 /* {{{ Time::seconds() */
-PHP_METHOD(Time, seconds) {
+ZEND_METHOD(Cassandra_Time, seconds) {
   php_driver_time *self = PHP_DRIVER_GET_TIME(getThis());
   RETURN_LONG(self->time / NANOSECONDS_PER_SECOND);
 }
 /* }}} */
 
 /* {{{ Time::fromDateTime() */
-PHP_METHOD(Time, fromDateTime) {
+ZEND_METHOD(Cassandra_Time, fromDateTime) {
   php_driver_time *self;
   zval *zdatetime;
   php5to7_zval retval;
@@ -140,7 +140,7 @@ PHP_METHOD(Time, fromDateTime) {
 /* }}} */
 
 /* {{{ Time::__toString() */
-PHP_METHOD(Time, __toString) {
+ZEND_METHOD(Cassandra_Time, __toString) {
   php_driver_time *self;
 
   if (zend_parse_parameters_none() == FAILURE) {
