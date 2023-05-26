@@ -34,7 +34,7 @@ WORKDIR /ext-scylladb
 
 RUN ./scripts/compile-php.sh -v $PHP_VERSION -s -d $PHP_DEBUG -zts $PHP_ZTS \
     && php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
-    && php composer-setup.php \
+    && php composer-setup.php --install-dir=/bin --filename=composer \
     && php -r "unlink('composer-setup.php');"
 
 
