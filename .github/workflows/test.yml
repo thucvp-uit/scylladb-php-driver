@@ -7,14 +7,14 @@ on:
         type: string
         description: 'Image Tag'
         required: true
-        default: 'php-8.2.5'
+        default: 'php-8.2.6'
   workflow_call:
     inputs:
       image:
         type: string
         description: 'Image Tag'
         required: true
-        default: 'php-8.2.5'
+        default: 'php-8.2.6'
 jobs:
   test:
     runs-on: ubuntu-latest

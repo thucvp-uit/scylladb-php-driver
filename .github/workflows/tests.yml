@@ -12,16 +12,16 @@ jobs:
   test_php81:
     uses: he4rt/scylladb-php-driver/.github/workflows/test.yml@v1.3.x
     with:
-      image: php-8.1.18
+      image: php-8.1.19
   test_php81_zts:
     uses: he4rt/scylladb-php-driver/.github/workflows/test.yml@v1.3.x
     with:
-      image: php-8.1.18-zts
+      image: php-8.1.19-zts
   test_php82:
     uses: he4rt/scylladb-php-driver/.github/workflows/test.yml@v1.3.x
     with:
-      image: php-8.2.5-zts
+      image: php-8.2.6-zts
   test_php82_zts:
     uses: he4rt/scylladb-php-driver/.github/workflows/test.yml@v1.3.x
     with:
-      image: php-8.2.5-zts
+      image: php-8.2.6-zts
