@@ -130,7 +130,7 @@ compile_php() {
 
   rm -rf "$OUTPUT_PATH" || exit 1
 
-  if [!-f "php-$PHP_VERSION.tar.gz" ]; then
+  if [ ! -f "php-$PHP_VERSION.tar.gz" ]; then
     wget -O "php-$PHP_VERSION.tar.gz" "https://github.com/php/php-src/archive/refs/tags/php-$PHP_VERSION.tar.gz" || exit 1
   fi
 
