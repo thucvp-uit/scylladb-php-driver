@@ -561,10 +561,10 @@ ZEND_METHOD(Cassandra_Cluster_Builder, withConnectionsPerHost)
         return;
     }
 
-    if (max > core) {
+    if (core > max) {
         zval val;
-        ZVAL_LONG(&val, max);
-        throw_invalid_argument(&val, "max", "greater than core");
+        ZVAL_LONG(&val, core);
+        throw_invalid_argument(&val, "core", "greater than max");
         return;
     }
 
