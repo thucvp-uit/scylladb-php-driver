@@ -612,17 +612,16 @@ void php_driver_scalar_init(INTERNAL_FUNCTION_PARAMETERS) {
 #undef XX_SCALAR
 #undef TYPES_MAP
   if (self->type == CASS_VALUE_TYPE_DATE) {
-    zend_long seconds;
-    zend_bool isNull;
+    zend_long seconds = -1;
 
     // clang-format off
     ZEND_PARSE_PARAMETERS_START(0, 1)
       Z_PARAM_OPTIONAL
-      Z_PARAM_LONG_OR_NULL(seconds, isNull)
+      Z_PARAM_LONG(seconds)
     ZEND_PARSE_PARAMETERS_END();
     // clang-format on
 
-    if (php_driver_date_init(seconds, isNull, return_value) == FAILURE) {
+    if (php_driver_date_init(seconds, return_value) == FAILURE) {
       zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,
                               "Cannot create Cassandra\\Date from invalid value");
     }
