@@ -8,6 +8,7 @@ print_usage() {
   echo "-o ARG output path, default: $HOME"
   echo "-z (yes|no) Use ZTS"
   echo "-d (yes|no) Compile in debug mode"
+  echo "-k keep PHP source code"
   echo "-s Use Memory and Undefined Sanitizers"
   echo "----------"
   echo "Example: compiling PHP 8.2.3 in debug mode with Thread Safety"
@@ -190,7 +191,7 @@ check_deps() {
 
 check_deps
 
-while getopts "v:z:o:sd:" option; do
+while getopts "v:z:o:sd:k" option; do
   case "$option" in
   "v") PHP_VERSION="$OPTARG" ;;
   "z") PHP_ZTS="$OPTARG" ;;
