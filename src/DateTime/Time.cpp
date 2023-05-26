@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "ZendCPP/ZendCPP.hpp"
 #include "php_driver.h"
 #include "php_driver_types.h"
 #include "util/hash.h"
@@ -50,6 +51,8 @@ BEGIN_EXTERN_C()
 #include <ext/date/lib/timelib.h>
 #include <ext/date/php_date.h>
 
+#include "Time_arginfo.h"
+
 zend_class_entry *php_driver_time_ce = nullptr;
 
 static int to_string(zval *result, php_driver_time *time) {
@@ -68,8 +71,7 @@ void php_driver_time_init(INTERNAL_FUNCTION_PARAMETERS) {
     return;
   }
 
-  if (getThis() &&
-      instanceof_function(Z_OBJCE_P(getThis()), php_driver_time_ce)) {
+  if (getThis() && instanceof_function(Z_OBJCE_P(getThis()), php_driver_time_ce)) {
     self = PHP_DRIVER_GET_TIME(getThis());
   } else {
     object_init_ex(return_value, php_driver_time_ce);
@@ -82,8 +84,7 @@ void php_driver_time_init(INTERNAL_FUNCTION_PARAMETERS) {
     if (Z_TYPE_P(nanoseconds) == IS_LONG) {
       self->time = Z_LVAL_P(nanoseconds);
     } else if (Z_TYPE_P(nanoseconds) == IS_STRING) {
-      if (!php_driver_parse_bigint(Z_STRVAL_P(nanoseconds),
-                                   Z_STRLEN_P(nanoseconds), &self->time)) {
+      if (!php_driver_parse_bigint(Z_STRVAL_P(nanoseconds), Z_STRLEN_P(nanoseconds), &self->time)) {
         return;
       }
     } else {
@@ -99,9 +100,7 @@ void php_driver_time_init(INTERNAL_FUNCTION_PARAMETERS) {
 }
 
 /* {{{ Time::__construct(string) */
-PHP_METHOD(Time, __construct) {
-  php_driver_time_init(INTERNAL_FUNCTION_PARAM_PASSTHRU);
-}
+PHP_METHOD(Time, __construct) { php_driver_time_init(INTERNAL_FUNCTION_PARAM_PASSTHRU); }
 /* }}} */
 
 /* {{{ Time::type() */
@@ -128,8 +127,8 @@ PHP_METHOD(Time, fromDateTime) {
     return;
   }
 
-  zend_call_method_with_0_params(Z_OBJ_P(zdatetime), php_date_get_date_ce(),
-                                 nullptr, "gettimestamp", &retval);
+  zend_call_method_with_0_params(Z_OBJ_P(zdatetime), php_date_get_date_ce(), nullptr,
+                                 "gettimestamp", &retval);
 
   if (!Z_ISUNDEF(retval) && Z_TYPE(retval) == IS_LONG) {
     object_init_ex(return_value, php_driver_time_ce);
@@ -153,38 +152,9 @@ PHP_METHOD(Time, __toString) {
 }
 /* }}} */
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo__construct, 0, ZEND_RETURN_VALUE, 0)
-ZEND_ARG_INFO(0, nanoseconds)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_datetime, 0, ZEND_RETURN_VALUE, 1)
-ZEND_ARG_OBJ_INFO(0, datetime, DateTime, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_none, 0, ZEND_RETURN_VALUE, 0)
-ZEND_END_ARG_INFO()
-
-#if PHP_VERSION_ID >= 80200
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_tostring, 0, 0, IS_STRING, 0)
-ZEND_END_ARG_INFO()
-#else
-#define arginfo_tostring arginfo_none
-#endif
-
-static zend_function_entry php_driver_time_methods[] = {
-    PHP_ME(Time, __construct, arginfo__construct,
-           ZEND_ACC_CTOR | ZEND_ACC_PUBLIC)
-        PHP_ME(Time, type, arginfo_none, ZEND_ACC_PUBLIC)
-            PHP_ME(Time, seconds, arginfo_none, ZEND_ACC_PUBLIC)
-                PHP_ME(Time, fromDateTime, arginfo_datetime,
-                       ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-                    PHP_ME(Time, __toString, arginfo_tostring, ZEND_ACC_PUBLIC)
-                        PHP_FE_END};
-
 static php_driver_value_handlers php_driver_time_handlers;
 
-static HashTable *php_driver_time_gc(zend_object *object, zval **table,
-                                     int *n) {
+static HashTable *php_driver_time_gc(zend_object *object, zval **table, int *n) {
   *table = nullptr;
   *n = 0;
   return zend_std_get_properties(object);
@@ -201,8 +171,7 @@ static HashTable *php_driver_time_properties(zend_object *object) {
   PHP5TO7_ZEND_HASH_UPDATE(props, "type", sizeof("type"), &type, sizeof(zval));
 
   to_string(&nanoseconds, self);
-  PHP5TO7_ZEND_HASH_UPDATE(props, "nanoseconds", sizeof("nanoseconds"),
-                           &nanoseconds, sizeof(zval));
+  PHP5TO7_ZEND_HASH_UPDATE(props, "nanoseconds", sizeof("nanoseconds"), &nanoseconds, sizeof(zval));
 
   return props;
 }
@@ -225,35 +194,22 @@ static unsigned php_driver_time_hash_value(zval *obj) {
   return php_driver_bigint_hash(self->time);
 }
 
-static void php_driver_time_free(php5to7_zend_object_free *object) {
-  php_driver_time *self = PHP5TO7_ZEND_OBJECT_GET(time, object);
-
-  zend_object_std_dtor(&self->zval);
-  PHP5TO7_MAYBE_EFREE(self);
-}
-
 static php5to7_zend_object php_driver_time_new(zend_class_entry *ce) {
-  auto *self = PHP5TO7_ZEND_OBJECT_ECALLOC(time, ce);
-
+  auto *self = ZendCPP::Allocate<php_driver_time>(ce, &php_driver_time_handlers);
   self->time = 0;
 
-  PHP5TO7_ZEND_OBJECT_INIT(time, self, ce);
+  return &self->zval;
 }
 
 void php_driver_define_Time() {
-  zend_class_entry ce;
+  php_driver_time_ce = register_class_Cassandra_Time(php_driver_value_ce);
+  php_driver_time_ce->create_object = php_driver_time_new;
 
-  INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\Time", php_driver_time_methods)
-  php_driver_time_ce = zend_register_internal_class(&ce);
-  zend_class_implements(php_driver_time_ce, 1, php_driver_value_ce);
-  memcpy(&php_driver_time_handlers, zend_get_std_object_handlers(),
-         sizeof(zend_object_handlers));
+  ZendCPP::InitHandlers(&php_driver_time_handlers);
   php_driver_time_handlers.std.get_properties = php_driver_time_properties;
   php_driver_time_handlers.std.get_gc = php_driver_time_gc;
   php_driver_time_handlers.std.compare = php_driver_time_compare;
-  php_driver_time_ce->ce_flags |= PHP5TO7_ZEND_ACC_FINAL;
-  php_driver_time_ce->create_object = php_driver_time_new;
-
+  php_driver_time_handlers.std.offset = XtOffsetOf(php_driver_time, zval);
   php_driver_time_handlers.hash_value = php_driver_time_hash_value;
 }
 END_EXTERN_C()

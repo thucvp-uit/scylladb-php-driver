@@ -31,7 +31,7 @@ BEGIN_EXTERN_C()
 
 zend_class_entry *php_driver_date_ce = nullptr;
 
-zend_result php_driver_date_init(zend_long seconds, zend_bool isNull, zval *returnValueOrThis) {
+zend_result php_driver_date_init(zend_long seconds, zval *returnValueOrThis) {
   if (returnValueOrThis == nullptr) {
     return FAILURE;
   }
@@ -43,24 +43,23 @@ zend_result php_driver_date_init(zend_long seconds, zend_bool isNull, zval *retu
   }
 
   auto self = ZendCPP::ObjectFetch<php_driver_date>(returnValueOrThis);
-  self->date = cass_date_from_epoch(isNull ? time(nullptr) : seconds);
+  self->date = cass_date_from_epoch(seconds == -1 ? time(nullptr) : seconds);
 
   return SUCCESS;
 }
 
 /* {{{ Date::__construct(string) */
 ZEND_METHOD(Cassandra_Date, __construct) {
-  zend_long seconds;
-  zend_bool isNull;
+  zend_long seconds = -1;
 
   // clang-format off
   ZEND_PARSE_PARAMETERS_START(0, 1)
     Z_PARAM_OPTIONAL
-    Z_PARAM_LONG_OR_NULL(seconds, isNull)
+    Z_PARAM_LONG(seconds)
   ZEND_PARSE_PARAMETERS_END();
   // clang-format on
 
-  if (php_driver_date_init(seconds, isNull, getThis()) == FAILURE) {
+  if (php_driver_date_init(seconds, getThis()) == FAILURE) {
     zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,
                             "Cannot create Cassandra\\Date from invalid value");
     return;
@@ -121,9 +120,11 @@ ZEND_METHOD(Cassandra_Date, toDateTime) {
 ZEND_METHOD(Cassandra_Date, fromDateTime) {
   zval *datetime;
 
+  // clang-format off
   ZEND_PARSE_PARAMETERS_START(1, 1)
-  Z_PARAM_OBJECT_OF_CLASS(datetime, php_date_get_interface_ce())
+    Z_PARAM_OBJECT_OF_CLASS(datetime, php_date_get_interface_ce())
   ZEND_PARSE_PARAMETERS_END();
+  // clang-format on
 
   zval getTimeStampResult;
   zend_call_method_with_0_params(Z_OBJ_P(datetime), php_date_get_interface_ce(), nullptr,
@@ -184,15 +185,13 @@ static int php_driver_date_compare(zval *obj1, zval *obj2) {
 }
 
 static unsigned php_driver_date_hash_value(zval *obj) {
-  php_driver_date *self = PHP_DRIVER_GET_DATE(obj);
+  auto self = ZendCPP::ObjectFetch<php_driver_date>(obj);
   return 31 * 17 + self->date;
 }
 
 static zend_object *php_driver_date_new(zend_class_entry *ce) {
-  auto *self =
-      ZendCPP::Allocate<php_driver_date>(ce, (zend_object_handlers *)&php_driver_date_handlers);
+  auto *self = ZendCPP::Allocate<php_driver_date>(ce, &php_driver_date_handlers);
   self->date = 0;
-  zend_object_std_init(&self->zval, ce);
   return &self->zval;
 }
 

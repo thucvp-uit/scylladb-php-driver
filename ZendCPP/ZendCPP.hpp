@@ -54,6 +54,20 @@ ZENDCPP_ALWAYS_INLINE T *Allocate(zend_class_entry *ce, zend_object_handlers *ha
   return self;
 }
 
+template <typename T, typename THandlers>
+ZENDCPP_ALWAYS_INLINE T *Allocate(zend_class_entry *ce, THandlers *handlers) {
+  auto *self = static_cast<T *>(emalloc(sizeof(T) + zend_object_properties_size(ce)));
+  zend_object_std_init(&self->ZEND_OBJECT_OFFSET_MEMBER, ce);
+
+  if (zend_object_properties_size(ce) > 0) {
+    object_properties_init(&self->ZEND_OBJECT_OFFSET_MEMBER, ce);
+  }
+
+  self->zval.handlers = (zend_object_handlers *)handlers;
+
+  return self;
+}
+
 template <typename T>
 [[maybe_unused]] ZENDCPP_ALWAYS_INLINE T *InitHandlers(T *handlers) {
   memcpy(handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
