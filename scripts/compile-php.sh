@@ -80,7 +80,7 @@ install_deps() {
 compile_php() {
   local ZTS="$1"
   local WITH_DEBUG="$2"
-  local DELETE_PHP_SOURCE="$3"
+  local KEEP_PHP_SOURCE="$3"
 
   local config=(
     --enable-embed=static
@@ -136,7 +136,7 @@ compile_php() {
 
   tar -C "/tmp" -xzf "php-$PHP_VERSION.tar.gz" || exit 1
 
-  if [[ "$DELETE_PHP_SOURCE" == "yes" ]]; then
+  if [[ "$KEEP_PHP_SOURCE" == "no" ]]; then
     rm -f "php-$PHP_VERSION.tar.gz" || exit 1
   fi
 
