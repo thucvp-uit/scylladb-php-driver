@@ -18,6 +18,8 @@
 #include <util/math.h>
 #include <util/types.h>
 
+#include <DateTime/DateTime.h>
+
 #include <ZendCPP/ZendCPP.hpp>
 
 #include "php_driver.h"
@@ -65,15 +67,15 @@ static int to_string(zval *result, php_driver_time *time) {
   return SUCCESS;
 }
 
-zend_result php_driver_time_init(zval *returnValue, zend_string *nanosecondsStr = nullptr,
-                                 zend_long nanoseconds = -1) {
+zend_result php_driver_time_init(zval *returnValue, zend_string *nanosecondsStr,
+                                 zend_long nanoseconds) {
   if (returnValue == nullptr) {
     return FAILURE;
   }
 
   if (Z_TYPE_P(returnValue) == IS_UNDEF) {
     zval val;
-    object_init_ex(&val, php_driver_date_ce);
+    object_init_ex(&val, php_scylladb_date_ce);
     ZVAL_OBJ(returnValue, Z_OBJ(val));
   }
 
@@ -200,7 +202,7 @@ static unsigned php_driver_time_hash_value(zval *obj) {
   return php_driver_bigint_hash(self->time);
 }
 
-static zend_object* php_driver_time_new(zend_class_entry *ce) {
+static zend_object *php_driver_time_new(zend_class_entry *ce) {
   auto *self = ZendCPP::Allocate<php_driver_time>(ce, &php_driver_time_handlers);
   self->time = 0;
 

@@ -55,11 +55,7 @@ extern "C"
 #include <ext/spl/spl_exceptions.h>
 #include <ext/spl/spl_iterators.h>
 
-#if defined(__GNUC__) && __GNUC__ >= 4
-#define PHP_DRIVER_API __attribute__((visibility("default")))
-#else
-#define PHP_DRIVER_API
-#endif
+#include "api.h"
 
 #define PHP_DRIVER_NAMESPACE "Cassandra"
 
@@ -248,6 +244,8 @@ typedef unsigned long ulong;
 #define PHP_DRIVER_DEFAULT_LOG PHP_DRIVER_NAME ".log"
 #define PHP_DRIVER_DEFAULT_LOG_LEVEL "ERROR"
 
+zend_result php_driver_time_init(zval *returnValue, zend_string *nanosecondsStr = nullptr,
+                                 zend_long nanoseconds = -1);
 #ifdef __cplusplus
 }
 #endif

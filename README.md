@@ -59,7 +59,7 @@ Cassandra's native protocol. The current version works with:
 ## Getting Help
 
 * If you're able to fix a bug yourself, you can [fork the repository](https://help.github.com/articles/fork-a-repo/) and [submit a pull request](https://help.github.com/articles/using-pull-requests/) with the fix.
-* If you're not able fix a bug yourself, please [open an issue](https://github.com/he4rt/scylladb-php-driver/issues) , describe it with the most details possible and wait until one of our maintainers join the conversation. 
+* If you're not able to fix a bug yourself, please [open an issue](https://github.com/he4rt/scylladb-php-driver/issues) , describe it with the most details possible and wait until one of our maintainers join the conversation. 
 
 ## Quick Start
 
@@ -98,10 +98,12 @@ Next you will learn how to build the driver to:
 * Optimized for Production (CAREFUL!!)
 
 ### Compiling Release Build
+**!Make sure first you clonded the repository with --recursive flag!**
 
 This build you can use it for Production purposes.
 
 To build your Driver, you should first download a few dependencies: 
+
 
 #### Debian/Ubuntu 
 ````sh

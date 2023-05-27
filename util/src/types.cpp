@@ -16,15 +16,16 @@
 
 #include "types.h"
 
+#include <DateTime/DateTime.h>
 #include <php_driver.h>
 #include <php_driver_globals.h>
 #include <php_driver_types.h>
 #include <zend_smart_str.h>
 
+#include <ZendCPP/ZendCPP.hpp>
+
 #include "src/Bigint.h"
 #include "src/Blob.h"
-#include "src/DateTime/Date.h"
-#include "src/DateTime/Time.h"
 #include "src/DateTime/Timestamp.h"
 #include "src/DateTime/Timeuuid.h"
 #include "src/Decimal.h"
@@ -113,8 +114,7 @@ static zval php_driver_tuple_from_data_type(const CassDataType* data_type) {
   ztype = php_driver_type_tuple();
   type = PHP_DRIVER_GET_TYPE(&ztype);
   for (i = 0; i < count; ++i) {
-    zval sub_type =
-        php_driver_type_from_data_type(cass_data_type_sub_data_type(data_type, i));
+    zval sub_type = php_driver_type_from_data_type(cass_data_type_sub_data_type(data_type, i));
     php_driver_type_tuple_add(type, &sub_type);
   }
 
@@ -156,8 +156,7 @@ static zval php_driver_user_type_from_data_type(const CassDataType* data_type) {
   for (i = 0; i < count; ++i) {
     const char* name;
     size_t name_length;
-    zval sub_type =
-        php_driver_type_from_data_type(cass_data_type_sub_data_type(data_type, i));
+    zval sub_type = php_driver_type_from_data_type(cass_data_type_sub_data_type(data_type, i));
     cass_data_type_sub_type_name(data_type, i, &name, &name_length);
     php_driver_type_user_type_add(type, name, name_length, &sub_type);
   }
@@ -199,10 +198,8 @@ static zval php_driver_user_type_from_node(struct node_s* node) {
   return ztype;
 }
 
-static inline int php5to7_string_compare(zend_string* s1, zend_string* s2)
-{
-  if (s1->len != s2->len)
-  {
+static inline int php5to7_string_compare(zend_string* s1, zend_string* s2) {
+  if (s1->len != s2->len) {
     return s1->len < s2->len ? -1 : 1;
   }
   return memcmp(s1->val, s2->val, s1->len);
@@ -276,28 +273,24 @@ int php_driver_type_validate(zval* object, const char* object_name) {
 }
 
 static inline int collection_compare(php_driver_type* type1, php_driver_type* type2) {
-  return php_driver_type_compare(
-      PHP_DRIVER_GET_TYPE(&type1->data.collection.value_type),
-      PHP_DRIVER_GET_TYPE(&type2->data.collection.value_type));
+  return php_driver_type_compare(PHP_DRIVER_GET_TYPE(&type1->data.collection.value_type),
+                                 PHP_DRIVER_GET_TYPE(&type2->data.collection.value_type));
 }
 
 static inline int map_compare(php_driver_type* type1, php_driver_type* type2) {
   int result;
-  result =
-      php_driver_type_compare(PHP_DRIVER_GET_TYPE(&type1->data.map.key_type),
-                              PHP_DRIVER_GET_TYPE(&type2->data.map.key_type));
+  result = php_driver_type_compare(PHP_DRIVER_GET_TYPE(&type1->data.map.key_type),
+                                   PHP_DRIVER_GET_TYPE(&type2->data.map.key_type));
   if (result != 0) return result;
-  result = php_driver_type_compare(
-      PHP_DRIVER_GET_TYPE(&type1->data.map.value_type),
-      PHP_DRIVER_GET_TYPE(&type2->data.map.value_type));
+  result = php_driver_type_compare(PHP_DRIVER_GET_TYPE(&type1->data.map.value_type),
+                                   PHP_DRIVER_GET_TYPE(&type2->data.map.value_type));
   if (result != 0) return result;
   return 0;
 }
 
 static inline int set_compare(php_driver_type* type1, php_driver_type* type2) {
-  return php_driver_type_compare(
-      PHP_DRIVER_GET_TYPE(&type1->data.set.value_type),
-      PHP_DRIVER_GET_TYPE(&type2->data.set.value_type));
+  return php_driver_type_compare(PHP_DRIVER_GET_TYPE(&type1->data.set.value_type),
+                                 PHP_DRIVER_GET_TYPE(&type2->data.set.value_type));
 }
 
 static inline int tuple_compare(php_driver_type* type1, php_driver_type* type2) {
@@ -406,25 +399,21 @@ int php_driver_type_compare(php_driver_type* type1, php_driver_type* type2) {
 
 static inline void collection_string(php_driver_type* type, smart_str* string) {
   smart_str_appendl(string, "list<", 5);
-  php_driver_type_string(
-      PHP_DRIVER_GET_TYPE(&type->data.collection.value_type), string);
+  php_driver_type_string(PHP_DRIVER_GET_TYPE(&type->data.collection.value_type), string);
   smart_str_appendl(string, ">", 1);
 }
 
 static inline void map_string(php_driver_type* type, smart_str* string) {
   smart_str_appendl(string, "map<", 4);
-  php_driver_type_string(PHP_DRIVER_GET_TYPE(&type->data.map.key_type),
-                         string);
+  php_driver_type_string(PHP_DRIVER_GET_TYPE(&type->data.map.key_type), string);
   smart_str_appendl(string, ", ", 2);
-  php_driver_type_string(PHP_DRIVER_GET_TYPE(&type->data.map.value_type),
-                         string);
+  php_driver_type_string(PHP_DRIVER_GET_TYPE(&type->data.map.value_type), string);
   smart_str_appendl(string, ">", 1);
 }
 
 static inline void set_string(php_driver_type* type, smart_str* string) {
   smart_str_appendl(string, "set<", 4);
-  php_driver_type_string(PHP_DRIVER_GET_TYPE(&type->data.set.value_type),
-                         string);
+  php_driver_type_string(PHP_DRIVER_GET_TYPE(&type->data.set.value_type), string);
   smart_str_appendl(string, ">", 1);
 }
 
@@ -650,7 +639,15 @@ void php_driver_scalar_init(INTERNAL_FUNCTION_PARAMETERS) {
     ZEND_PARSE_PARAMETERS_END();
     // clang-format on
 
-    if (php_driver_date_init(return_value, secondsStr, seconds) == FAILURE) {
+    auto date = php_scylladb_date_instantiate(return_value);
+
+    if (date == nullptr) {
+      zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,
+                              "Cannot allocate Cassandra\\Date");
+      return;
+    }
+
+    if (php_scylladb_date_initialize(date, secondsStr, seconds) == FAILURE) {
       zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,
                               "Cannot create Cassandra\\Date from invalid value");
     }
@@ -720,8 +717,7 @@ zval php_driver_type_map(zval* key_type, zval* value_type) {
   return ztype;
 }
 
-zval php_driver_type_map_from_value_types(CassValueType key_type,
-                                                  CassValueType value_type) {
+zval php_driver_type_map_from_value_types(CassValueType key_type, CassValueType value_type) {
   zval ztype;
   php_driver_type* map;
   php_driver_type* sub_type;
@@ -1226,7 +1222,7 @@ static zval php_driver_create_type(struct node_s* node) {
 
   if (type == CASS_VALUE_TYPE_CUSTOM) {
     zval ztype;
-    smart_str class_name = {NULL,0};
+    smart_str class_name = {NULL, 0};
     php_driver_node_dump_to(node, &class_name);
     ztype = php_driver_type_custom(PHP5TO7_SMART_STR_VAL(class_name),
                                    PHP5TO7_SMART_STR_LEN(class_name));
