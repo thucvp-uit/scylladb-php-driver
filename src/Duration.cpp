@@ -20,7 +20,7 @@ static void to_string(zval *result, cass_int64_t value)
 {
   char *string;
   spprintf(&string, 0, LL_FORMAT, value);
-  PHP5TO7_ZVAL_STRING(result, string);
+  ZVAL_STRING(result, string);
   efree(string);
 }
 
@@ -162,14 +162,14 @@ PHP_METHOD(Duration, __toString)
 
   // Build up string representation of this duration.
   rep = php_driver_duration_to_string(self);
-  PHP5TO7_RETVAL_STRING(rep);
+  RETVAL_STRING(rep);
   efree(rep);
 }
 
 PHP_METHOD(Duration, type)
 {
   php5to7_zval type = php_driver_type_scalar(CASS_VALUE_TYPE_DURATION );
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(type), 1, 1);
+  RETURN_ZVAL(&type, 1, 1);
 }
 
 PHP_METHOD(Duration, months)
@@ -251,15 +251,15 @@ php_driver_duration_properties(
 #endif
 
   php5to7_zval wrapped_months, wrapped_days, wrapped_nanos;
-  PHP5TO7_ZVAL_MAYBE_MAKE(wrapped_months);
-  PHP5TO7_ZVAL_MAYBE_MAKE(wrapped_days);
-  PHP5TO7_ZVAL_MAYBE_MAKE(wrapped_nanos);
-  ZVAL_LONG(PHP5TO7_ZVAL_MAYBE_P(wrapped_months), self->months);
-  ZVAL_LONG(PHP5TO7_ZVAL_MAYBE_P(wrapped_days), self->days);
-  ZVAL_LONG(PHP5TO7_ZVAL_MAYBE_P(wrapped_nanos), self->nanos);
-  PHP5TO7_ZEND_HASH_UPDATE(props, "months", sizeof("months"), PHP5TO7_ZVAL_MAYBE_P(wrapped_months), sizeof(zval));
-  PHP5TO7_ZEND_HASH_UPDATE(props, "days", sizeof("days"), PHP5TO7_ZVAL_MAYBE_P(wrapped_days), sizeof(zval));
-  PHP5TO7_ZEND_HASH_UPDATE(props, "nanos", sizeof("nanos"), PHP5TO7_ZVAL_MAYBE_P(wrapped_nanos), sizeof(zval));
+
+
+
+  ZVAL_LONG(&wrapped_months, self->months);
+  ZVAL_LONG(&wrapped_days, self->days);
+  ZVAL_LONG(&wrapped_nanos, self->nanos);
+  PHP5TO7_ZEND_HASH_UPDATE(props, "months", sizeof("months"), &wrapped_months, sizeof(zval));
+  PHP5TO7_ZEND_HASH_UPDATE(props, "days", sizeof("days"), &wrapped_days, sizeof(zval));
+  PHP5TO7_ZEND_HASH_UPDATE(props, "nanos", sizeof("nanos"), &wrapped_nanos, sizeof(zval));
 
   return props;
 }
@@ -339,7 +339,7 @@ void php_driver_define_Duration()
   php_driver_duration_ce = zend_register_internal_class(&ce );
   zend_class_implements(php_driver_duration_ce , 1, php_driver_value_ce);
 
-  php_driver_duration_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
+  php_driver_duration_ce->ce_flags     |= ZEND_ACC_FINAL;
   php_driver_duration_ce->create_object = php_driver_duration_new;
 
   memcpy(&php_driver_duration_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));

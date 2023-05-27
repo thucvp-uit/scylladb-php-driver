@@ -111,11 +111,11 @@ static php5to7_zval php_driver_tuple_from_data_type(const CassDataType* data_typ
 
   count = cass_data_type_sub_type_count(data_type);
   ztype = php_driver_type_tuple();
-  type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(ztype));
+  type = PHP_DRIVER_GET_TYPE(&ztype);
   for (i = 0; i < count; ++i) {
     php5to7_zval sub_type =
         php_driver_type_from_data_type(cass_data_type_sub_data_type(data_type, i));
-    php_driver_type_tuple_add(type, PHP5TO7_ZVAL_MAYBE_P(sub_type));
+    php_driver_type_tuple_add(type, &sub_type);
   }
 
   return ztype;
@@ -127,11 +127,11 @@ static php5to7_zval php_driver_tuple_from_node(struct node_s* node) {
   struct node_s* current;
 
   ztype = php_driver_type_tuple();
-  type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(ztype));
+  type = PHP_DRIVER_GET_TYPE(&ztype);
 
   for (current = node->first_child; current != NULL; current = current->next_sibling) {
     php5to7_zval sub_type = php_driver_create_type(current);
-    php_driver_type_tuple_add(type, PHP5TO7_ZVAL_MAYBE_P(sub_type));
+    php_driver_type_tuple_add(type, &sub_type);
   }
 
   return ztype;
@@ -146,7 +146,7 @@ static php5to7_zval php_driver_user_type_from_data_type(const CassDataType* data
 
   count = cass_data_type_sub_type_count(data_type);
   ztype = php_driver_type_user_type();
-  type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(ztype));
+  type = PHP_DRIVER_GET_TYPE(&ztype);
 
   cass_data_type_type_name(data_type, &type_name, &type_name_len);
   type->data.udt.type_name = estrndup(type_name, type_name_len);
@@ -159,7 +159,7 @@ static php5to7_zval php_driver_user_type_from_data_type(const CassDataType* data
     php5to7_zval sub_type =
         php_driver_type_from_data_type(cass_data_type_sub_data_type(data_type, i));
     cass_data_type_sub_type_name(data_type, i, &name, &name_length);
-    php_driver_type_user_type_add(type, name, name_length, PHP5TO7_ZVAL_MAYBE_P(sub_type));
+    php_driver_type_user_type_add(type, name, name_length, &sub_type);
   }
 
   return ztype;
@@ -171,7 +171,7 @@ static php5to7_zval php_driver_user_type_from_node(struct node_s* node) {
   struct node_s* current = node->first_child;
 
   ztype = php_driver_type_user_type();
-  type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(ztype));
+  type = PHP_DRIVER_GET_TYPE(&ztype);
 
   if (current) {
     type->data.udt.keyspace = estrndup(current->name, current->name_length);
@@ -192,7 +192,7 @@ static php5to7_zval php_driver_user_type_from_node(struct node_s* node) {
       break;
     }
     sub_type = php_driver_create_type(current);
-    php_driver_type_user_type_add(type, name, strlen(name), PHP5TO7_ZVAL_MAYBE_P(sub_type));
+    php_driver_type_user_type_add(type, name, strlen(name), &sub_type);
     efree(name);
   }
 
@@ -207,7 +207,7 @@ php5to7_zval php_driver_type_from_data_type(const CassDataType* data_type) {
   size_t class_name_length;
   CassValueType type = cass_data_type_type(data_type);
 
-  PHP5TO7_ZVAL_UNDEF(ztype);
+  ZVAL_UNDEF(&ztype);
 
   switch (type) {
 #define XX_SCALAR(name, value)             \
@@ -224,18 +224,18 @@ php5to7_zval php_driver_type_from_data_type(const CassDataType* data_type) {
 
     case CASS_VALUE_TYPE_LIST:
       value_type = php_driver_type_from_data_type(cass_data_type_sub_data_type(data_type, 0));
-      ztype = php_driver_type_collection(PHP5TO7_ZVAL_MAYBE_P(value_type));
+      ztype = php_driver_type_collection(&value_type);
       break;
 
     case CASS_VALUE_TYPE_MAP:
       key_type = php_driver_type_from_data_type(cass_data_type_sub_data_type(data_type, 0));
       value_type = php_driver_type_from_data_type(cass_data_type_sub_data_type(data_type, 1));
-      ztype = php_driver_type_map(PHP5TO7_ZVAL_MAYBE_P(key_type), PHP5TO7_ZVAL_MAYBE_P(value_type));
+      ztype = php_driver_type_map(&key_type, &value_type);
       break;
 
     case CASS_VALUE_TYPE_SET:
       value_type = php_driver_type_from_data_type(cass_data_type_sub_data_type(data_type, 0));
-      ztype = php_driver_type_set(PHP5TO7_ZVAL_MAYBE_P(value_type));
+      ztype = php_driver_type_set(&value_type);
       break;
 
     case CASS_VALUE_TYPE_TUPLE:
@@ -268,27 +268,27 @@ int php_driver_type_validate(zval* object, const char* object_name) {
 
 static inline int collection_compare(php_driver_type* type1, php_driver_type* type2) {
   return php_driver_type_compare(
-      PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type1->data.collection.value_type)),
-      PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type2->data.collection.value_type)));
+      PHP_DRIVER_GET_TYPE(&type1->data.collection.value_type),
+      PHP_DRIVER_GET_TYPE(&type2->data.collection.value_type));
 }
 
 static inline int map_compare(php_driver_type* type1, php_driver_type* type2) {
   int result;
   result =
-      php_driver_type_compare(PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type1->data.map.key_type)),
-                              PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type2->data.map.key_type)));
+      php_driver_type_compare(PHP_DRIVER_GET_TYPE(&type1->data.map.key_type),
+                              PHP_DRIVER_GET_TYPE(&type2->data.map.key_type));
   if (result != 0) return result;
   result = php_driver_type_compare(
-      PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type1->data.map.value_type)),
-      PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type2->data.map.value_type)));
+      PHP_DRIVER_GET_TYPE(&type1->data.map.value_type),
+      PHP_DRIVER_GET_TYPE(&type2->data.map.value_type));
   if (result != 0) return result;
   return 0;
 }
 
 static inline int set_compare(php_driver_type* type1, php_driver_type* type2) {
   return php_driver_type_compare(
-      PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type1->data.set.value_type)),
-      PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type2->data.set.value_type)));
+      PHP_DRIVER_GET_TYPE(&type1->data.set.value_type),
+      PHP_DRIVER_GET_TYPE(&type2->data.set.value_type));
 }
 
 static inline int tuple_compare(php_driver_type* type1, php_driver_type* type2) {
@@ -310,8 +310,8 @@ static inline int tuple_compare(php_driver_type* type1, php_driver_type* type2) 
 
   while (PHP5TO7_ZEND_HASH_GET_CURRENT_DATA_EX(&type1->data.tuple.types, current1, &pos1) &&
          PHP5TO7_ZEND_HASH_GET_CURRENT_DATA_EX(&type2->data.tuple.types, current2, &pos2)) {
-    php_driver_type* sub_type1 = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_DEREF(current1));
-    php_driver_type* sub_type2 = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_DEREF(current2));
+    php_driver_type* sub_type1 = PHP_DRIVER_GET_TYPE(current1);
+    php_driver_type* sub_type2 = PHP_DRIVER_GET_TYPE(current2);
     int result = php_driver_type_compare(sub_type1, sub_type2);
     if (result != 0) return result;
     zend_hash_move_forward_ex(&type1->data.tuple.types, &pos1);
@@ -347,8 +347,8 @@ static inline int user_type_compare(php_driver_type* type1, php_driver_type* typ
          PHP5TO7_ZEND_HASH_GET_CURRENT_DATA_EX(&type1->data.udt.types, current1, &pos1) &&
          PHP5TO7_ZEND_HASH_GET_CURRENT_DATA_EX(&type2->data.udt.types, current2, &pos2)) {
     int result;
-    php_driver_type* sub_type1 = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_DEREF(current1));
-    php_driver_type* sub_type2 = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_DEREF(current2));
+    php_driver_type* sub_type1 = PHP_DRIVER_GET_TYPE(current1);
+    php_driver_type* sub_type2 = PHP_DRIVER_GET_TYPE(current2);
     result = php5to7_string_compare(key1, key2);
     if (result != 0) return result;
     result = php_driver_type_compare(sub_type1, sub_type2);
@@ -398,23 +398,23 @@ int php_driver_type_compare(php_driver_type* type1, php_driver_type* type2) {
 static inline void collection_string(php_driver_type* type, smart_str* string) {
   smart_str_appendl(string, "list<", 5);
   php_driver_type_string(
-      PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type->data.collection.value_type)), string);
+      PHP_DRIVER_GET_TYPE(&type->data.collection.value_type), string);
   smart_str_appendl(string, ">", 1);
 }
 
 static inline void map_string(php_driver_type* type, smart_str* string) {
   smart_str_appendl(string, "map<", 4);
-  php_driver_type_string(PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type->data.map.key_type)),
+  php_driver_type_string(PHP_DRIVER_GET_TYPE(&type->data.map.key_type),
                          string);
   smart_str_appendl(string, ", ", 2);
-  php_driver_type_string(PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type->data.map.value_type)),
+  php_driver_type_string(PHP_DRIVER_GET_TYPE(&type->data.map.value_type),
                          string);
   smart_str_appendl(string, ">", 1);
 }
 
 static inline void set_string(php_driver_type* type, smart_str* string) {
   smart_str_appendl(string, "set<", 4);
-  php_driver_type_string(PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type->data.set.value_type)),
+  php_driver_type_string(PHP_DRIVER_GET_TYPE(&type->data.set.value_type),
                          string);
   smart_str_appendl(string, ">", 1);
 }
@@ -425,7 +425,7 @@ static inline void tuple_string(php_driver_type* type, smart_str* string) {
 
   smart_str_appendl(string, "tuple<", 6);
   PHP5TO7_ZEND_HASH_FOREACH_VAL(&type->data.tuple.types, current) {
-    php_driver_type* sub_type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_DEREF(current));
+    php_driver_type* sub_type = PHP_DRIVER_GET_TYPE(current);
     if (!first) smart_str_appendl(string, ", ", 2);
     first = 0;
     php_driver_type_string(sub_type, string);
@@ -448,7 +448,7 @@ static inline void user_type_string(php_driver_type* type, smart_str* string) {
   } else {
     smart_str_appendl(string, "userType<", 9);
     PHP5TO7_ZEND_HASH_FOREACH_STR_KEY_VAL(&type->data.udt.types, name, current) {
-      php_driver_type* sub_type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_DEREF(current));
+      php_driver_type* sub_type = PHP_DRIVER_GET_TYPE(current);
       if (!first) smart_str_appendl(string, ", ", 2);
       first = 0;
       smart_str_appendl(string, name, strlen(name));
@@ -787,7 +787,7 @@ php5to7_zval php_driver_type_collection_from_value_type(CassValueType type) {
   php_driver_type* sub_type;
 
   object_init_ex(&ztype, php_driver_type_collection_ce);
-  collection = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(ztype));
+  collection = PHP_DRIVER_GET_TYPE(&ztype);
   collection->data.collection.value_type = php_driver_type_scalar(type);
 
   sub_type = PHP_DRIVER_GET_TYPE(&collection->data.collection.value_type);
@@ -1211,7 +1211,7 @@ static php5to7_zval php_driver_create_type(struct node_s* node) {
 
   if (type == CASS_VALUE_TYPE_UNKNOWN) {
     php5to7_zval undef;
-    PHP5TO7_ZVAL_UNDEF(undef);
+    ZVAL_UNDEF(&undef);
     return undef;
   }
 
@@ -1231,26 +1231,26 @@ static php5to7_zval php_driver_create_type(struct node_s* node) {
       key_type = php_driver_create_type(node->first_child);
       value_type = php_driver_create_type(node->first_child->next_sibling);
     } else {
-      PHP5TO7_ZVAL_UNDEF(key_type);
-      PHP5TO7_ZVAL_UNDEF(value_type);
+      ZVAL_UNDEF(&key_type);
+      ZVAL_UNDEF(&value_type);
     }
-    return php_driver_type_map(PHP5TO7_ZVAL_MAYBE_P(key_type), PHP5TO7_ZVAL_MAYBE_P(value_type));
+    return php_driver_type_map(&key_type, &value_type);
   } else if (type == CASS_VALUE_TYPE_LIST) {
     php5to7_zval value_type;
     if (node->first_child) {
       value_type = php_driver_create_type(node->first_child);
     } else {
-      PHP5TO7_ZVAL_UNDEF(value_type);
+      ZVAL_UNDEF(&value_type);
     }
-    return php_driver_type_collection(PHP5TO7_ZVAL_MAYBE_P(value_type));
+    return php_driver_type_collection(&value_type);
   } else if (type == CASS_VALUE_TYPE_SET) {
     php5to7_zval value_type;
     if (node->first_child) {
       value_type = php_driver_create_type(node->first_child);
     } else {
-      PHP5TO7_ZVAL_UNDEF(value_type);
+      ZVAL_UNDEF(&value_type);
     }
-    return php_driver_type_set(PHP5TO7_ZVAL_MAYBE_P(value_type));
+    return php_driver_type_set(&value_type);
   } else if (type == CASS_VALUE_TYPE_TUPLE) {
     return php_driver_tuple_from_node(node);
   } else if (type == CASS_VALUE_TYPE_UDT) {

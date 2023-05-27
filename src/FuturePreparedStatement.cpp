@@ -27,8 +27,8 @@ PHP_METHOD(FuturePreparedStatement, get)
 
   php_driver_future_prepared_statement *self = PHP_DRIVER_GET_FUTURE_PREPARED_STATEMENT(getThis());
 
-  if (!PHP5TO7_ZVAL_IS_UNDEF(self->prepared_statement)) {
-    RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->prepared_statement), 1, 0);
+  if (!Z_ISUNDEF(self->prepared_statement)) {
+    RETURN_ZVAL(&self->prepared_statement, 1, 0);
   }
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() , "|z", &timeout) == FAILURE) {
@@ -44,7 +44,7 @@ PHP_METHOD(FuturePreparedStatement, get)
   }
 
   object_init_ex(return_value, php_driver_statement_ce);
-  PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(self->prepared_statement), return_value);
+  ZVAL_COPY(&self->prepared_statement, return_value);
 
   prepared_statement = PHP_DRIVER_GET_STATEMENT(return_value);
 
@@ -112,7 +112,7 @@ php_driver_future_prepared_statement_new(zend_class_entry *ce )
       PHP5TO7_ZEND_OBJECT_ECALLOC(future_prepared_statement, ce);
 
   self->future = NULL;
-  PHP5TO7_ZVAL_UNDEF(self->prepared_statement);
+  ZVAL_UNDEF(&self->prepared_statement);
 
   PHP5TO7_ZEND_OBJECT_INIT(future_prepared_statement, self, ce);
 }
@@ -124,7 +124,7 @@ void php_driver_define_FuturePreparedStatement()
   INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\FuturePreparedStatement", php_driver_future_prepared_statement_methods);
   php_driver_future_prepared_statement_ce = zend_register_internal_class(&ce );
   zend_class_implements(php_driver_future_prepared_statement_ce , 1, php_driver_future_ce);
-  php_driver_future_prepared_statement_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
+  php_driver_future_prepared_statement_ce->ce_flags     |= ZEND_ACC_FINAL;
   php_driver_future_prepared_statement_ce->create_object = php_driver_future_prepared_statement_new;
 
   memcpy(&php_driver_future_prepared_statement_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));

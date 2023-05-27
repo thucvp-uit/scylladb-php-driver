@@ -56,7 +56,7 @@ void php_driver_define_RetryPolicyDefault()
   INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\RetryPolicy\\DefaultPolicy", php_driver_retry_policy_default_methods);
   php_driver_retry_policy_default_ce = zend_register_internal_class(&ce );
   zend_class_implements(php_driver_retry_policy_default_ce , 1, php_driver_retry_policy_ce);
-  php_driver_retry_policy_default_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
+  php_driver_retry_policy_default_ce->ce_flags     |= ZEND_ACC_FINAL;
   php_driver_retry_policy_default_ce->create_object = php_driver_retry_policy_default_new;
 
   memcpy(&php_driver_retry_policy_default_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));

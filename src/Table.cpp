@@ -26,8 +26,8 @@ php_driver_table_build_options(CassIterator* iterator ) {
   size_t name_length;
   php5to7_zval zoptions;
 
-  PHP5TO7_ZVAL_MAYBE_MAKE(zoptions);
-  array_init(PHP5TO7_ZVAL_MAYBE_P(zoptions));
+
+  array_init(&zoptions);
   while (cass_iterator_next(iterator)) {
     const CassValue *value = NULL;
     if (cass_iterator_get_meta_field_name(iterator, &name, &name_length) == CASS_OK) {
@@ -41,13 +41,13 @@ php_driver_table_build_options(CassIterator* iterator ) {
         const CassDataType *data_type = cass_value_data_type(value);
         if (data_type) {
           php5to7_zval zvalue;
-          PHP5TO7_ZVAL_UNDEF(zvalue);
+          ZVAL_UNDEF(&zvalue);
           if (php_driver_value(value,
                                   data_type,
                                   &zvalue ) == SUCCESS) {
-            PHP5TO7_ADD_ASSOC_ZVAL_EX(PHP5TO7_ZVAL_MAYBE_P(zoptions),
+            PHP5TO7_ADD_ASSOC_ZVAL_EX(&zoptions,
                                       name, name_length + 1,
-                                      PHP5TO7_ZVAL_MAYBE_P(zvalue));
+                                      &zvalue);
           }
         }
       }

@@ -68,18 +68,18 @@ PHP_METHOD(DefaultSchema, keyspaces)
     value = cass_keyspace_meta_field_by_name(meta, "keyspace_name");
 
     ASSERT_SUCCESS_BLOCK(cass_value_get_string(value, &keyspace_name, &keyspace_name_len),
-      zval_ptr_dtor(PHP5TO7_ZVAL_MAYBE_ADDR_OF(return_value));
+      zval_ptr_dtor(return_value);
       return;
     );
 
-    PHP5TO7_ZVAL_MAYBE_MAKE(zkeyspace);
-    object_init_ex(PHP5TO7_ZVAL_MAYBE_P(zkeyspace), php_driver_default_keyspace_ce);
-    keyspace = PHP_DRIVER_GET_KEYSPACE(PHP5TO7_ZVAL_MAYBE_P(zkeyspace));
+
+    object_init_ex(&zkeyspace, php_driver_default_keyspace_ce);
+    keyspace = PHP_DRIVER_GET_KEYSPACE(&zkeyspace);
     keyspace->schema = php_driver_add_ref(self->schema);
     keyspace->meta   = meta;
     PHP5TO7_ADD_ASSOC_ZVAL_EX(return_value,
                               keyspace_name, keyspace_name_len + 1,
-                              PHP5TO7_ZVAL_MAYBE_P(zkeyspace));
+                              &zkeyspace);
   }
 
   cass_iterator_free(iterator);
@@ -170,7 +170,7 @@ void php_driver_define_DefaultSchema()
   INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\DefaultSchema", php_driver_default_schema_methods);
   php_driver_default_schema_ce = zend_register_internal_class(&ce );
   zend_class_implements(php_driver_default_schema_ce , 1, php_driver_schema_ce);
-  php_driver_default_schema_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
+  php_driver_default_schema_ce->ce_flags     |= ZEND_ACC_FINAL;
   php_driver_default_schema_ce->create_object = php_driver_default_schema_new;
 
   memcpy(&php_driver_default_schema_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));

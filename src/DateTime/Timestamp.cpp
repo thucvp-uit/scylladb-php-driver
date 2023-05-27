@@ -96,7 +96,7 @@ PHP_METHOD(Timestamp, microtime) {
 
   spprintf(&ret, 0, "%.8F %ld", usec, sec);
 
-  PHP5TO7_RETVAL_STRING(ret);
+  RETVAL_STRING(ret);
   efree(ret);
 }
 PHP_METHOD(Timestamp, toDateTime) {
@@ -113,7 +113,7 @@ PHP_METHOD(Timestamp, toDateTime) {
 
   self = PHP_DRIVER_GET_TIMESTAMP(getThis());
 
-  PHP5TO7_ZVAL_MAYBE_MAKE(datetime);
+
   php_date_instantiate(php_date_get_date_ce(), datetime);
 
   datetime_obj = php_date_obj_from_obj(Z_OBJ_P(datetime));
@@ -134,7 +134,7 @@ PHP_METHOD(Timestamp, __toString) {
   php_driver_timestamp *self = PHP_DRIVER_GET_TIMESTAMP(getThis());
 
   spprintf(&ret, 0, "%lld", (long long int)self->timestamp);
-  PHP5TO7_RETVAL_STRING(ret);
+  RETVAL_STRING(ret);
   efree(ret);
 }
 /* }}} */
@@ -238,7 +238,7 @@ void php_driver_define_Timestamp() {
   php_driver_timestamp_handlers.std.get_properties = php_driver_timestamp_properties;
   php_driver_timestamp_handlers.std.get_gc = php_driver_timestamp_gc;
   php_driver_timestamp_handlers.std.compare = php_driver_timestamp_compare;
-  php_driver_timestamp_ce->ce_flags |= PHP5TO7_ZEND_ACC_FINAL;
+  php_driver_timestamp_ce->ce_flags |= ZEND_ACC_FINAL;
   php_driver_timestamp_ce->create_object = php_driver_timestamp_new;
 
   php_driver_timestamp_handlers.hash_value = php_driver_timestamp_hash_value;

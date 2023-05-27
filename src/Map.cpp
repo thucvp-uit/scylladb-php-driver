@@ -42,13 +42,13 @@ php_driver_map_set(php_driver_map *map, zval *zkey, zval *zvalue )
     return 0;
   }
 
-  type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(map->type));
+  type = PHP_DRIVER_GET_TYPE(&map->type);
 
-  if (!php_driver_validate_object(zkey, PHP5TO7_ZVAL_MAYBE_P(type->data.map.key_type) )) {
+  if (!php_driver_validate_object(zkey, &type->data.map.key_type )) {
     return 0;
   }
 
-  if (!php_driver_validate_object(zvalue, PHP5TO7_ZVAL_MAYBE_P(type->data.map.value_type) )) {
+  if (!php_driver_validate_object(zvalue, &type->data.map.value_type )) {
     return 0;
   }
 
@@ -56,12 +56,12 @@ php_driver_map_set(php_driver_map *map, zval *zkey, zval *zvalue )
   HASH_FIND_ZVAL(map->entries, zkey, entry);
   if (entry == NULL) {
     entry = (php_driver_map_entry *) emalloc(sizeof(php_driver_map_entry));
-    PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(entry->key), zkey);
-    PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(entry->value), zvalue);
+    ZVAL_COPY(&entry->key, zkey);
+    ZVAL_COPY(&entry->value, zvalue);
     HASH_ADD_ZVAL(map->entries, key, entry);
   } else {
     php5to7_zval prev_value = entry->value;
-    PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(entry->value), zvalue);
+    ZVAL_COPY(&entry->value, zvalue);
     zval_ptr_dtor(&prev_value);
   }
 
@@ -75,9 +75,9 @@ php_driver_map_get(php_driver_map *map, zval *zkey, php5to7_zval *zvalue )
   php_driver_type *type;
   int result = 0;
 
-  type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(map->type));
+  type = PHP_DRIVER_GET_TYPE(&map->type);
 
-  if (!php_driver_validate_object(zkey, PHP5TO7_ZVAL_MAYBE_P(type->data.map.key_type) )) {
+  if (!php_driver_validate_object(zkey, &type->data.map.key_type )) {
     return 0;
   }
 
@@ -97,9 +97,9 @@ php_driver_map_del(php_driver_map *map, zval *zkey )
   php_driver_type *type;
   int result = 0;
 
-  type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(map->type));
+  type = PHP_DRIVER_GET_TYPE(&map->type);
 
-  if (!php_driver_validate_object(zkey, PHP5TO7_ZVAL_MAYBE_P(type->data.map.key_type) )) {
+  if (!php_driver_validate_object(zkey, &type->data.map.key_type )) {
     return 0;
   }
 
@@ -126,9 +126,9 @@ php_driver_map_has(php_driver_map *map, zval *zkey )
   php_driver_type *type;
   int result = 0;
 
-  type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(map->type));
+  type = PHP_DRIVER_GET_TYPE(&map->type);
 
-  if (!php_driver_validate_object(zkey, PHP5TO7_ZVAL_MAYBE_P(type->data.map.key_type) )) {
+  if (!php_driver_validate_object(zkey, &type->data.map.key_type )) {
     return 0;
   }
 
@@ -145,10 +145,10 @@ php_driver_map_populate_keys(const php_driver_map *map, zval *array )
 {
   php_driver_map_entry *curr,  *temp;
   HASH_ITER(hh, map->entries, curr, temp) {
-    if (add_next_index_zval(array, PHP5TO7_ZVAL_MAYBE_P(curr->key)) != SUCCESS) {
+    if (add_next_index_zval(array, &curr->key) != SUCCESS) {
       break;
     }
-    Z_TRY_ADDREF_P(PHP5TO7_ZVAL_MAYBE_P(curr->key));
+    Z_TRY_ADDREF_P(&curr->key);
   }
 }
 
@@ -157,10 +157,10 @@ php_driver_map_populate_values(const php_driver_map *map, zval *array )
 {
   php_driver_map_entry *curr, *temp;
   HASH_ITER(hh, map->entries, curr, temp) {
-    if (add_next_index_zval(array, PHP5TO7_ZVAL_MAYBE_P(curr->value)) != SUCCESS) {
+    if (add_next_index_zval(array, &curr->value) != SUCCESS) {
       break;
     }
-    Z_TRY_ADDREF_P(PHP5TO7_ZVAL_MAYBE_P(curr->value));
+    Z_TRY_ADDREF_P(&curr->value);
   }
 }
 
@@ -173,8 +173,8 @@ PHP_METHOD(Map, __construct)
   php5to7_zval scalar_key_type;
   php5to7_zval scalar_value_type;
 
-  PHP5TO7_ZVAL_UNDEF(scalar_key_type);
-  PHP5TO7_ZVAL_UNDEF(scalar_value_type);
+  ZVAL_UNDEF(&scalar_key_type);
+  ZVAL_UNDEF(&scalar_value_type);
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() , "zz", &key_type, &value_type) == FAILURE)
     return;
@@ -186,7 +186,7 @@ PHP_METHOD(Map, __construct)
     if (!php_driver_value_type(Z_STRVAL_P(key_type), &type ))
       return;
     scalar_key_type = php_driver_type_scalar(type );
-    key_type = PHP5TO7_ZVAL_MAYBE_P(scalar_key_type);
+    key_type = &scalar_key_type;
   } else if (Z_TYPE_P(key_type) == IS_OBJECT &&
              instanceof_function(Z_OBJCE_P(key_type), php_driver_type_ce )) {
     if (!php_driver_type_validate(key_type, "keyType" )) {
@@ -205,7 +205,7 @@ PHP_METHOD(Map, __construct)
     if (!php_driver_value_type(Z_STRVAL_P(value_type), &type ))
       return;
     scalar_value_type = php_driver_type_scalar(type );
-    value_type = PHP5TO7_ZVAL_MAYBE_P(scalar_value_type);
+    value_type = &scalar_value_type;
   } else if (Z_TYPE_P(value_type) == IS_OBJECT &&
              instanceof_function(Z_OBJCE_P(value_type), php_driver_type_ce )) {
     if (!php_driver_type_validate(value_type, "valueType" )) {
@@ -213,7 +213,7 @@ PHP_METHOD(Map, __construct)
     }
     Z_ADDREF_P(value_type);
   } else {
-    zval_ptr_dtor(PHP5TO7_ZVAL_MAYBE_ADDR_OF(key_type));
+    zval_ptr_dtor(key_type);
     throw_invalid_argument(value_type,
                            "valueType",
                            "a string or an instance of " PHP_DRIVER_NAMESPACE "\\Type" );
@@ -228,7 +228,7 @@ PHP_METHOD(Map, __construct)
 PHP_METHOD(Map, type)
 {
   php_driver_map *self = PHP_DRIVER_GET_MAP(getThis());
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->type), 1, 0);
+  RETURN_ZVAL(&self->type, 1, 0);
 }
 /* }}} */
 
@@ -277,7 +277,7 @@ PHP_METHOD(Map, get)
   self = PHP_DRIVER_GET_MAP(getThis());
 
   if (php_driver_map_get(self, key, &value ))
-    RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(value), 1, 0);
+    RETURN_ZVAL(&value, 1, 0);
 }
 
 PHP_METHOD(Map, remove)
@@ -322,14 +322,14 @@ PHP_METHOD(Map, current)
 {
   php_driver_map *self = PHP_DRIVER_GET_MAP(getThis());
   if (self->iter_curr != NULL)
-    RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->iter_curr->value), 1, 0);
+    RETURN_ZVAL(&self->iter_curr->value, 1, 0);
 }
 
 PHP_METHOD(Map, key)
 {
   php_driver_map *self = PHP_DRIVER_GET_MAP(getThis());
   if (self->iter_curr != NULL)
-    RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->iter_curr->key), 1, 0);
+    RETURN_ZVAL(&self->iter_curr->key, 1, 0);
 }
 
 PHP_METHOD(Map, next)
@@ -378,7 +378,7 @@ PHP_METHOD(Map, offsetGet)
   self = PHP_DRIVER_GET_MAP(getThis());
 
   if (php_driver_map_get(self, key, &value ))
-    RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(value), 1, 0);
+    RETURN_ZVAL(&value, 1, 0);
 }
 
 PHP_METHOD(Map, offsetUnset)
@@ -526,20 +526,20 @@ php_driver_map_properties(
 
   PHP5TO7_ZEND_HASH_UPDATE(props,
                           "type", sizeof("type"),
-                           PHP5TO7_ZVAL_MAYBE_P(self->type), sizeof(zval));
-  Z_ADDREF_P(PHP5TO7_ZVAL_MAYBE_P(self->type));
+                           &self->type, sizeof(zval));
+  Z_ADDREF_P(&self->type);
 
-  PHP5TO7_ZVAL_MAYBE_MAKE(keys);
-  array_init(PHP5TO7_ZVAL_MAYBE_P(keys));
-  php_driver_map_populate_keys(self, PHP5TO7_ZVAL_MAYBE_P(keys) );
-  PHP5TO7_ZEND_HASH_SORT(Z_ARRVAL_P(PHP5TO7_ZVAL_MAYBE_P(keys)), php_driver_data_compare, 1);
-  PHP5TO7_ZEND_HASH_UPDATE(props, "keys", sizeof("keys"), PHP5TO7_ZVAL_MAYBE_P(keys), sizeof(zval *));
 
-  PHP5TO7_ZVAL_MAYBE_MAKE(values);
-  array_init(PHP5TO7_ZVAL_MAYBE_P(values));
-  php_driver_map_populate_values(self, PHP5TO7_ZVAL_MAYBE_P(values) );
-  PHP5TO7_ZEND_HASH_SORT(Z_ARRVAL_P(PHP5TO7_ZVAL_MAYBE_P(values)), php_driver_data_compare, 1);
-  PHP5TO7_ZEND_HASH_UPDATE(props, "values", sizeof("values"), PHP5TO7_ZVAL_MAYBE_P(values), sizeof(zval *));
+  array_init(&keys);
+  php_driver_map_populate_keys(self, &keys );
+  PHP5TO7_ZEND_HASH_SORT(Z_ARRVAL_P(&keys), php_driver_data_compare, 1);
+  PHP5TO7_ZEND_HASH_UPDATE(props, "keys", sizeof("keys"), &keys, sizeof(zval *));
+
+
+  array_init(&values);
+  php_driver_map_populate_values(self, &values );
+  PHP5TO7_ZEND_HASH_SORT(Z_ARRVAL_P(&values), php_driver_data_compare, 1);
+  PHP5TO7_ZEND_HASH_UPDATE(props, "values", sizeof("values"), &values, sizeof(zval *));
 
   return props;
 }
@@ -563,8 +563,8 @@ php_driver_map_compare(zval *obj1, zval *obj2 )
   map1 = PHP_DRIVER_GET_MAP(obj1);
   map2 = PHP_DRIVER_GET_MAP(obj2);
 
-  type1 = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(map1->type));
-  type2 = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(map2->type));
+  type1 = PHP_DRIVER_GET_TYPE(&map1->type);
+  type2 = PHP_DRIVER_GET_TYPE(&map2->type);
 
   result = php_driver_type_compare(type1, type2 );
   if (result != 0) return result;
@@ -575,12 +575,12 @@ php_driver_map_compare(zval *obj1, zval *obj2 )
 
   HASH_ITER(hh, map1->entries, curr, temp) {
     php_driver_map_entry *entry = NULL;
-    HASH_FIND_ZVAL(map2->entries, PHP5TO7_ZVAL_MAYBE_P(curr->key), entry);
+    HASH_FIND_ZVAL(map2->entries, &curr->key, entry);
     if (entry == NULL) {
       return 1;
     }
-    result = php_driver_value_compare(PHP5TO7_ZVAL_MAYBE_P(curr->value),
-                                      PHP5TO7_ZVAL_MAYBE_P(entry->value) );
+    result = php_driver_value_compare(&curr->value,
+                                      &entry->value );
     if (result != 0) return result;
   }
 
@@ -598,9 +598,9 @@ php_driver_map_hash_value(zval *obj )
 
   HASH_ITER(hh, self->entries, curr, temp) {
     hashv = php_driver_combine_hash(hashv,
-                                       php_driver_value_hash(PHP5TO7_ZVAL_MAYBE_P(curr->key) ));
+                                       php_driver_value_hash(&curr->key ));
     hashv = php_driver_combine_hash(hashv,
-                                       php_driver_value_hash(PHP5TO7_ZVAL_MAYBE_P(curr->value) ));
+                                       php_driver_value_hash(&curr->value ));
   }
 
   self->hashv = hashv;
@@ -636,7 +636,7 @@ php_driver_map_new(zend_class_entry *ce )
 
   self->entries = self->iter_curr = self->iter_temp = NULL;
   self->dirty = 1;
-  PHP5TO7_ZVAL_UNDEF(self->type);
+  ZVAL_UNDEF(&self->type);
 
   PHP5TO7_ZEND_OBJECT_INIT(map, self, ce);
 }
@@ -658,7 +658,7 @@ void php_driver_define_Map()
 #else
   php_driver_map_handlers.std.compare_objects = php_driver_map_compare;
 #endif
-  php_driver_map_ce->ce_flags |= PHP5TO7_ZEND_ACC_FINAL;
+  php_driver_map_ce->ce_flags |= ZEND_ACC_FINAL;
   php_driver_map_ce->create_object = php_driver_map_new;
 
 #if PHP_VERSION_ID < 80100

@@ -54,7 +54,7 @@ void php_driver_define_RetryPolicyFallthrough()
   INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\RetryPolicy\\Fallthrough", php_driver_retry_policy_fallthrough_methods);
   php_driver_retry_policy_fallthrough_ce = zend_register_internal_class(&ce );
   zend_class_implements(php_driver_retry_policy_fallthrough_ce , 1, php_driver_retry_policy_ce);
-  php_driver_retry_policy_fallthrough_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
+  php_driver_retry_policy_fallthrough_ce->ce_flags     |= ZEND_ACC_FINAL;
   php_driver_retry_policy_fallthrough_ce->create_object = php_driver_retry_policy_fallthrough_new;
 
   memcpy(&php_driver_retry_policy_fallthrough_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));

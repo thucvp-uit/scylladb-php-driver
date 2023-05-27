@@ -58,7 +58,7 @@ PHP_METHOD(Blob, __toString) {
   size_t hex_len;
   php_driver_bytes_to_hex((const char *)self->data, self->size, &hex, &hex_len);
 
-  PHP5TO7_RETVAL_STRINGL(hex, hex_len);
+  RETVAL_STRINGL(hex, hex_len);
   efree(hex);
 }
 /* }}} */
@@ -66,7 +66,7 @@ PHP_METHOD(Blob, __toString) {
 /* {{{ Blob::type() */
 PHP_METHOD(Blob, type) {
   php5to7_zval type = php_driver_type_scalar(CASS_VALUE_TYPE_BLOB);
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(type), 1, 1);
+  RETURN_ZVAL(&type, 1, 1);
 }
 /* }}} */
 
@@ -77,7 +77,7 @@ PHP_METHOD(Blob, bytes) {
   size_t hex_len;
   php_driver_bytes_to_hex((const char *)self->data, self->size, &hex, &hex_len);
 
-  PHP5TO7_RETVAL_STRINGL(hex, hex_len);
+  RETVAL_STRINGL(hex, hex_len);
   efree(hex);
 }
 /* }}} */
@@ -86,7 +86,7 @@ PHP_METHOD(Blob, bytes) {
 PHP_METHOD(Blob, toBinaryString) {
   php_driver_blob *blob = PHP_DRIVER_GET_BLOB(getThis());
 
-  PHP5TO7_RETVAL_STRINGL((const char *)blob->data, blob->size);
+  RETVAL_STRINGL((const char *)blob->data, blob->size);
 }
 /* }}} */
 
@@ -148,14 +148,14 @@ static HashTable *php_driver_blob_properties(
 
   type = php_driver_type_scalar(CASS_VALUE_TYPE_BLOB);
   PHP5TO7_ZEND_HASH_UPDATE(props, "type", sizeof("type"),
-                           PHP5TO7_ZVAL_MAYBE_P(type), sizeof(zval));
+                           &type, sizeof(zval));
 
   php_driver_bytes_to_hex((const char *)self->data, self->size, &hex, &hex_len);
-  PHP5TO7_ZVAL_MAYBE_MAKE(bytes);
-  PHP5TO7_ZVAL_STRINGL(PHP5TO7_ZVAL_MAYBE_P(bytes), hex, hex_len);
+
+  ZVAL_STRINGL(&bytes, hex, hex_len);
   efree(hex);
   PHP5TO7_ZEND_HASH_UPDATE(props, "bytes", sizeof("bytes"),
-                           PHP5TO7_ZVAL_MAYBE_P(bytes), sizeof(zval));
+                           &bytes, sizeof(zval));
 
   return props;
 }
@@ -225,7 +225,7 @@ void php_driver_define_Blob() {
   php_driver_blob_handlers.std.compare_objects = php_driver_blob_compare;
 #endif
 #endif
-  php_driver_blob_ce->ce_flags |= PHP5TO7_ZEND_ACC_FINAL;
+  php_driver_blob_ce->ce_flags |= ZEND_ACC_FINAL;
   php_driver_blob_ce->create_object = php_driver_blob_new;
 
   php_driver_blob_handlers.hash_value = php_driver_blob_hash_value;

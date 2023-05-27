@@ -55,7 +55,7 @@ zend_object *php_driver_default_cluster_new(zend_class_entry *ce)
     self->persist = cass_false;
     self->hash_key = nullptr;
 
-    PHP5TO7_ZVAL_UNDEF(self->default_timeout);
+    ZVAL_UNDEF(&self->default_timeout);
 
     zend_object_std_init(&self->zval, ce);
     self->zval.handlers = &php_driver_default_cluster_handlers;

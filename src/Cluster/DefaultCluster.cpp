@@ -62,9 +62,9 @@ ZEND_METHOD(Cassandra_DefaultCluster, connect)
     session->hash_key = self->hash_key;
     session->keyspace = keyspace;
 
-    if (!PHP5TO7_ZVAL_IS_UNDEF(session->default_timeout))
+    if (!Z_ISUNDEF(session->default_timeout))
     {
-        PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(session->default_timeout), PHP5TO7_ZVAL_MAYBE_P(self->default_timeout));
+        ZVAL_COPY(&session->default_timeout, &self->default_timeout);
     }
 
     if (session->persist)

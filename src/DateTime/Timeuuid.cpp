@@ -116,7 +116,7 @@ PHP_METHOD(Timeuuid, uuid) {
 
   cass_uuid_string(self->uuid, string);
 
-  PHP5TO7_RETVAL_STRING(string);
+  RETVAL_STRING(string);
 }
 /* }}} */
 
@@ -258,7 +258,7 @@ void php_driver_define_Timeuuid() {
   php_driver_timeuuid_handlers.std.get_properties = php_driver_timeuuid_properties;
   php_driver_timeuuid_handlers.std.get_gc = php_driver_timeuuid_gc;
   php_driver_timeuuid_handlers.std.compare = php_driver_timeuuid_compare;
-  php_driver_timeuuid_ce->ce_flags |= PHP5TO7_ZEND_ACC_FINAL;
+  php_driver_timeuuid_ce->ce_flags |= ZEND_ACC_FINAL;
   php_driver_timeuuid_ce->create_object = php_driver_timeuuid_new;
 
   php_driver_timeuuid_handlers.hash_value = php_driver_timeuuid_hash_value;

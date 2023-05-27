@@ -68,7 +68,7 @@ PHP_METHOD(Uuid, __toString)
 
   cass_uuid_string(self->uuid, string);
 
-  PHP5TO7_RETVAL_STRING(string);
+  RETVAL_STRING(string);
 }
 /* }}} */
 
@@ -76,7 +76,7 @@ PHP_METHOD(Uuid, __toString)
 PHP_METHOD(Uuid, type)
 {
   php5to7_zval type = php_driver_type_scalar(CASS_VALUE_TYPE_UUID );
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(type), 1, 1);
+  RETURN_ZVAL(&type, 1, 1);
 }
 /* }}} */
 
@@ -88,7 +88,7 @@ PHP_METHOD(Uuid, uuid)
 
   cass_uuid_string(self->uuid, string);
 
-  PHP5TO7_RETVAL_STRING(string);
+  RETVAL_STRING(string);
 }
 /* }}} */
 
@@ -165,15 +165,15 @@ php_driver_uuid_properties(
   cass_uuid_string(self->uuid, string);
 
   type = php_driver_type_scalar(CASS_VALUE_TYPE_UUID );
-  PHP5TO7_ZEND_HASH_UPDATE(props, "type", sizeof("type"), PHP5TO7_ZVAL_MAYBE_P(type), sizeof(zval));
+  PHP5TO7_ZEND_HASH_UPDATE(props, "type", sizeof("type"), &type, sizeof(zval));
 
-  PHP5TO7_ZVAL_MAYBE_MAKE(uuid);
-  PHP5TO7_ZVAL_STRING(PHP5TO7_ZVAL_MAYBE_P(uuid), string);
-  PHP5TO7_ZEND_HASH_UPDATE(props, "uuid", sizeof("uuid"), PHP5TO7_ZVAL_MAYBE_P(uuid), sizeof(zval));
 
-  PHP5TO7_ZVAL_MAYBE_MAKE(version);
-  ZVAL_LONG(PHP5TO7_ZVAL_MAYBE_P(version), (long) cass_uuid_version(self->uuid));
-  PHP5TO7_ZEND_HASH_UPDATE(props, "version", sizeof("version"), PHP5TO7_ZVAL_MAYBE_P(version), sizeof(zval));
+  ZVAL_STRING(&uuid, string);
+  PHP5TO7_ZEND_HASH_UPDATE(props, "uuid", sizeof("uuid"), &uuid, sizeof(zval));
+
+
+  ZVAL_LONG(&version, (long) cass_uuid_version(self->uuid));
+  PHP5TO7_ZEND_HASH_UPDATE(props, "version", sizeof("version"), &version, sizeof(zval));
 
   return props;
 }
@@ -246,7 +246,7 @@ php_driver_define_Uuid()
 #else
   php_driver_uuid_handlers.std.compare_objects = php_driver_uuid_compare;
 #endif
-  php_driver_uuid_ce->ce_flags |= PHP5TO7_ZEND_ACC_FINAL;
+  php_driver_uuid_ce->ce_flags |= ZEND_ACC_FINAL;
   php_driver_uuid_ce->create_object = php_driver_uuid_new;
 
   php_driver_uuid_handlers.hash_value = php_driver_uuid_hash_value;

@@ -36,8 +36,8 @@ populate_partition_key(php_driver_materialized_view *view, zval *result )
         cass_materialized_view_meta_partition_key(view->meta, i);
     if (column) {
       php5to7_zval zcolumn = php_driver_create_column(view->schema, column );
-      if (!PHP5TO7_ZVAL_IS_UNDEF(zcolumn)) {
-        add_next_index_zval(result, PHP5TO7_ZVAL_MAYBE_P(zcolumn));
+      if (!Z_ISUNDEF(zcolumn)) {
+        add_next_index_zval(result, &zcolumn);
       }
     }
   }
@@ -52,8 +52,8 @@ populate_clustering_key(php_driver_materialized_view *view, zval *result )
         cass_materialized_view_meta_clustering_key(view->meta, i);
     if (column) {
       php5to7_zval zcolumn = php_driver_create_column(view->schema, column );
-      if (!PHP5TO7_ZVAL_IS_UNDEF(zcolumn)) {
-        add_next_index_zval(result, PHP5TO7_ZVAL_MAYBE_P(zcolumn));
+      if (!Z_ISUNDEF(zcolumn)) {
+        add_next_index_zval(result, &zcolumn);
       }
     }
   }
@@ -68,18 +68,18 @@ php_driver_create_materialized_view(php_driver_ref* schema,
   const char *name;
   size_t name_length;
 
-  PHP5TO7_ZVAL_UNDEF(result);
+  ZVAL_UNDEF(&result);
 
-  PHP5TO7_ZVAL_MAYBE_MAKE(result);
-  object_init_ex(PHP5TO7_ZVAL_MAYBE_P(result), php_driver_default_materialized_view_ce);
 
-  view = PHP_DRIVER_GET_MATERIALIZED_VIEW(PHP5TO7_ZVAL_MAYBE_P(result));
+  object_init_ex(&result, php_driver_default_materialized_view_ce);
+
+  view = PHP_DRIVER_GET_MATERIALIZED_VIEW(&result);
   view->schema = php_driver_add_ref(schema);
   view->meta   = meta;
 
   cass_materialized_view_meta_name(meta, &name, &name_length);
-  PHP5TO7_ZVAL_MAYBE_MAKE(view->name);
-  PHP5TO7_ZVAL_STRINGL(PHP5TO7_ZVAL_MAYBE_P(view->name), name, name_length);
+
+  ZVAL_STRINGL(&view->name, name, name_length);
 
   return result;
 }
@@ -98,18 +98,18 @@ php_driver_materialized_view_get_option(php_driver_materialized_view *view,
                                            const char *name,
                                            zval *result ) {
   zval *zvalue;
-  if (PHP5TO7_ZVAL_IS_UNDEF(view->options)) {
+  if (Z_ISUNDEF(view->options)) {
     php_driver_default_materialized_view_build_options(view );
   }
 
-  if (!PHP5TO7_ZEND_HASH_FIND(PHP5TO7_Z_ARRVAL_MAYBE_P(view->options),
+  if (!PHP5TO7_ZEND_HASH_FIND(Z_ARRVAL(view->options),
                          name, strlen(name) + 1,
                          zvalue)) {
     ZVAL_FALSE(result);
     return;
   }
 
-  PHP5TO7_ZVAL_COPY(result, zvalue);
+  ZVAL_COPY(result, zvalue);
 }
 
 PHP_METHOD(DefaultMaterializedView, name)
@@ -120,7 +120,7 @@ PHP_METHOD(DefaultMaterializedView, name)
     return;
 
   self = PHP_DRIVER_GET_MATERIALIZED_VIEW(getThis());
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->name), 1, 0);
+  RETURN_ZVAL(&self->name, 1, 0);
 }
 
 PHP_METHOD(DefaultMaterializedView, option)
@@ -136,14 +136,14 @@ PHP_METHOD(DefaultMaterializedView, option)
   }
 
   self = PHP_DRIVER_GET_MATERIALIZED_VIEW(getThis());
-  if (PHP5TO7_ZVAL_IS_UNDEF(self->options)) {
+  if (Z_ISUNDEF(self->options)) {
     php_driver_default_materialized_view_build_options(self );
   }
 
-  if (PHP5TO7_ZEND_HASH_FIND(PHP5TO7_Z_ARRVAL_MAYBE_P(self->options),
+  if (PHP5TO7_ZEND_HASH_FIND(Z_ARRVAL(self->options),
                          name, name_len + 1,
                          result)) {
-    RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_DEREF(result), 1, 0);
+    RETURN_ZVAL(result, 1, 0);
   }
   RETURN_FALSE;
 }
@@ -156,11 +156,11 @@ PHP_METHOD(DefaultMaterializedView, options)
     return;
 
   self = PHP_DRIVER_GET_MATERIALIZED_VIEW(getThis());
-  if (PHP5TO7_ZVAL_IS_UNDEF(self->options)) {
+  if (Z_ISUNDEF(self->options)) {
     php_driver_default_materialized_view_build_options(self );
   }
 
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->options), 1, 0);
+  RETURN_ZVAL(&self->options, 1, 0);
 }
 
 PHP_METHOD(DefaultMaterializedView, comment)
@@ -387,11 +387,11 @@ PHP_METHOD(DefaultMaterializedView, column)
   }
 
   column = php_driver_create_column(self->schema, meta );
-  if (PHP5TO7_ZVAL_IS_UNDEF(column)) {
+  if (Z_ISUNDEF(column)) {
     return;
   }
 
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(column), 0, 1);
+  RETURN_ZVAL(&column, 0, 1);
 }
 
 PHP_METHOD(DefaultMaterializedView, columns)
@@ -414,16 +414,16 @@ PHP_METHOD(DefaultMaterializedView, columns)
     meta    = cass_iterator_get_column_meta(iterator);
     zcolumn = php_driver_create_column(self->schema, meta );
 
-    if (!PHP5TO7_ZVAL_IS_UNDEF(zcolumn)) {
-      column = PHP_DRIVER_GET_COLUMN(PHP5TO7_ZVAL_MAYBE_P(zcolumn));
+    if (!Z_ISUNDEF(zcolumn)) {
+      column = PHP_DRIVER_GET_COLUMN(&zcolumn);
 
-      if (PHP5TO7_Z_TYPE_MAYBE_P(column->name) == IS_STRING) {
+      if (Z_TYPE(column->name) == IS_STRING) {
         PHP5TO7_ADD_ASSOC_ZVAL_EX(return_value,
-                                  PHP5TO7_Z_STRVAL_MAYBE_P(column->name),
-                                  PHP5TO7_Z_STRLEN_MAYBE_P(column->name) + 1,
-                                  PHP5TO7_ZVAL_MAYBE_P(zcolumn));
+                                  Z_STRVAL(column->name),
+                                  Z_STRLEN(column->name) + 1,
+                                  &zcolumn);
       } else {
-        add_next_index_zval(return_value, PHP5TO7_ZVAL_MAYBE_P(zcolumn));
+        add_next_index_zval(return_value, &zcolumn);
       }
     }
   }
@@ -439,13 +439,13 @@ PHP_METHOD(DefaultMaterializedView, partitionKey)
     return;
 
   self = PHP_DRIVER_GET_MATERIALIZED_VIEW(getThis());
-  if (PHP5TO7_ZVAL_IS_UNDEF(self->partition_key)) {
-    PHP5TO7_ZVAL_MAYBE_MAKE(self->partition_key);
-    array_init(PHP5TO7_ZVAL_MAYBE_P(self->partition_key));
-    populate_partition_key(self, PHP5TO7_ZVAL_MAYBE_P(self->partition_key) );
+  if (Z_ISUNDEF(self->partition_key)) {
+
+    array_init(&self->partition_key);
+    populate_partition_key(self, &self->partition_key );
   }
 
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->partition_key), 1, 0);
+  RETURN_ZVAL(&self->partition_key, 1, 0);
 }
 
 PHP_METHOD(DefaultMaterializedView, primaryKey)
@@ -456,14 +456,14 @@ PHP_METHOD(DefaultMaterializedView, primaryKey)
     return;
 
   self = PHP_DRIVER_GET_MATERIALIZED_VIEW(getThis());
-  if (PHP5TO7_ZVAL_IS_UNDEF(self->primary_key)) {
-    PHP5TO7_ZVAL_MAYBE_MAKE(self->primary_key);
-    array_init(PHP5TO7_ZVAL_MAYBE_P(self->primary_key));
-    populate_partition_key(self, PHP5TO7_ZVAL_MAYBE_P(self->primary_key) );
-    populate_clustering_key(self, PHP5TO7_ZVAL_MAYBE_P(self->primary_key) );
+  if (Z_ISUNDEF(self->primary_key)) {
+
+    array_init(&self->primary_key);
+    populate_partition_key(self, &self->primary_key );
+    populate_clustering_key(self, &self->primary_key );
   }
 
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->primary_key), 1, 0);
+  RETURN_ZVAL(&self->primary_key, 1, 0);
 }
 
 PHP_METHOD(DefaultMaterializedView, clusteringKey)
@@ -474,13 +474,13 @@ PHP_METHOD(DefaultMaterializedView, clusteringKey)
     return;
 
   self = PHP_DRIVER_GET_MATERIALIZED_VIEW(getThis());
-  if (PHP5TO7_ZVAL_IS_UNDEF(self->clustering_key)) {
-    PHP5TO7_ZVAL_MAYBE_MAKE(self->clustering_key);
-    array_init(PHP5TO7_ZVAL_MAYBE_P(self->clustering_key));
-    populate_clustering_key(self, PHP5TO7_ZVAL_MAYBE_P(self->clustering_key) );
+  if (Z_ISUNDEF(self->clustering_key)) {
+
+    array_init(&self->clustering_key);
+    populate_clustering_key(self, &self->clustering_key );
   }
 
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->clustering_key), 1, 0);
+  RETURN_ZVAL(&self->clustering_key, 1, 0);
 }
 
 PHP_METHOD(DefaultMaterializedView, clusteringOrder)
@@ -491,28 +491,28 @@ PHP_METHOD(DefaultMaterializedView, clusteringOrder)
     return;
 
   self = PHP_DRIVER_GET_MATERIALIZED_VIEW(getThis());
-  if (PHP5TO7_ZVAL_IS_UNDEF(self->clustering_order)) {
+  if (Z_ISUNDEF(self->clustering_order)) {
     size_t i, count = cass_materialized_view_meta_clustering_key_count(self->meta);
-    PHP5TO7_ZVAL_MAYBE_MAKE(self->clustering_order);
-    array_init(PHP5TO7_ZVAL_MAYBE_P(self->clustering_order));
+
+    array_init(&self->clustering_order);
     for (i = 0; i < count; ++i) {
       CassClusteringOrder order =
           cass_materialized_view_meta_clustering_key_order(self->meta, i);
       switch (order) {
         case CASS_CLUSTERING_ORDER_ASC:
-          PHP5TO7_ADD_NEXT_INDEX_STRING(PHP5TO7_ZVAL_MAYBE_P(self->clustering_order), "asc");
+          PHP5TO7_ADD_NEXT_INDEX_STRING(&self->clustering_order, "asc");
           break;
         case CASS_CLUSTERING_ORDER_DESC:
-          PHP5TO7_ADD_NEXT_INDEX_STRING(PHP5TO7_ZVAL_MAYBE_P(self->clustering_order), "desc");
+          PHP5TO7_ADD_NEXT_INDEX_STRING(&self->clustering_order, "desc");
           break;
         case CASS_CLUSTERING_ORDER_NONE:
-          PHP5TO7_ADD_NEXT_INDEX_STRING(PHP5TO7_ZVAL_MAYBE_P(self->clustering_order), "none");
+          PHP5TO7_ADD_NEXT_INDEX_STRING(&self->clustering_order, "none");
           break;
       }
     }
   }
 
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->clustering_order), 1, 0);
+  RETURN_ZVAL(&self->clustering_order, 1, 0);
 }
 
 PHP_METHOD(DefaultMaterializedView, baseTable)
@@ -523,7 +523,7 @@ PHP_METHOD(DefaultMaterializedView, baseTable)
     return;
 
   self = PHP_DRIVER_GET_MATERIALIZED_VIEW(getThis());
-  if (PHP5TO7_ZVAL_IS_UNDEF(self->base_table)) {
+  if (Z_ISUNDEF(self->base_table)) {
     const CassTableMeta *table =
         cass_materialized_view_meta_base_table(self->meta);
     if (!table) {
@@ -533,7 +533,7 @@ PHP_METHOD(DefaultMaterializedView, baseTable)
                                                   table );
   }
 
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->base_table), 1, 0);
+  RETURN_ZVAL(&self->base_table, 1, 0);
 }
 
 
@@ -647,13 +647,13 @@ php_driver_default_materialized_view_new(zend_class_entry *ce )
   php_driver_materialized_view *self =
       PHP5TO7_ZEND_OBJECT_ECALLOC(materialized_view, ce);
 
-  PHP5TO7_ZVAL_UNDEF(self->name);
-  PHP5TO7_ZVAL_UNDEF(self->options);
-  PHP5TO7_ZVAL_UNDEF(self->partition_key);
-  PHP5TO7_ZVAL_UNDEF(self->primary_key);
-  PHP5TO7_ZVAL_UNDEF(self->clustering_key);
-  PHP5TO7_ZVAL_UNDEF(self->clustering_order);
-  PHP5TO7_ZVAL_UNDEF(self->base_table);
+  ZVAL_UNDEF(&self->name);
+  ZVAL_UNDEF(&self->options);
+  ZVAL_UNDEF(&self->partition_key);
+  ZVAL_UNDEF(&self->primary_key);
+  ZVAL_UNDEF(&self->clustering_key);
+  ZVAL_UNDEF(&self->clustering_order);
+  ZVAL_UNDEF(&self->base_table);
 
   self->meta   = NULL;
   self->schema = NULL;
@@ -667,7 +667,7 @@ void php_driver_define_DefaultMaterializedView()
 
   INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\DefaultMaterializedView", php_driver_default_materialized_view_methods);
   php_driver_default_materialized_view_ce = zend_register_internal_class_ex(&ce, php_driver_materialized_view_ce);
-  php_driver_default_materialized_view_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
+  php_driver_default_materialized_view_ce->ce_flags     |= ZEND_ACC_FINAL;
   php_driver_default_materialized_view_ce->create_object = php_driver_default_materialized_view_new;
 
   memcpy(&php_driver_default_materialized_view_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));

@@ -373,7 +373,7 @@ PHP_INI_MH(OnUpdateLog) {
   if (new_value) {
     if (strcmp(ZSTR_VAL(new_value), "syslog") != 0) {
       char realpath[MAXPATHLEN + 1];
-      if (VCWD_REALPATH(PHP5TO7_STRVAL(new_value), realpath)) {
+      if (VCWD_REALPATH(ZSTR_VAL(new_value), realpath)) {
         log_location = strdup(realpath);
       } else {
         log_location = strdup(ZSTR_VAL(new_value));
@@ -395,23 +395,23 @@ static PHP_GINIT_FUNCTION(php_driver) {
   php_driver_globals->persistent_clusters = 0;
   php_driver_globals->persistent_sessions = 0;
   php_driver_globals->persistent_prepared_statements = 0;
-  PHP5TO7_ZVAL_UNDEF(php_driver_globals->type_varchar);
-  PHP5TO7_ZVAL_UNDEF(php_driver_globals->type_text);
-  PHP5TO7_ZVAL_UNDEF(php_driver_globals->type_blob);
-  PHP5TO7_ZVAL_UNDEF(php_driver_globals->type_ascii);
-  PHP5TO7_ZVAL_UNDEF(php_driver_globals->type_bigint);
-  PHP5TO7_ZVAL_UNDEF(php_driver_globals->type_smallint);
-  PHP5TO7_ZVAL_UNDEF(php_driver_globals->type_counter);
-  PHP5TO7_ZVAL_UNDEF(php_driver_globals->type_int);
-  PHP5TO7_ZVAL_UNDEF(php_driver_globals->type_varint);
-  PHP5TO7_ZVAL_UNDEF(php_driver_globals->type_boolean);
-  PHP5TO7_ZVAL_UNDEF(php_driver_globals->type_decimal);
-  PHP5TO7_ZVAL_UNDEF(php_driver_globals->type_double);
-  PHP5TO7_ZVAL_UNDEF(php_driver_globals->type_float);
-  PHP5TO7_ZVAL_UNDEF(php_driver_globals->type_inet);
-  PHP5TO7_ZVAL_UNDEF(php_driver_globals->type_timestamp);
-  PHP5TO7_ZVAL_UNDEF(php_driver_globals->type_uuid);
-  PHP5TO7_ZVAL_UNDEF(php_driver_globals->type_timeuuid);
+  ZVAL_UNDEF(&php_driver_globals->type_varchar);
+  ZVAL_UNDEF(&php_driver_globals->type_text);
+  ZVAL_UNDEF(&php_driver_globals->type_blob);
+  ZVAL_UNDEF(&php_driver_globals->type_ascii);
+  ZVAL_UNDEF(&php_driver_globals->type_bigint);
+  ZVAL_UNDEF(&php_driver_globals->type_smallint);
+  ZVAL_UNDEF(&php_driver_globals->type_counter);
+  ZVAL_UNDEF(&php_driver_globals->type_int);
+  ZVAL_UNDEF(&php_driver_globals->type_varint);
+  ZVAL_UNDEF(&php_driver_globals->type_boolean);
+  ZVAL_UNDEF(&php_driver_globals->type_decimal);
+  ZVAL_UNDEF(&php_driver_globals->type_double);
+  ZVAL_UNDEF(&php_driver_globals->type_float);
+  ZVAL_UNDEF(&php_driver_globals->type_inet);
+  ZVAL_UNDEF(&php_driver_globals->type_timestamp);
+  ZVAL_UNDEF(&php_driver_globals->type_uuid);
+  ZVAL_UNDEF(&php_driver_globals->type_timeuuid);
 }
 
 static PHP_GSHUTDOWN_FUNCTION(php_driver) {
@@ -547,7 +547,7 @@ PHP_MINIT_FUNCTION(php_driver) {
 PHP_MSHUTDOWN_FUNCTION(php_driver) { return SUCCESS; }
 
 PHP_RINIT_FUNCTION(php_driver) {
-#define XX_SCALAR(name, value) PHP5TO7_ZVAL_UNDEF(PHP_DRIVER_G(type_##name));
+#define XX_SCALAR(name, value) ZVAL_UNDEF(&PHP_DRIVER_G(type_##name));
   PHP_DRIVER_SCALAR_TYPES_MAP(XX_SCALAR)
 #undef XX_SCALAR
 

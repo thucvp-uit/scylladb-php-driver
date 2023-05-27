@@ -57,7 +57,7 @@ void php_driver_define_RetryPolicyDowngradingConsistency() {
   zend_class_implements(php_driver_retry_policy_downgrading_consistency_ce, 1,
                         php_driver_retry_policy_ce);
   php_driver_retry_policy_downgrading_consistency_ce->ce_flags |=
-      PHP5TO7_ZEND_ACC_FINAL;
+      ZEND_ACC_FINAL;
   php_driver_retry_policy_downgrading_consistency_ce->create_object =
       php_driver_retry_policy_downgrading_consistency_new;
 

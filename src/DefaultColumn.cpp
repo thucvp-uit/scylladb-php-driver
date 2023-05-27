@@ -34,18 +34,18 @@ php_driver_create_column(php_driver_ref *schema,
   size_t name_length;
   const CassValue *value;
 
-  PHP5TO7_ZVAL_UNDEF(result);
+  ZVAL_UNDEF(&result);
 
-  PHP5TO7_ZVAL_MAYBE_MAKE(result);
-  object_init_ex(PHP5TO7_ZVAL_MAYBE_P(result), php_driver_default_column_ce);
 
-  column = PHP_DRIVER_GET_COLUMN(PHP5TO7_ZVAL_MAYBE_P(result));
+  object_init_ex(&result, php_driver_default_column_ce);
+
+  column = PHP_DRIVER_GET_COLUMN(&result);
   column->schema = php_driver_add_ref(schema);
   column->meta   = meta;
 
   cass_column_meta_name(meta, &name, &name_length);
-  PHP5TO7_ZVAL_MAYBE_MAKE(column->name);
-  PHP5TO7_ZVAL_STRINGL(PHP5TO7_ZVAL_MAYBE_P(column->name), name, name_length);
+
+  ZVAL_STRINGL(&column->name, name, name_length);
 
   value = cass_column_meta_field_by_name(meta, "validator");
   if (value) {
@@ -56,7 +56,7 @@ php_driver_create_column(php_driver_ref *schema,
                                                &validator,
                                                &validator_length),
      zval_ptr_dtor(&result);
-     PHP5TO7_ZVAL_UNDEF(result);
+     ZVAL_UNDEF(&result);
      return result;
     );
 
@@ -64,7 +64,7 @@ php_driver_create_column(php_driver_ref *schema,
                                         &column->reversed, &column->frozen,
                                         &column->type ) == FAILURE) {
       zval_ptr_dtor(&result);
-      PHP5TO7_ZVAL_UNDEF(result);
+      ZVAL_UNDEF(&result);
       return result;
     }
   } else {
@@ -85,7 +85,7 @@ php_driver_create_column(php_driver_ref *schema,
         zend_throw_exception_ex(php_driver_runtime_exception_ce, 0 ,
                                 "Unable to get column field \"clustering_order\"");
         zval_ptr_dtor(&result);
-        PHP5TO7_ZVAL_UNDEF(result);
+        ZVAL_UNDEF(&result);
         return result;
       }
 
@@ -93,7 +93,7 @@ php_driver_create_column(php_driver_ref *schema,
                                                 &clustering_order,
                                                 &clustering_order_length),
         zval_ptr_dtor(&result);
-        PHP5TO7_ZVAL_UNDEF(result);
+        ZVAL_UNDEF(&result);
         return result;
       );
       column->reversed =
@@ -115,7 +115,7 @@ PHP_METHOD(DefaultColumn, name)
 
   self = PHP_DRIVER_GET_COLUMN(getThis());
 
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->name), 1, 0);
+  RETURN_ZVAL(&self->name, 1, 0);
 }
 
 PHP_METHOD(DefaultColumn, type)
@@ -128,11 +128,11 @@ PHP_METHOD(DefaultColumn, type)
 
   self = PHP_DRIVER_GET_COLUMN(getThis());
 
-  if (PHP5TO7_ZVAL_IS_UNDEF(self->type)) {
+  if (Z_ISUNDEF(self->type)) {
     RETURN_NULL();
   }
 
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->type), 1, 0);
+  RETURN_ZVAL(&self->type, 1, 0);
 }
 
 PHP_METHOD(DefaultColumn, isReversed)
@@ -186,7 +186,7 @@ PHP_METHOD(DefaultColumn, indexName)
   self = PHP_DRIVER_GET_COLUMN(getThis());
 
   php_driver_get_column_field(self->meta, "index_name", &value );
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(value), 0, 1);
+  RETURN_ZVAL(&value, 0, 1);
 }
 
 PHP_METHOD(DefaultColumn, indexOptions)
@@ -201,7 +201,7 @@ PHP_METHOD(DefaultColumn, indexOptions)
   self = PHP_DRIVER_GET_COLUMN(getThis());
 
   php_driver_get_column_field(self->meta, "index_options", &value );
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(value), 0, 1);
+  RETURN_ZVAL(&value, 0, 1);
 }
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_none, 0, ZEND_RETURN_VALUE, 0)
@@ -289,8 +289,8 @@ php_driver_default_column_new(zend_class_entry *ce )
   self->frozen   = 0;
   self->schema   = NULL;
   self->meta     = NULL;
-  PHP5TO7_ZVAL_UNDEF(self->name);
-  PHP5TO7_ZVAL_UNDEF(self->type);
+  ZVAL_UNDEF(&self->name);
+  ZVAL_UNDEF(&self->type);
 
   PHP5TO7_ZEND_OBJECT_INIT_EX(column, default_column, self, ce);
 }
@@ -302,7 +302,7 @@ void php_driver_define_DefaultColumn()
   INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\DefaultColumn", php_driver_default_column_methods);
   php_driver_default_column_ce = zend_register_internal_class(&ce );
   zend_class_implements(php_driver_default_column_ce , 1, php_driver_column_ce);
-  php_driver_default_column_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
+  php_driver_default_column_ce->ce_flags     |= ZEND_ACC_FINAL;
   php_driver_default_column_ce->create_object = php_driver_default_column_new;
 
   memcpy(&php_driver_default_column_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));

@@ -66,7 +66,7 @@ static zend_result to_string(zval *result, php_driver_numeric *varint )
     int string_len;
     php_driver_format_integer(varint->data.varint.value, &string, &string_len);
 
-    PHP5TO7_ZVAL_STRINGL(result, string, string_len);
+    ZVAL_STRINGL(result, string, string_len);
     efree(string);
 
     return SUCCESS;
@@ -134,7 +134,7 @@ PHP_METHOD(Varint, __toString)
 PHP_METHOD(Varint, type)
 {
     php5to7_zval type = php_driver_type_scalar(CASS_VALUE_TYPE_VARINT );
-    RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(type), 1, 1);
+    RETURN_ZVAL(&type, 1, 1);
 }
 /* }}} */
 
@@ -147,7 +147,7 @@ PHP_METHOD(Varint, value)
     int string_len;
     php_driver_format_integer(self->data.varint.value, &string, &string_len);
 
-    PHP5TO7_RETVAL_STRINGL(string, string_len);
+    RETVAL_STRINGL(string, string_len);
     efree(string);
 }
 /* }}} */
@@ -436,12 +436,12 @@ static HashTable *php_driver_varint_properties(
     php_driver_format_integer(self->data.varint.value, &string, &string_len);
 
     type = php_driver_type_scalar(CASS_VALUE_TYPE_VARINT );
-    PHP5TO7_ZEND_HASH_UPDATE(props, "type", sizeof("type"), PHP5TO7_ZVAL_MAYBE_P(type), sizeof(zval));
+    PHP5TO7_ZEND_HASH_UPDATE(props, "type", sizeof("type"), &type, sizeof(zval));
 
-    PHP5TO7_ZVAL_MAYBE_MAKE(value);
-    PHP5TO7_ZVAL_STRINGL(PHP5TO7_ZVAL_MAYBE_P(value), string, string_len);
+
+    ZVAL_STRINGL(&value, string, string_len);
     efree(string);
-    PHP5TO7_ZEND_HASH_UPDATE(props, "value", sizeof("value"), PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval));
+    PHP5TO7_ZEND_HASH_UPDATE(props, "value", sizeof("value"), &value, sizeof(zval));
 
     return props;
 }
@@ -525,7 +525,7 @@ void php_driver_define_Varint()
     php_driver_varint_ce = zend_register_internal_class(&ce );
     zend_class_implements(php_driver_varint_ce , 2, php_driver_value_ce, php_driver_numeric_ce);
 
-    php_driver_varint_ce->ce_flags |= PHP5TO7_ZEND_ACC_FINAL;
+    php_driver_varint_ce->ce_flags |= ZEND_ACC_FINAL;
     php_driver_varint_ce->create_object = php_driver_varint_new;
 
     memcpy(&php_driver_varint_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));

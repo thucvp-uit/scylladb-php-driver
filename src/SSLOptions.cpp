@@ -79,7 +79,7 @@ void php_driver_define_SSLOptions()
 
   INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\SSLOptions", php_driver_ssl_methods);
   php_driver_ssl_ce = zend_register_internal_class(&ce );
-  php_driver_ssl_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
+  php_driver_ssl_ce->ce_flags     |= ZEND_ACC_FINAL;
   php_driver_ssl_ce->create_object = php_driver_ssl_new;
 
   memcpy(&php_driver_ssl_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));

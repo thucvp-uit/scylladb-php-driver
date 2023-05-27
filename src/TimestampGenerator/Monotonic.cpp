@@ -54,7 +54,7 @@ void php_driver_define_TimestampGeneratorMonotonic()
   INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\TimestampGenerator\\Monotonic", php_driver_timestamp_gen_monotonic_methods);
   php_driver_timestamp_gen_monotonic_ce = zend_register_internal_class(&ce );
   zend_class_implements(php_driver_timestamp_gen_monotonic_ce , 1, php_driver_timestamp_gen_ce);
-  php_driver_timestamp_gen_monotonic_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
+  php_driver_timestamp_gen_monotonic_ce->ce_flags     |= ZEND_ACC_FINAL;
   php_driver_timestamp_gen_monotonic_ce->create_object = php_driver_timestamp_gen_monotonic_new;
 
   memcpy(&php_driver_timestamp_gen_monotonic_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));

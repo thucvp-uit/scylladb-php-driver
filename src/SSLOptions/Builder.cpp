@@ -118,7 +118,7 @@ PHP_METHOD(SSLOptionsBuilder, withTrustedCerts)
   }
 
   for (i = 0; i < argc; i++) {
-    zval *path = PHP5TO7_ZVAL_ARG(args[i]);
+    zval *path = &args[i];
 
     if (Z_TYPE_P(path) != IS_STRING) {
       throw_invalid_argument(path, "path", "a path to a trusted cert file" );
@@ -155,7 +155,7 @@ PHP_METHOD(SSLOptionsBuilder, withTrustedCerts)
   builder->trusted_certs     = static_cast<char **>(ecalloc(argc, sizeof(char*)));
 
   for (i = 0; i < argc; i++) {
-    zval* path = PHP5TO7_ZVAL_ARG(args[i]);
+    zval* path = &args[i];
 
     builder->trusted_certs[i] = estrndup(Z_STRVAL_P(path), Z_STRLEN_P(path));
   }
@@ -362,7 +362,7 @@ void php_driver_define_SSLOptionsBuilder()
 
   INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\SSLOptions\\Builder", php_driver_ssl_builder_methods);
   php_driver_ssl_builder_ce = zend_register_internal_class(&ce );
-  php_driver_ssl_builder_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
+  php_driver_ssl_builder_ce->ce_flags     |= ZEND_ACC_FINAL;
   php_driver_ssl_builder_ce->create_object = php_driver_ssl_builder_new;
 
   memcpy(&php_driver_ssl_builder_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));

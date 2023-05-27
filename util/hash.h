@@ -32,7 +32,7 @@
 
 #define HASH_FIND_ZVAL(head, zvptr, out) HASH_FIND(hh, head, zvptr, 0, out)
 
-#define HASH_ADD_ZVAL(head, fieldname, add) HASH_ADD_KEYPTR(hh, head, PHP5TO7_ZVAL_MAYBE_P(((add)->fieldname)), 0, add)
+#define HASH_ADD_ZVAL(head, fieldname, add) HASH_ADD_KEYPTR(hh, head, &((add->fieldname)), 0, add)
 
 struct php_driver_map_entry_
 {

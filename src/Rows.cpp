@@ -33,7 +33,7 @@ static void php_driver_rows_create(php_driver_rows *current, zval *result )
 {
     php_driver_rows *rows;
 
-    if (PHP5TO7_ZVAL_IS_UNDEF(current->next_rows))
+    if (Z_ISUNDEF(current->next_rows))
     {
         if (php_driver_get_result((const CassResult *)current->next_result->data, &current->next_rows ) ==
             FAILURE)
@@ -46,7 +46,7 @@ static void php_driver_rows_create(php_driver_rows *current, zval *result )
     object_init_ex(result, php_driver_rows_ce);
     rows = PHP_DRIVER_GET_ROWS(result);
 
-    PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(rows->rows), PHP5TO7_ZVAL_MAYBE_P(current->next_rows));
+    ZVAL_COPY(&rows->rows, &current->next_rows);
 
     if (cass_result_has_more_pages((const CassResult *)current->next_result->data))
     {
@@ -74,7 +74,7 @@ PHP_METHOD(Rows, count)
 
     self = PHP_DRIVER_GET_ROWS(getThis());
 
-    RETURN_LONG(zend_hash_num_elements(Z_ARRVAL_P(PHP5TO7_ZVAL_MAYBE_P(self->rows))));
+    RETURN_LONG(zend_hash_num_elements(Z_ARRVAL_P(&self->rows)));
 }
 
 PHP_METHOD(Rows, rewind)
@@ -118,7 +118,7 @@ PHP_METHOD(Rows, key)
 
     self = PHP_DRIVER_GET_ROWS(getThis());
 
-    if (PHP5TO7_ZEND_HASH_GET_CURRENT_KEY(PHP5TO7_Z_ARRVAL_MAYBE_P(self->rows), &str_index, &num_index) ==
+    if (PHP5TO7_ZEND_HASH_GET_CURRENT_KEY(Z_ARRVAL(self->rows), &str_index, &num_index) ==
         HASH_KEY_IS_LONG)
         RETURN_LONG(num_index);
 }
@@ -134,7 +134,7 @@ PHP_METHOD(Rows, next)
 
     self = PHP_DRIVER_GET_ROWS(getThis());
 
-    zend_hash_move_forward(PHP5TO7_Z_ARRVAL_MAYBE_P(self->rows));
+    zend_hash_move_forward(Z_ARRVAL(self->rows));
 }
 
 PHP_METHOD(Rows, valid)
@@ -146,7 +146,7 @@ PHP_METHOD(Rows, valid)
 
     self = PHP_DRIVER_GET_ROWS(getThis());
 
-    RETURN_BOOL(zend_hash_has_more_elements(PHP5TO7_Z_ARRVAL_MAYBE_P(self->rows)) == SUCCESS);
+    RETURN_BOOL(zend_hash_has_more_elements(Z_ARRVAL(self->rows)) == SUCCESS);
 }
 
 PHP_METHOD(Rows, offsetExists)
@@ -164,7 +164,7 @@ PHP_METHOD(Rows, offsetExists)
 
     self = PHP_DRIVER_GET_ROWS(getThis());
 
-    RETURN_BOOL(zend_hash_index_exists(PHP5TO7_Z_ARRVAL_MAYBE_P(self->rows), (php5to7_ulong)Z_LVAL_P(offset)));
+    RETURN_BOOL(zend_hash_index_exists(Z_ARRVAL(self->rows), (php5to7_ulong)Z_LVAL_P(offset)));
 }
 
 PHP_METHOD(Rows, offsetGet)
@@ -182,9 +182,9 @@ PHP_METHOD(Rows, offsetGet)
     }
 
     self = PHP_DRIVER_GET_ROWS(getThis());
-    if (PHP5TO7_ZEND_HASH_INDEX_FIND(PHP5TO7_Z_ARRVAL_MAYBE_P(self->rows), Z_LVAL_P(offset), value))
+    if (PHP5TO7_ZEND_HASH_INDEX_FIND(Z_ARRVAL(self->rows), Z_LVAL_P(offset), value))
     {
-        RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_DEREF(value), 1, 0);
+        RETURN_ZVAL(value, 1, 0);
     }
 }
 
@@ -217,7 +217,7 @@ PHP_METHOD(Rows, isLastPage)
 
     self = PHP_DRIVER_GET_ROWS(getThis());
 
-    if (self->result == NULL && PHP5TO7_ZVAL_IS_UNDEF(self->next_rows) && PHP5TO7_ZVAL_IS_UNDEF(self->future_next_page))
+    if (self->result == NULL && Z_ISUNDEF(self->next_rows) && Z_ISUNDEF(self->future_next_page))
     {
         RETURN_TRUE;
     }
@@ -237,18 +237,18 @@ PHP_METHOD(Rows, nextPage)
 
     if (!self->next_result)
     {
-        if (!PHP5TO7_ZVAL_IS_UNDEF(self->future_next_page))
+        if (!Z_ISUNDEF(self->future_next_page))
         {
             php_driver_future_rows *future_rows = NULL;
 
-            if (!instanceof_function(PHP5TO7_Z_OBJCE_MAYBE_P(self->future_next_page),
+            if (!instanceof_function(Z_OBJCE(self->future_next_page),
                                      php_driver_future_rows_ce ))
             {
                 zend_throw_exception_ex(php_driver_runtime_exception_ce, 0 , "Unexpected future instance.");
                 return;
             }
 
-            future_rows = PHP_DRIVER_GET_FUTURE_ROWS(PHP5TO7_ZVAL_MAYBE_P(self->future_next_page));
+            future_rows = PHP_DRIVER_GET_FUTURE_ROWS(&self->future_next_page);
 
             if (php_driver_future_rows_get_result(future_rows, timeout ) == FAILURE)
             {
@@ -313,20 +313,20 @@ PHP_METHOD(Rows, nextPageAsync)
 
     self = PHP_DRIVER_GET_ROWS(getThis());
 
-    if (!PHP5TO7_ZVAL_IS_UNDEF(self->future_next_page))
+    if (!Z_ISUNDEF(self->future_next_page))
     {
-        RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->future_next_page), 1, 0);
+        RETURN_ZVAL(&self->future_next_page, 1, 0);
     }
 
     if (self->next_result)
     {
         php_driver_future_value *future_value;
-        PHP5TO7_ZVAL_MAYBE_MAKE(self->future_next_page);
-        object_init_ex(PHP5TO7_ZVAL_MAYBE_P(self->future_next_page), php_driver_future_value_ce);
-        future_value = PHP_DRIVER_GET_FUTURE_VALUE(PHP5TO7_ZVAL_MAYBE_P(self->future_next_page));
-        PHP5TO7_ZVAL_MAYBE_MAKE(future_value->value);
-        php_driver_rows_create(self, PHP5TO7_ZVAL_MAYBE_P(future_value->value) );
-        RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->future_next_page), 1, 0);
+
+        object_init_ex(&self->future_next_page, php_driver_future_value_ce);
+        future_value = PHP_DRIVER_GET_FUTURE_VALUE(&self->future_next_page);
+
+        php_driver_rows_create(self, &future_value->value );
+        RETURN_ZVAL(&self->future_next_page, 1, 0);
     }
 
     if (self->result == NULL)
@@ -338,16 +338,16 @@ PHP_METHOD(Rows, nextPageAsync)
     ASSERT_SUCCESS(cass_statement_set_paging_state((CassStatement *)self->statement->data,
                                                    (const CassResult *)self->result->data));
 
-    PHP5TO7_ZVAL_MAYBE_MAKE(self->future_next_page);
-    object_init_ex(PHP5TO7_ZVAL_MAYBE_P(self->future_next_page), php_driver_future_rows_ce);
-    future_rows = PHP_DRIVER_GET_FUTURE_ROWS(PHP5TO7_ZVAL_MAYBE_P(self->future_next_page));
+
+    object_init_ex(&self->future_next_page, php_driver_future_rows_ce);
+    future_rows = PHP_DRIVER_GET_FUTURE_ROWS(&self->future_next_page);
 
     future_rows->statement = php_driver_add_ref(self->statement);
     future_rows->session = php_driver_add_ref(self->session);
     future_rows->future =
         cass_session_execute((CassSession *)self->session->data, (CassStatement *)self->statement->data);
 
-    RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->future_next_page), 1, 0);
+    RETURN_ZVAL(&self->future_next_page, 1, 0);
 }
 
 PHP_METHOD(Rows, pagingStateToken)
@@ -368,7 +368,7 @@ PHP_METHOD(Rows, pagingStateToken)
 
     ASSERT_SUCCESS(
         cass_result_paging_state_token((const CassResult *)self->result->data, &paging_state, &paging_state_size));
-    PHP5TO7_RETURN_STRINGL(paging_state, paging_state_size);
+    RETVAL_STRINGL(paging_state, paging_state_size);
 }
 
 PHP_METHOD(Rows, first)
@@ -384,10 +384,10 @@ PHP_METHOD(Rows, first)
 
     self = PHP_DRIVER_GET_ROWS(getThis());
 
-    zend_hash_internal_pointer_reset_ex(PHP5TO7_Z_ARRVAL_MAYBE_P(self->rows), &pos);
-    if (PHP5TO7_ZEND_HASH_GET_CURRENT_DATA(PHP5TO7_Z_ARRVAL_MAYBE_P(self->rows), entry))
+    zend_hash_internal_pointer_reset_ex(Z_ARRVAL(self->rows), &pos);
+    if (PHP5TO7_ZEND_HASH_GET_CURRENT_DATA(Z_ARRVAL(self->rows), entry))
     {
-        RETVAL_ZVAL(PHP5TO7_ZVAL_MAYBE_DEREF(entry), 1, 0);
+        RETVAL_ZVAL(entry, 1, 0);
     }
 }
 
@@ -514,9 +514,9 @@ static php5to7_zend_object php_driver_rows_new(zend_class_entry *ce )
     self->session = NULL;
     self->result = NULL;
     self->next_result = NULL;
-    PHP5TO7_ZVAL_UNDEF(self->rows);
-    PHP5TO7_ZVAL_UNDEF(self->next_rows);
-    PHP5TO7_ZVAL_UNDEF(self->future_next_page);
+    ZVAL_UNDEF(&self->rows);
+    ZVAL_UNDEF(&self->next_rows);
+    ZVAL_UNDEF(&self->future_next_page);
 
     PHP5TO7_ZEND_OBJECT_INIT(rows, self, ce);
 }
@@ -528,7 +528,7 @@ void php_driver_define_Rows()
     INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\Rows", php_driver_rows_methods);
     php_driver_rows_ce = zend_register_internal_class(&ce );
     zend_class_implements(php_driver_rows_ce , 2, zend_ce_iterator, zend_ce_arrayaccess);
-    php_driver_rows_ce->ce_flags |= PHP5TO7_ZEND_ACC_FINAL;
+    php_driver_rows_ce->ce_flags |= ZEND_ACC_FINAL;
     php_driver_rows_ce->create_object = php_driver_rows_new;
 
     memcpy(&php_driver_rows_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));

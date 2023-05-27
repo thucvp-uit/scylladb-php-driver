@@ -90,11 +90,11 @@ PHP_METHOD(BatchStatement, add)
 
     batch_statement_entry = (php_driver_batch_statement_entry *)ecalloc(1, sizeof(php_driver_batch_statement_entry));
 
-    PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(batch_statement_entry->statement), statement);
+    ZVAL_COPY(&batch_statement_entry->statement, statement);
 
     if (arguments)
     {
-        PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(batch_statement_entry->arguments), arguments);
+        ZVAL_COPY(&batch_statement_entry->arguments, arguments);
     }
 
 #if PHP_MAJOR_VERSION >= 7
@@ -173,7 +173,7 @@ void php_driver_define_BatchStatement()
     INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\BatchStatement", php_driver_batch_statement_methods);
     php_driver_batch_statement_ce = zend_register_internal_class(&ce );
     zend_class_implements(php_driver_batch_statement_ce , 1, php_driver_statement_ce);
-    php_driver_batch_statement_ce->ce_flags |= PHP5TO7_ZEND_ACC_FINAL;
+    php_driver_batch_statement_ce->ce_flags |= ZEND_ACC_FINAL;
     php_driver_batch_statement_ce->create_object = php_driver_batch_statement_new;
 
     memcpy(&php_driver_batch_statement_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));

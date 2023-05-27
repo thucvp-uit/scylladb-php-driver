@@ -43,7 +43,7 @@ static zend_result to_string(zval *result, php_driver_numeric *tinyint )
 {
     char *string;
     spprintf(&string, 0, "%d", tinyint->data.tinyint.value);
-    PHP5TO7_ZVAL_STRING(result, string);
+    ZVAL_STRING(result, string);
     efree(string);
     return SUCCESS;
 }
@@ -150,7 +150,7 @@ PHP_METHOD(Tinyint, __toString)
 PHP_METHOD(Tinyint, type)
 {
     php5to7_zval type = php_driver_type_scalar(CASS_VALUE_TYPE_TINY_INT );
-    RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(type), 1, 1);
+    RETURN_ZVAL(&type, 1, 1);
 }
 /* }}} */
 
@@ -493,11 +493,11 @@ static HashTable *php_driver_tinyint_properties(
     HashTable *props = zend_std_get_properties(object );
 
     type = php_driver_type_scalar(CASS_VALUE_TYPE_TINY_INT );
-    PHP5TO7_ZEND_HASH_UPDATE(props, "type", sizeof("type"), PHP5TO7_ZVAL_MAYBE_P(type), sizeof(zval));
+    PHP5TO7_ZEND_HASH_UPDATE(props, "type", sizeof("type"), &type, sizeof(zval));
 
-    PHP5TO7_ZVAL_MAYBE_MAKE(value);
-    to_string(PHP5TO7_ZVAL_MAYBE_P(value), self );
-    PHP5TO7_ZEND_HASH_UPDATE(props, "value", sizeof("value"), PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval));
+
+    to_string(&value, self );
+    PHP5TO7_ZEND_HASH_UPDATE(props, "value", sizeof("value"), &value, sizeof(zval));
 
     return props;
 }
@@ -583,7 +583,7 @@ void php_driver_define_Tinyint()
     INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\Tinyint", php_driver_tinyint_methods);
     php_driver_tinyint_ce = zend_register_internal_class(&ce );
     zend_class_implements(php_driver_tinyint_ce , 2, php_driver_value_ce, php_driver_numeric_ce);
-    php_driver_tinyint_ce->ce_flags |= PHP5TO7_ZEND_ACC_FINAL;
+    php_driver_tinyint_ce->ce_flags |= ZEND_ACC_FINAL;
     php_driver_tinyint_ce->create_object = php_driver_tinyint_new;
 
     memcpy(&php_driver_tinyint_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));

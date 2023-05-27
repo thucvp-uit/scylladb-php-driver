@@ -20,15 +20,14 @@
 BEGIN_EXTERN_C()
 zend_class_entry *php_driver_overloaded_exception_ce = NULL;
 
-static zend_function_entry OverloadedException_methods[] = {
-  PHP_FE_END
-};
+static zend_function_entry OverloadedException_methods[] = {PHP_FE_END};
 
-void php_driver_define_OverloadedException()
-{
+void php_driver_define_OverloadedException() {
   zend_class_entry ce;
 
-  INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\Exception\\OverloadedException", OverloadedException_methods);
-  php_driver_overloaded_exception_ce = php5to7_zend_register_internal_class_ex(&ce, php_driver_server_exception_ce);
+  INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\Exception\\OverloadedException",
+                   OverloadedException_methods);
+  php_driver_overloaded_exception_ce =
+      zend_register_internal_class_ex(&ce, php_driver_server_exception_ce);
 }
 END_EXTERN_C()
