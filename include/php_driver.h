@@ -100,10 +100,6 @@ extern "C"
 
 #define PHP5TO7_ZEND_OBJECT_GET(type_name, object) php_driver_##type_name##_object_fetch(object)
 
-#define PHP5TO7_SMART_STR_INIT                                                                                         \
-    {                                                                                                                  \
-        NULL, 0                                                                                                        \
-    }
 #define PHP5TO7_SMART_STR_VAL(ss) ((ss).s ? (ss).s->val : NULL)
 #define PHP5TO7_SMART_STR_LEN(ss) ((ss).s ? (ss).s->len : 0)
 
@@ -121,8 +117,6 @@ extern "C"
         self->zval.handlers = (zend_object_handlers *)&php_driver_##name##_handlers;                                   \
         return &self->zval;                                                                                            \
     } while (0)
-
-#define PHP5TO7_MAYBE_EFREE(p) ((void)0)
 
 #define PHP5TO7_ADD_ASSOC_ZVAL_EX(zv, key, len, val) add_assoc_zval_ex((zv), (key), (size_t)(len - 1), val)
 

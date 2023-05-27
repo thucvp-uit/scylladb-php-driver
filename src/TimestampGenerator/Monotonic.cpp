@@ -34,7 +34,7 @@ php_driver_timestamp_gen_monotonic_free(zend_object *object )
   cass_timestamp_gen_free(self->gen);
 
   zend_object_std_dtor(&self->zval );
-  PHP5TO7_MAYBE_EFREE(self);
+
 }
 
 static zend_object*

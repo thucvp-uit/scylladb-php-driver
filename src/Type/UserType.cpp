@@ -153,7 +153,7 @@ PHP_METHOD(TypeUserType, types)
 PHP_METHOD(TypeUserType, __toString)
 {
   php_driver_type *self;
-  smart_str string = PHP5TO7_SMART_STR_INIT;
+  smart_str string = {NULL,0};
 
   if (zend_parse_parameters_none() == FAILURE) {
     return;
@@ -194,7 +194,7 @@ PHP_METHOD(TypeUserType, create)
                               "from an even number of name/value pairs, where each odd " \
                               "argument is a name and each even argument is a value, " \
                               "e.g user_type(name, value, name, value, name, value)");
-      PHP5TO7_MAYBE_EFREE(args);
+
       return;
     }
 
@@ -205,7 +205,7 @@ PHP_METHOD(TypeUserType, create)
       if (Z_TYPE_P(name) != IS_STRING) {
         zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0 ,
                                 "Argument %d is not a string", i + 1);
-        PHP5TO7_MAYBE_EFREE(args);
+
         return;
       }
       if (!PHP5TO7_ZEND_HASH_FIND(&self->data.udt.types,
@@ -214,12 +214,12 @@ PHP_METHOD(TypeUserType, create)
         zend_throw_exception_ex(php_driver_invalid_argument_exception_ce,
                                 0 ,
                                 "Invalid name '%s'", Z_STRVAL_P(name));
-        PHP5TO7_MAYBE_EFREE(args);
+
         return;
       }
       if (!php_driver_validate_object(value,
                                       sub_type )) {
-        PHP5TO7_MAYBE_EFREE(args);
+
         return;
       }
       php_driver_user_type_value_set(user_type_value,
@@ -227,7 +227,7 @@ PHP_METHOD(TypeUserType, create)
                                      value );
     }
 
-    PHP5TO7_MAYBE_EFREE(args);
+
   }
 }
 
@@ -337,7 +337,7 @@ php_driver_type_user_type_free(zend_object *object )
   zend_hash_destroy(&self->data.udt.types);
 
   zend_object_std_dtor(&self->zval );
-  PHP5TO7_MAYBE_EFREE(self);
+
 }
 
 static zend_object*

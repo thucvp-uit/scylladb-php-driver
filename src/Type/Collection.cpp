@@ -52,7 +52,7 @@ PHP_METHOD(TypeCollection, valueType) {
 
 PHP_METHOD(TypeCollection, __toString) {
   php_driver_type* self;
-  smart_str string = PHP5TO7_SMART_STR_INIT;
+  smart_str string = {NULL,0};
 
   if (zend_parse_parameters_none() == FAILURE) {
     return;
@@ -89,14 +89,14 @@ PHP_METHOD(TypeCollection, create) {
       if (!php_driver_validate_object(
               &args[i],
               &self->data.collection.value_type)) {
-        PHP5TO7_MAYBE_EFREE(args);
+
         return;
       }
 
       php_driver_collection_add(collection, &args[i]);
     }
 
-    PHP5TO7_MAYBE_EFREE(args);
+
   }
 }
 
@@ -179,7 +179,7 @@ static void php_driver_type_collection_free(zend_object* object) {
   PHP5TO7_ZVAL_MAYBE_DESTROY(self->data.collection.value_type);
 
   zend_object_std_dtor(&self->zval);
-  PHP5TO7_MAYBE_EFREE(self);
+
 }
 
 static zend_object* php_driver_type_collection_new(

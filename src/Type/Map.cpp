@@ -71,7 +71,7 @@ PHP_METHOD(TypeMap, valueType)
 PHP_METHOD(TypeMap, __toString)
 {
   php_driver_type *self;
-  smart_str string = PHP5TO7_SMART_STR_INIT;
+  smart_str string = {NULL,0};
 
   if (zend_parse_parameters_none() == FAILURE) {
     return;
@@ -98,7 +98,7 @@ PHP_METHOD(TypeMap, create)
   }
 
   if (argc % 2 == 1) {
-    PHP5TO7_MAYBE_EFREE(args);
+
     zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0 ,
                             "Not enough values, maps can only be created " \
                             "from an even number of values, where each odd " \
@@ -117,11 +117,11 @@ PHP_METHOD(TypeMap, create)
       if (!php_driver_map_set(map,
                               &args[i],
                               &args[i + 1] )) {
-        PHP5TO7_MAYBE_EFREE(args);
+
         return;
       }
     }
-    PHP5TO7_MAYBE_EFREE(args);
+
   }
 }
 
@@ -221,7 +221,7 @@ php_driver_type_map_free(zend_object *object )
   PHP5TO7_ZVAL_MAYBE_DESTROY(self->data.map.value_type);
 
   zend_object_std_dtor(&self->zval );
-  PHP5TO7_MAYBE_EFREE(self);
+
 }
 
 static zend_object*

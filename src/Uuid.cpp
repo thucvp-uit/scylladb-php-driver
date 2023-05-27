@@ -216,7 +216,7 @@ php_driver_uuid_free(zend_object *object )
   php_driver_uuid *self = PHP5TO7_ZEND_OBJECT_GET(uuid, object);
 
   zend_object_std_dtor(&self->zval );
-  PHP5TO7_MAYBE_EFREE(self);
+
 }
 
 static zend_object*

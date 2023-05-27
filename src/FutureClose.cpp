@@ -86,7 +86,7 @@ php_driver_future_close_free(zend_object *object )
     cass_future_free(self->future);
 
   zend_object_std_dtor(&self->zval );
-  PHP5TO7_MAYBE_EFREE(self);
+
 }
 
 static zend_object*

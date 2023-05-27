@@ -59,7 +59,7 @@ php_driver_ssl_free(zend_object *object )
   cass_ssl_free(self->ssl);
 
   zend_object_std_dtor(&self->zval );
-  PHP5TO7_MAYBE_EFREE(self);
+
 }
 
 static zend_object*

@@ -146,7 +146,7 @@ PHP_METHOD(Collection, add)
 
   for (i = 0; i < argc; i++) {
     if (Z_TYPE_P(&args[i]) == IS_NULL) {
-      PHP5TO7_MAYBE_EFREE(args);
+
       zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,
                               "Invalid value: null is not supported inside collections");
       RETURN_FALSE;
@@ -154,7 +154,7 @@ PHP_METHOD(Collection, add)
 
     if (!php_driver_validate_object(&args[i],
                                     &type->data.collection.value_type)) {
-      PHP5TO7_MAYBE_EFREE(args);
+
       RETURN_FALSE;
     }
   }
@@ -163,7 +163,7 @@ PHP_METHOD(Collection, add)
     php_driver_collection_add(self, &args[i]);
   }
 
-  PHP5TO7_MAYBE_EFREE(args);
+
   RETVAL_LONG(zend_hash_num_elements(&self->values));
 }
 /* }}} */
@@ -463,7 +463,7 @@ php_driver_collection_free(zend_object *object)
   PHP5TO7_ZVAL_MAYBE_DESTROY(self->type);
 
   zend_object_std_dtor(&self->zval);
-  PHP5TO7_MAYBE_EFREE(self);
+
 }
 
 static zend_object*

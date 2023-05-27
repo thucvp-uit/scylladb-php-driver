@@ -189,7 +189,7 @@ php_driver_inet_free(zend_object *object )
   php_driver_inet *self = PHP5TO7_ZEND_OBJECT_GET(inet, object);
 
   zend_object_std_dtor(&self->zval );
-  PHP5TO7_MAYBE_EFREE(self);
+
 }
 
 static zend_object*

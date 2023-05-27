@@ -152,7 +152,7 @@ static void php_driver_batch_statement_free(zend_object *object )
     zend_hash_destroy(&self->data.batch.statements);
 
     zend_object_std_dtor(&self->zval );
-    PHP5TO7_MAYBE_EFREE(self);
+
 }
 
 static zend_object* php_driver_batch_statement_new(zend_class_entry *ce )

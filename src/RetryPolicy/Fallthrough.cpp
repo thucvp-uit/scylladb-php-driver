@@ -34,7 +34,7 @@ php_driver_retry_policy_fallthrough_free(zend_object *object )
   cass_retry_policy_free(self->policy);
 
   zend_object_std_dtor(&self->zval );
-  PHP5TO7_MAYBE_EFREE(self);
+
 }
 
 static zend_object*

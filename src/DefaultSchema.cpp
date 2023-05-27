@@ -149,7 +149,7 @@ php_driver_default_schema_free(zend_object *object )
   }
 
   zend_object_std_dtor(&self->zval );
-  PHP5TO7_MAYBE_EFREE(self);
+
 }
 
 static zend_object*

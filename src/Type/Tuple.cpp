@@ -73,7 +73,7 @@ PHP_METHOD(TypeTuple, types)
 PHP_METHOD(TypeTuple, __toString)
 {
   php_driver_type* self;
-  smart_str string = PHP5TO7_SMART_STR_INIT;
+  smart_str string = {NULL,0};
 
   if (zend_parse_parameters_none() == FAILURE) {
     return;
@@ -116,7 +116,7 @@ PHP_METHOD(TypeTuple, create)
                               0 ,
                               "Invalid number of elements given. Expected %d arguments.",
                               zend_hash_num_elements(&self->data.tuple.types));
-      PHP5TO7_MAYBE_EFREE(args);
+
       return;
     }
 
@@ -124,14 +124,14 @@ PHP_METHOD(TypeTuple, create)
       zval* sub_type;
 
       if (!PHP5TO7_ZEND_HASH_INDEX_FIND(&self->data.tuple.types, i, sub_type) || !php_driver_validate_object(&args[i], sub_type )) {
-        PHP5TO7_MAYBE_EFREE(args);
+
         return;
       }
 
       php_driver_tuple_set(tuple, i, &args[i] );
     }
 
-    PHP5TO7_MAYBE_EFREE(args);
+
   }
 }
 
@@ -228,7 +228,7 @@ php_driver_type_tuple_free(zend_object* object )
   zend_hash_destroy(&self->data.tuple.types);
 
   zend_object_std_dtor(&self->zval );
-  PHP5TO7_MAYBE_EFREE(self);
+
 }
 
 static zend_object*

@@ -266,7 +266,7 @@ php_driver_default_function_free(zend_object *object )
   self->meta = NULL;
 
   zend_object_std_dtor(&self->zval );
-  PHP5TO7_MAYBE_EFREE(self);
+
 }
 
 static zend_object*

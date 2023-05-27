@@ -502,7 +502,7 @@ php_driver_float_free(zend_object *object )
   php_driver_numeric *self = PHP5TO7_ZEND_OBJECT_GET(numeric, object);
 
   zend_object_std_dtor(&self->zval );
-  PHP5TO7_MAYBE_EFREE(self);
+
 }
 
 static zend_object*

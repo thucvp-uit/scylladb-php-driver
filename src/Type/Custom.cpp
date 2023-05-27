@@ -122,7 +122,7 @@ static void php_driver_type_custom_free(zend_object *object) {
   }
 
   zend_object_std_dtor(&self->zval);
-  PHP5TO7_MAYBE_EFREE(self);
+
 }
 
 static zend_object *php_driver_type_custom_new(zend_class_entry *ce) {

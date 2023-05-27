@@ -55,7 +55,7 @@ PHP_METHOD(TypeSet, valueType)
 PHP_METHOD(TypeSet, __toString)
 {
   php_driver_type *self;
-  smart_str string = PHP5TO7_SMART_STR_INIT;
+  smart_str string = {NULL,0};
 
   if (zend_parse_parameters_none() == FAILURE) {
     return;
@@ -89,12 +89,12 @@ PHP_METHOD(TypeSet, create)
   if (argc > 0) {
     for (i = 0; i < argc; i++) {
       if (!php_driver_set_add(set, &args[i] )) {
-        PHP5TO7_MAYBE_EFREE(args);
+
         return;
       }
     }
 
-    PHP5TO7_MAYBE_EFREE(args);
+
   }
 }
 
@@ -187,7 +187,7 @@ php_driver_type_set_free(zend_object *object )
   PHP5TO7_ZVAL_MAYBE_DESTROY(self->data.set.value_type);
 
   zend_object_std_dtor(&self->zval );
-  PHP5TO7_MAYBE_EFREE(self);
+
 }
 
 static zend_object*

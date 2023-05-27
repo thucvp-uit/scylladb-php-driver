@@ -33,7 +33,7 @@ static void php_driver_retry_policy_downgrading_consistency_free(
   cass_retry_policy_free(self->policy);
 
   zend_object_std_dtor(&self->zval);
-  PHP5TO7_MAYBE_EFREE(self);
+
 }
 
 static zend_object* php_driver_retry_policy_downgrading_consistency_new(

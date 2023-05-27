@@ -122,7 +122,7 @@ PHP_METHOD(SSLOptionsBuilder, withTrustedCerts)
 
     if (Z_TYPE_P(path) != IS_STRING) {
       throw_invalid_argument(path, "path", "a path to a trusted cert file" );
-      PHP5TO7_MAYBE_EFREE(args);
+
     }
 
 #if PHP_VERSION_ID < 80100
@@ -136,7 +136,7 @@ PHP_METHOD(SSLOptionsBuilder, withTrustedCerts)
     if (PHP5TO7_ZVAL_IS_FALSE_P(&readable)) {
       zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0 ,
                               "The path '%s' doesn't exist or is not readable", Z_STRVAL_P(path));
-      PHP5TO7_MAYBE_EFREE(args);
+
       return;
     }
   }
@@ -160,7 +160,7 @@ PHP_METHOD(SSLOptionsBuilder, withTrustedCerts)
     builder->trusted_certs[i] = estrndup(Z_STRVAL_P(path), Z_STRLEN_P(path));
   }
 
-  PHP5TO7_MAYBE_EFREE(args);
+
   RETURN_ZVAL(getThis(), 1, 0);
 }
 
@@ -337,7 +337,7 @@ php_driver_ssl_builder_free(zend_object *object )
     efree(self->passphrase);
 
   zend_object_std_dtor(&self->zval );
-  PHP5TO7_MAYBE_EFREE(self);
+
 }
 
 static zend_object*

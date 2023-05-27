@@ -505,7 +505,7 @@ static void php_driver_varint_free(zend_object *object )
     mpz_clear(self->data.varint.value);
 
     zend_object_std_dtor(&self->zval );
-    PHP5TO7_MAYBE_EFREE(self);
+
 }
 
 static zend_object* php_driver_varint_new(zend_class_entry *ce )

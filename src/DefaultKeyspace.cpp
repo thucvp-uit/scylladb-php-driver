@@ -287,7 +287,7 @@ PHP_METHOD(DefaultKeyspace, function) {
   char *name;
   size_t name_len;
   zval* args = NULL;
-  smart_str arguments = PHP5TO7_SMART_STR_INIT;
+  smart_str arguments = {NULL,0};
   int argc = 0;
   const CassFunctionMeta *meta = NULL;
 
@@ -299,7 +299,7 @@ PHP_METHOD(DefaultKeyspace, function) {
 
   if (argc > 0) {
     if (php_driver_arguments_string(args, argc, &arguments) == FAILURE) {
-      PHP5TO7_MAYBE_EFREE(args);
+
       return;
     }
   }
@@ -315,7 +315,7 @@ PHP_METHOD(DefaultKeyspace, function) {
   }
 
   smart_str_free(&arguments);
-  PHP5TO7_MAYBE_EFREE(args);
+
 }
 
 PHP_METHOD(DefaultKeyspace, functions) {
@@ -389,7 +389,7 @@ PHP_METHOD(DefaultKeyspace, aggregate) {
 
   if (argc > 0) {
     if (php_driver_arguments_string(args, argc, &arguments) == FAILURE) {
-      PHP5TO7_MAYBE_EFREE(args);
+
       return;
     }
   }
@@ -405,7 +405,7 @@ PHP_METHOD(DefaultKeyspace, aggregate) {
   }
 
   smart_str_free(&arguments);
-  PHP5TO7_MAYBE_EFREE(args);
+
 }
 
 PHP_METHOD(DefaultKeyspace, aggregates) {
@@ -512,7 +512,7 @@ static void php_driver_default_keyspace_free(zend_object *object) {
   self->meta = NULL;
 
   zend_object_std_dtor(&self->zval);
-  PHP5TO7_MAYBE_EFREE(self);
+
 }
 
 static zend_object* php_driver_default_keyspace_new(zend_class_entry *ce) {
