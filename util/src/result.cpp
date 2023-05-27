@@ -100,7 +100,7 @@ int php_driver_value(const CassValue *value, const CassDataType *data_type, zval
                              return FAILURE;);
         break;
     case CASS_VALUE_TYPE_TIMESTAMP:
-        object_init_ex(out, php_driver_timestamp_ce);
+        object_init_ex(out, php_scylladb_timestamp_ce);
         timestamp = Z_SCYLLADB_TIMESTAMP_P(out);
         ASSERT_SUCCESS_BLOCK(cass_value_get_int64(value, &timestamp->timestamp), zval_ptr_dtor(out); return FAILURE;);
         break;
@@ -110,7 +110,7 @@ int php_driver_value(const CassValue *value, const CassDataType *data_type, zval
         ASSERT_SUCCESS_BLOCK(cass_value_get_uint32(value, &date->date), zval_ptr_dtor(out); return FAILURE;);
         break;
     case CASS_VALUE_TYPE_TIME:
-        object_init_ex(out, php_driver_time_ce);
+        object_init_ex(out, php_scylladb_time_ce);
         time = Z_SCYLLADB_TIME_P(out);
         ASSERT_SUCCESS_BLOCK(cass_value_get_int64(value, &time->time), zval_ptr_dtor(out); return FAILURE;);
         break;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "DateTime/Date.h"
+#include <DateTime/Date.h>
 
 #include <php.h>
 #include <util/hash.h>
@@ -60,7 +60,7 @@ PHP_SCYLLADB_API zend_result php_scylladb_date_initialize(php_scylladb_date *sel
     secs = seconds;
   }
 
-  self->date = cass_date_from_epoch(secs == -1 ? time(nullptr) : seconds);
+  self->date = cass_date_from_epoch(secs == -1 ? time(nullptr) : secs);
 
   return SUCCESS;
 }
@@ -98,7 +98,7 @@ ZEND_METHOD(Cassandra_Date, toDateTime) {
   // clang-format off
   ZEND_PARSE_PARAMETERS_START(0, 1)
     Z_PARAM_OPTIONAL
-    Z_PARAM_OBJECT_OF_CLASS(ztime, php_driver_time_ce)
+    Z_PARAM_OBJECT_OF_CLASS(ztime, php_scylladb_time_ce)
   ZEND_PARSE_PARAMETERS_END();
   // clang-format on
 
@@ -132,9 +132,9 @@ ZEND_METHOD(Cassandra_Date, fromDateTime) {
   ZEND_PARSE_PARAMETERS_END();
   // clang-format on
 
-  zval getTimeStampResult;
-  zend_call_method_with_0_params(Z_OBJ_P(datetime), php_date_get_interface_ce(), nullptr,
-                                 "getTimestamp", &getTimeStampResult);
+  zval getTimeStampResult = {0};
+  zend_call_method_with_0_params(Z_OBJ_P(datetime), Z_OBJCE_P(datetime), nullptr,
+                                 "gettimestamp", &getTimeStampResult);
 
   auto self = php_scylladb_date_instantiate(return_value);
 
@@ -209,12 +209,11 @@ void php_driver_define_Date() {
   php_scylladb_date_ce = register_class_Cassandra_Date(php_driver_value_ce);
   php_scylladb_date_ce->create_object = php_scylladb_date_new;
 
-  ZendCPP::InitHandlers(&php_scylladb_date_handlers);
+  ZendCPP::InitHandlers<php_scylladb_date>(&php_scylladb_date_handlers);
   php_scylladb_date_handlers.std.get_properties = php_scylladb_date_properties;
   php_scylladb_date_handlers.std.get_gc = php_scylladb_date_gc;
   php_scylladb_date_handlers.std.compare = php_scylladb_date_compare;
   php_scylladb_date_handlers.hash_value = php_scylladb_date_hash_value;
-  php_scylladb_date_handlers.std.offset = XtOffsetOf(php_scylladb_date, zval);
 }
 
 END_EXTERN_C()

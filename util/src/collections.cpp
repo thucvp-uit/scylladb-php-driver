@@ -114,7 +114,7 @@ int php_driver_validate_object(zval* object, zval* ztype) {
 
       return 1;
     case CASS_VALUE_TYPE_TIMESTAMP:
-      if (!INSTANCE_OF(php_driver_timestamp_ce)) {
+      if (!INSTANCE_OF(php_scylladb_timestamp_ce)) {
         EXPECTING_VALUE("an instance of " PHP_DRIVER_NAMESPACE "\\Timestamp");
       }
 
@@ -126,7 +126,7 @@ int php_driver_validate_object(zval* object, zval* ztype) {
 
       return 1;
     case CASS_VALUE_TYPE_TIME:
-      if (!INSTANCE_OF(php_driver_time_ce)) {
+      if (!INSTANCE_OF(php_scylladb_time_ce)) {
         EXPECTING_VALUE("an instance of " PHP_DRIVER_NAMESPACE "\\Time");
       }
 

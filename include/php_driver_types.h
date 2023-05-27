@@ -693,7 +693,7 @@ extern PHP_SCYLLADB_API zend_class_entry *php_driver_blob_ce;
 extern PHP_SCYLLADB_API zend_class_entry *php_driver_decimal_ce;
 extern PHP_SCYLLADB_API zend_class_entry *php_driver_float_ce;
 extern PHP_SCYLLADB_API zend_class_entry *php_driver_inet_ce;
-extern PHP_SCYLLADB_API zend_class_entry *php_driver_timestamp_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_scylladb_timestamp_ce;
 extern PHP_SCYLLADB_API zend_class_entry *php_driver_uuid_interface_ce;
 extern PHP_SCYLLADB_API zend_class_entry *php_driver_uuid_ce;
 extern PHP_SCYLLADB_API zend_class_entry *php_driver_timeuuid_ce;

@@ -68,10 +68,11 @@ ZENDCPP_ALWAYS_INLINE T *Allocate(zend_class_entry *ce, THandlers *handlers) {
   return self;
 }
 
-template <typename T>
+template <typename Object, typename T>
 [[maybe_unused]] ZENDCPP_ALWAYS_INLINE T *InitHandlers(T *handlers) {
   memcpy(handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-
+  auto h = (zend_object_handlers *)handlers;
+  h->offset = XtOffsetOf(Object, ZEND_OBJECT_OFFSET_MEMBER);
   return handlers;
 }
 }  // namespace ZendCPP

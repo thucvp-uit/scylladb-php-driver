@@ -28,12 +28,12 @@ BEGIN_EXTERN_C()
 
 #include "Timestamp_arginfo.h"
 
-zend_class_entry *php_driver_timestamp_ce = nullptr;
+zend_class_entry *php_scylladb_timestamp_ce = nullptr;
 
 PHP_SCYLLADB_API php_scylladb_timestamp *php_scylladb_timestamp_instantiate(zval *object) {
   zval val;
 
-  if (object_init_ex(&val, php_driver_timestamp_ce) != SUCCESS) {
+  if (object_init_ex(&val, php_scylladb_timestamp_ce) != SUCCESS) {
     return nullptr;
   }
 
@@ -158,14 +158,18 @@ ZEND_METHOD(Cassandra_Timestamp, fromDateTime) {
   ZEND_PARSE_PARAMETERS_END();
   // clang-format on
 
-  zval getTimeStampResult;
+  zval getTimeStampResult{};
   zval format;
-  auto val = zend_string_init_existing_interned(ZEND_STRL("Uv"), true);
+  auto val = zend_string_init_existing_interned(ZEND_STRL("Uv"), false);
   ZVAL_STR(&format, val);
 
-  if (zend_call_method_with_1_params(Z_OBJ_P(datetime), php_date_get_interface_ce(), nullptr,
-                                     "format", &getTimeStampResult, &format) == nullptr) {
-    zend_throw_exception(php_driver_runtime_exception_ce, "Failed to get timestamp from DateTime",
+  auto ret = zend_call_method_with_1_params(Z_OBJ_P(datetime), Z_OBJCE_P(datetime), nullptr,
+                                            "format", &getTimeStampResult, &format);
+
+  if (ret == nullptr) {
+    zval_ptr_dtor(&getTimeStampResult);
+    zval_ptr_dtor(&format);
+    zend_throw_exception(php_driver_runtime_exception_ce, "Failed to get Timestamp from DateTime",
                          0);
     return;
   };
@@ -174,6 +178,7 @@ ZEND_METHOD(Cassandra_Timestamp, fromDateTime) {
 
   if (self == nullptr) {
     zval_ptr_dtor(&getTimeStampResult);
+    zval_ptr_dtor(&format);
     zend_throw_exception(php_driver_runtime_exception_ce, "Failed to create Cassandra\\Timestamp",
                          0);
     return;
@@ -181,6 +186,7 @@ ZEND_METHOD(Cassandra_Timestamp, fromDateTime) {
 
   self->timestamp = std::strtoll(Z_STRVAL(getTimeStampResult), nullptr, 10);
   zval_ptr_dtor(&getTimeStampResult);
+  zval_ptr_dtor(&format);
 }
 
 ZEND_METHOD(Cassandra_Timestamp, __toString) {
@@ -188,7 +194,8 @@ ZEND_METHOD(Cassandra_Timestamp, __toString) {
 
   auto *self = ZendCPP::ObjectFetch<php_scylladb_timestamp>(getThis());
 
-  char ret[sizeof("9223372036854775807") - 1];
+  char ret[32];
+  memset(ret, 0, sizeof(ret));
   size_t len = snprintf(ret, sizeof(ret), "%" PRId64, (int64_t)self->timestamp);
   RETURN_STRINGL_FAST(ret, len);
 }
@@ -243,14 +250,13 @@ static zend_object *php_driver_timestamp_new(zend_class_entry *ce) {
 }
 
 void php_driver_define_Timestamp() {
-  php_driver_timestamp_ce = register_class_Cassandra_Timestamp(php_driver_value_ce);
-  php_driver_timestamp_ce->create_object = php_driver_timestamp_new;
+  php_scylladb_timestamp_ce = register_class_Cassandra_Timestamp(php_driver_value_ce);
+  php_scylladb_timestamp_ce->create_object = php_driver_timestamp_new;
 
-  ZendCPP::InitHandlers(&php_driver_timestamp_handlers);
+  ZendCPP::InitHandlers<php_scylladb_timestamp>(&php_driver_timestamp_handlers);
   php_driver_timestamp_handlers.std.get_properties = php_driver_timestamp_properties;
   php_driver_timestamp_handlers.std.get_gc = php_driver_timestamp_gc;
   php_driver_timestamp_handlers.std.compare = php_driver_timestamp_compare;
-  php_driver_timestamp_handlers.std.clone_obj = nullptr;
   php_driver_timestamp_handlers.hash_value = php_driver_timestamp_hash_value;
 }
 END_EXTERN_C()

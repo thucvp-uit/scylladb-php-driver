@@ -23,7 +23,7 @@ typedef struct {
 } php_scylladb_timestamp;
 
 extern PHP_SCYLLADB_API zend_class_entry *php_scylladb_date_ce;
-extern PHP_SCYLLADB_API zend_class_entry *php_driver_time_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_scylladb_time_ce;
 
 PHP_SCYLLADB_API php_scylladb_date *php_scylladb_date_instantiate(zval *object);
 PHP_SCYLLADB_API zend_result php_scylladb_date_initialize(php_scylladb_date *object,

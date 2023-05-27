@@ -56,7 +56,7 @@ BEGIN_EXTERN_C()
 
 #include "Time_arginfo.h"
 
-zend_class_entry *php_driver_time_ce = nullptr;
+zend_class_entry *php_scylladb_time_ce = nullptr;
 
 static int to_string(zval *result, php_scylladb_time *time) {
   char *string;
@@ -151,7 +151,7 @@ ZEND_METHOD(Cassandra_Time, fromDateTime) {
   // clang-format on
 
   zval getTimeStampResult;
-  if (zend_call_method_with_0_params(Z_OBJ_P(datetime), php_date_get_interface_ce(), nullptr,
+  if (zend_call_method_with_0_params(Z_OBJ_P(datetime), Z_OBJCE_P(datetime), nullptr,
                                      "getTimestamp", &getTimeStampResult) == nullptr) {
     zend_throw_exception(php_driver_runtime_exception_ce, "Failed to get timestamp from DateTime",
                          0);
@@ -216,20 +216,18 @@ static unsigned php_driver_time_hash_value(zval *obj) {
 
 static zend_object *php_driver_time_new(zend_class_entry *ce) {
   auto *self = ZendCPP::Allocate<php_scylladb_time>(ce, &php_driver_time_handlers);
-  self->time = 0;
-
+  self->time = -1;
   return &self->zval;
 }
 
 void php_driver_define_Time() {
-  php_driver_time_ce = register_class_Cassandra_Time(php_driver_value_ce);
-  php_driver_time_ce->create_object = php_driver_time_new;
+  php_scylladb_time_ce = register_class_Cassandra_Time(php_driver_value_ce);
+  php_scylladb_time_ce->create_object = php_driver_time_new;
 
-  ZendCPP::InitHandlers(&php_driver_time_handlers);
+  ZendCPP::InitHandlers<php_scylladb_time>(&php_driver_time_handlers);
   php_driver_time_handlers.std.get_properties = php_driver_time_properties;
   php_driver_time_handlers.std.get_gc = php_driver_time_gc;
   php_driver_time_handlers.std.compare = php_driver_time_compare;
-  php_driver_time_handlers.std.offset = XtOffsetOf(php_scylladb_time, zval);
   php_driver_time_handlers.hash_value = php_driver_time_hash_value;
 }
 

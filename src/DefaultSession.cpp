@@ -80,7 +80,7 @@ static int bind_argument_by_index(CassStatement* statement, size_t index, zval* 
       CHECK_RESULT(cass_statement_bind_int8(statement, index, tinyint->data.tinyint.value));
     }
 
-    if (instanceof_function(Z_OBJCE_P(value), php_driver_timestamp_ce)) {
+    if (instanceof_function(Z_OBJCE_P(value), php_scylladb_timestamp_ce)) {
       php_scylladb_timestamp* timestamp = Z_SCYLLADB_TIMESTAMP_P(value);
       CHECK_RESULT(cass_statement_bind_int64(statement, index, timestamp->timestamp));
     }
@@ -90,7 +90,7 @@ static int bind_argument_by_index(CassStatement* statement, size_t index, zval* 
       CHECK_RESULT(cass_statement_bind_uint32(statement, index, date->date));
     }
 
-    if (instanceof_function(Z_OBJCE_P(value), php_driver_time_ce)) {
+    if (instanceof_function(Z_OBJCE_P(value), php_scylladb_time_ce)) {
       php_scylladb_time* time = Z_SCYLLADB_TIME_P(value);
       CHECK_RESULT(cass_statement_bind_int64(statement, index, time->time));
     }
@@ -237,7 +237,7 @@ static int bind_argument_by_name(CassStatement* statement, const char* name, zva
       CHECK_RESULT(cass_statement_bind_int8_by_name(statement, name, tinyint->data.tinyint.value));
     }
 
-    if (instanceof_function(Z_OBJCE_P(value), php_driver_timestamp_ce)) {
+    if (instanceof_function(Z_OBJCE_P(value), php_scylladb_timestamp_ce)) {
       php_scylladb_timestamp* timestamp = Z_SCYLLADB_TIMESTAMP_P(value);
       CHECK_RESULT(cass_statement_bind_int64_by_name(statement, name, timestamp->timestamp));
     }
@@ -247,7 +247,7 @@ static int bind_argument_by_name(CassStatement* statement, const char* name, zva
       CHECK_RESULT(cass_statement_bind_uint32_by_name(statement, name, date->date));
     }
 
-    if (instanceof_function(Z_OBJCE_P(value), php_driver_time_ce)) {
+    if (instanceof_function(Z_OBJCE_P(value), php_scylladb_time_ce)) {
       php_scylladb_time* time = Z_SCYLLADB_TIME_P(value);
       CHECK_RESULT(cass_statement_bind_int64_by_name(statement, name, time->time));
     }
