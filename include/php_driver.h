@@ -87,16 +87,8 @@ extern "C"
 #define CPP_DRIVER_VERSION(major, minor, patch) (((major) << 16) + ((minor) << 8) + (patch))
 
 #define CURRENT_CPP_DRIVER_VERSION CPP_DRIVER_VERSION(CASS_VERSION_MAJOR, CASS_VERSION_MINOR, CASS_VERSION_PATCH)
-    typedef unsigned long ulong;
 
-    static inline int php5to7_string_compare(zend_string* s1, zend_string* s2)
-    {
-        if (s1->len != s2->len)
-        {
-            return s1->len < s2->len ? -1 : 1;
-        }
-        return memcmp(s1->val, s2->val, s1->len);
-    }
+typedef unsigned long ulong;
 
 #define PHP5TO7_ZEND_OBJECT_GET(type_name, object) php_driver_##type_name##_object_fetch(object)
 

@@ -199,6 +199,15 @@ static zval php_driver_user_type_from_node(struct node_s* node) {
   return ztype;
 }
 
+static inline int php5to7_string_compare(zend_string* s1, zend_string* s2)
+{
+  if (s1->len != s2->len)
+  {
+    return s1->len < s2->len ? -1 : 1;
+  }
+  return memcmp(s1->val, s2->val, s1->len);
+}
+
 zval php_driver_type_from_data_type(const CassDataType* data_type) {
   zval ztype;
   zval key_type;
