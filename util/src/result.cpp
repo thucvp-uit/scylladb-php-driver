@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include <DateTime/DateTime.h>
 #include <php_driver.h>
 #include <php_driver_types.h>
 #include <util/math.h>
 #include <util/result.h>
 #include <util/types.h>
 
+#include "DateTime/Date.h"
 #include "src/Collection.h"
 #include "src/Map.h"
 #include "src/Set.h"
@@ -42,7 +42,7 @@ int php_driver_value(const CassValue *value, const CassDataType *data_type, zval
     php_driver_uuid *uuid;
     CassIterator *iterator;
     php_driver_numeric *numeric = NULL;
-    php_driver_timestamp *timestamp = NULL;
+    php_scylladb_timestamp *timestamp = NULL;
     php_scylladb_date *date = NULL;
     php_scylladb_time *time = NULL;
     php_driver_blob *blob = NULL;
@@ -101,7 +101,7 @@ int php_driver_value(const CassValue *value, const CassDataType *data_type, zval
         break;
     case CASS_VALUE_TYPE_TIMESTAMP:
         object_init_ex(out, php_driver_timestamp_ce);
-        timestamp = PHP_DRIVER_GET_TIMESTAMP(out);
+        timestamp = Z_SCYLLADB_TIMESTAMP_P(out);
         ASSERT_SUCCESS_BLOCK(cass_value_get_int64(value, &timestamp->timestamp), zval_ptr_dtor(out); return FAILURE;);
         break;
     case CASS_VALUE_TYPE_DATE:

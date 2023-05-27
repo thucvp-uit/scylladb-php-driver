@@ -26,6 +26,7 @@
 #include <ctime>
 
 #include "src/Cluster/Cluster.h"
+#include "src/DateTime/DateTimeInternal.h"
 
 BEGIN_EXTERN_C()
 #include <ext/standard/info.h>
@@ -421,7 +422,6 @@ static PHP_GSHUTDOWN_FUNCTION(php_driver) {
   php_driver_log_cleanup();
 }
 
-#include "src/DateTime/DateTimeInternal.h"
 
 PHP_MINIT_FUNCTION(php_driver) {
   REGISTER_INI_ENTRIES();

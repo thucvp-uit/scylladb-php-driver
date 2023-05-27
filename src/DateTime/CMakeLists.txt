@@ -3,7 +3,7 @@ add_library(ext_scylladb::datetime ALIAS datetime)
 target_sources(
         datetime
         PRIVATE
-        DateTime.cpp
+        Date.cpp
         Time.cpp
         Timestamp.cpp
         Timeuuid.cpp

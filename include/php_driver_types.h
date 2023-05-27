@@ -23,7 +23,6 @@ BEGIN_EXTERN_C()
 
 #define PHP_DRIVER_GET_NUMERIC(obj) php_driver_numeric_object_fetch(Z_OBJ_P(obj))
 #define PHP_DRIVER_GET_BLOB(obj) php_driver_blob_object_fetch(Z_OBJ_P(obj))
-#define PHP_DRIVER_GET_TIMESTAMP(obj) php_driver_timestamp_object_fetch(Z_OBJ_P(obj))
 #define PHP_DRIVER_GET_UUID(obj) php_driver_uuid_object_fetch(Z_OBJ_P(obj))
 #define PHP_DRIVER_GET_INET(obj) php_driver_inet_object_fetch(Z_OBJ_P(obj))
 #define PHP_DRIVER_GET_COLLECTION(obj) php_driver_collection_object_fetch(Z_OBJ_P(obj))
@@ -102,16 +101,6 @@ typedef struct php_driver_numeric_
 static zend_always_inline php_driver_numeric *php_driver_numeric_object_fetch(zend_object *obj)
 {
     return (php_driver_numeric *)((char *)obj - ((size_t)(&(((php_driver_numeric *)0)->zval))));
-}
-
-typedef struct php_driver_timestamp_
-{
-    cass_int64_t timestamp;
-    zend_object zval;
-} php_driver_timestamp;
-static zend_always_inline php_driver_timestamp *php_driver_timestamp_object_fetch(zend_object *obj)
-{
-    return (php_driver_timestamp *)((char *)obj - ((size_t)(&(((php_driver_timestamp *)0)->zval))));
 }
 
 

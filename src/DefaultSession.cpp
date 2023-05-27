@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <DateTime/DateTime.h>
+#include <DateTime/Date.h>
 #include <php_driver.h>
 #include <php_driver_globals.h>
 #include <php_driver_types.h>
@@ -24,7 +24,7 @@
 #include <util/ref.h>
 #include <util/result.h>
 
-#include "DateTime/DateTime.h"
+#include "DateTime/Date.h"
 #include "ExecutionOptions.h"
 BEGIN_EXTERN_C()
 zend_class_entry* php_driver_default_session_ce = NULL;
@@ -81,7 +81,7 @@ static int bind_argument_by_index(CassStatement* statement, size_t index, zval* 
     }
 
     if (instanceof_function(Z_OBJCE_P(value), php_driver_timestamp_ce)) {
-      php_driver_timestamp* timestamp = PHP_DRIVER_GET_TIMESTAMP(value);
+      php_scylladb_timestamp* timestamp = Z_SCYLLADB_TIMESTAMP_P(value);
       CHECK_RESULT(cass_statement_bind_int64(statement, index, timestamp->timestamp));
     }
 
@@ -238,7 +238,7 @@ static int bind_argument_by_name(CassStatement* statement, const char* name, zva
     }
 
     if (instanceof_function(Z_OBJCE_P(value), php_driver_timestamp_ce)) {
-      php_driver_timestamp* timestamp = PHP_DRIVER_GET_TIMESTAMP(value);
+      php_scylladb_timestamp* timestamp = Z_SCYLLADB_TIMESTAMP_P(value);
       CHECK_RESULT(cass_statement_bind_int64_by_name(statement, name, timestamp->timestamp));
     }
 

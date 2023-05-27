@@ -16,7 +16,6 @@
 
 #include "types.h"
 
-#include <DateTime/DateTime.h>
 #include <php_driver.h>
 #include <php_driver_globals.h>
 #include <php_driver_types.h>
@@ -24,9 +23,9 @@
 
 #include <ZendCPP/ZendCPP.hpp>
 
+#include "DateTime/Date.h"
 #include "src/Bigint.h"
 #include "src/Blob.h"
-#include "src/DateTime/Timestamp.h"
 #include "src/DateTime/Timeuuid.h"
 #include "src/Decimal.h"
 #include "src/Duration.h"
@@ -577,24 +576,23 @@ static void php_driver_text_init(INTERNAL_FUNCTION_PARAMETERS) {
 
 #define TYPE_INIT_METHOD(t) php_driver_##t##_init
 
-#define TYPES_MAP(XX)                      \
-  XX(ascii, CASS_VALUE_TYPE_ASCII)         \
-  XX(bigint, CASS_VALUE_TYPE_BIGINT)       \
-  XX(smallint, CASS_VALUE_TYPE_SMALL_INT)  \
-  XX(tinyint, CASS_VALUE_TYPE_TINY_INT)    \
-  XX(blob, CASS_VALUE_TYPE_BLOB)           \
-  XX(boolean, CASS_VALUE_TYPE_BOOLEAN)     \
-  XX(counter, CASS_VALUE_TYPE_COUNTER)     \
-  XX(decimal, CASS_VALUE_TYPE_DECIMAL)     \
-  XX(double, CASS_VALUE_TYPE_DOUBLE)       \
-  XX(duration, CASS_VALUE_TYPE_DURATION)   \
-  XX(float, CASS_VALUE_TYPE_FLOAT)         \
-  XX(int, CASS_VALUE_TYPE_INT)             \
-  XX(text, CASS_VALUE_TYPE_TEXT)           \
-  XX(timestamp, CASS_VALUE_TYPE_TIMESTAMP) \
-  XX(uuid, CASS_VALUE_TYPE_UUID)           \
-  XX(varchar, CASS_VALUE_TYPE_VARCHAR)     \
-  XX(varint, CASS_VALUE_TYPE_VARINT)       \
+#define TYPES_MAP(XX)                     \
+  XX(ascii, CASS_VALUE_TYPE_ASCII)        \
+  XX(bigint, CASS_VALUE_TYPE_BIGINT)      \
+  XX(smallint, CASS_VALUE_TYPE_SMALL_INT) \
+  XX(tinyint, CASS_VALUE_TYPE_TINY_INT)   \
+  XX(blob, CASS_VALUE_TYPE_BLOB)          \
+  XX(boolean, CASS_VALUE_TYPE_BOOLEAN)    \
+  XX(counter, CASS_VALUE_TYPE_COUNTER)    \
+  XX(decimal, CASS_VALUE_TYPE_DECIMAL)    \
+  XX(double, CASS_VALUE_TYPE_DOUBLE)      \
+  XX(duration, CASS_VALUE_TYPE_DURATION)  \
+  XX(float, CASS_VALUE_TYPE_FLOAT)        \
+  XX(int, CASS_VALUE_TYPE_INT)            \
+  XX(text, CASS_VALUE_TYPE_TEXT)          \
+  XX(uuid, CASS_VALUE_TYPE_UUID)          \
+  XX(varchar, CASS_VALUE_TYPE_VARCHAR)    \
+  XX(varint, CASS_VALUE_TYPE_VARINT)      \
   XX(inet, CASS_VALUE_TYPE_INET)
 
 void php_driver_scalar_init(INTERNAL_FUNCTION_PARAMETERS) {
@@ -609,6 +607,36 @@ void php_driver_scalar_init(INTERNAL_FUNCTION_PARAMETERS) {
 #undef XX_SCALAR
 #undef TYPES_MAP
 #undef TYPE_INIT_METHOD
+
+  if (self->type == CASS_VALUE_TYPE_TIMESTAMP) {
+    zend_long seconds = -1;
+    zend_long microseconds = -1;
+
+    // clang-format off
+  ZEND_PARSE_PARAMETERS_START(0, 2)
+    Z_PARAM_OPTIONAL
+    Z_PARAM_LONG(seconds)
+    Z_PARAM_LONG(microseconds)
+  ZEND_PARSE_PARAMETERS_END();
+    // clang-format on
+
+    auto timestamp = php_scylladb_timestamp_instantiate(return_value);
+
+    if (timestamp == nullptr) {
+      zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,
+                              "Failed to create Cassandra\\Timestamp");
+      return;
+    }
+
+    if (php_scylladb_timestamp_initialize(timestamp, seconds, microseconds) != SUCCESS) {
+      zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,
+                              "Failed to create Timestamp: seconds(%ld) microseconds(%ld)", seconds,
+                              microseconds);
+    }
+
+    return;
+  }
+
   if (self->type == CASS_VALUE_TYPE_TIME) {
     zend_string* nanosecondsStr = nullptr;
     zend_long nanoseconds = -1;
@@ -622,9 +650,15 @@ void php_driver_scalar_init(INTERNAL_FUNCTION_PARAMETERS) {
 
     auto time = php_scylladb_time_instantiate(return_value);
 
+    if (time == nullptr) {
+      zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,
+                              "Failed to create Cassandra\\Time");
+      return;
+    }
+
     if (php_scylladb_time_initialize(time, nanosecondsStr, nanoseconds) == FAILURE) {
       zend_throw_exception_ex(php_driver_runtime_exception_ce, 0,
-                              "Cannot create Cassandra\\Date from invalid value");
+                              "Cannot create Cassandra\\Time from invalid value");
     }
 
     return;

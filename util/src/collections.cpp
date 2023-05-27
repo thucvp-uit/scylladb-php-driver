@@ -16,12 +16,12 @@
 
 #include "collections.h"
 
-#include <DateTime/DateTime.h>
 #include <php_driver.h>
 #include <php_driver_types.h>
 
 #include <cmath>
 
+#include "DateTime/Date.h"
 #include "hash.h"
 #include "types.h"
 
@@ -279,7 +279,7 @@ static int php_driver_collection_append(CassCollection* collection, zval* value,
   int result = 1;
   php_driver_blob* blob;
   php_driver_numeric* numeric;
-  php_driver_timestamp* timestamp;
+  php_scylladb_timestamp* timestamp;
   php_scylladb_date* date;
   php_scylladb_time* time;
   php_driver_uuid* uuid;
@@ -339,7 +339,7 @@ static int php_driver_collection_append(CassCollection* collection, zval* value,
       CHECK_ERROR(cass_collection_append_int32(collection, Z_LVAL_P(value)));
       break;
     case CASS_VALUE_TYPE_TIMESTAMP:
-      timestamp = PHP_DRIVER_GET_TIMESTAMP(value);
+      timestamp = Z_SCYLLADB_TIMESTAMP_P(value);
       CHECK_ERROR(cass_collection_append_int64(collection, timestamp->timestamp));
       break;
     case CASS_VALUE_TYPE_DATE:
@@ -415,7 +415,7 @@ static int php_driver_tuple_set(CassTuple* tuple, zend_ulong index, zval* value,
   int result = 1;
   php_driver_blob* blob;
   php_driver_numeric* numeric;
-  php_driver_timestamp* timestamp;
+  php_scylladb_timestamp* timestamp;
   php_scylladb_date* date;
   php_scylladb_time* time;
   php_driver_uuid* uuid;
@@ -479,7 +479,7 @@ static int php_driver_tuple_set(CassTuple* tuple, zend_ulong index, zval* value,
       CHECK_ERROR(cass_tuple_set_int32(tuple, index, Z_LVAL_P(value)));
       break;
     case CASS_VALUE_TYPE_TIMESTAMP:
-      timestamp = PHP_DRIVER_GET_TIMESTAMP(value);
+      timestamp = Z_SCYLLADB_TIMESTAMP_P(value);
       CHECK_ERROR(cass_tuple_set_int64(tuple, index, timestamp->timestamp));
       break;
     case CASS_VALUE_TYPE_DATE:
@@ -554,7 +554,7 @@ static int php_driver_user_type_set(CassUserType* ut, const char* name, zval* va
   int result = 1;
   php_driver_blob* blob;
   php_driver_numeric* numeric;
-  php_driver_timestamp* timestamp;
+  php_scylladb_timestamp* timestamp;
   php_scylladb_date* date;
   php_scylladb_time* time;
   php_driver_uuid* uuid;
@@ -618,7 +618,7 @@ static int php_driver_user_type_set(CassUserType* ut, const char* name, zval* va
       CHECK_ERROR(cass_user_type_set_int32_by_name(ut, name, Z_LVAL_P(value)));
       break;
     case CASS_VALUE_TYPE_TIMESTAMP:
-      timestamp = PHP_DRIVER_GET_TIMESTAMP(value);
+      timestamp = Z_SCYLLADB_TIMESTAMP_P(value);
       CHECK_ERROR(cass_user_type_set_int64_by_name(ut, name, timestamp->timestamp));
       break;
     case CASS_VALUE_TYPE_DATE:
