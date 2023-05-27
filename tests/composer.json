@@ -11,8 +11,10 @@
   "minimum-stability": "stable",
   "autoload-dev": {
     "psr-4": {
-      "Cassandra\\Tests\\": "tests/"
-    }
+      "Cassandra\\Tests\\": "./"
+    },
+    "files": [
+    ]
   },
   "require": {
     "php": "^8.0",

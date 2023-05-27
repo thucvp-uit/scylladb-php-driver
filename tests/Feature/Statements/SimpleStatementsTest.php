@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+namespace Cassandra\Tests\Feature\Statements;
+
 use Cassandra\SimpleStatement;
 use Cassandra\Uuid;
 
@@ -160,7 +162,7 @@ test('Simple statements also supports ":name" arguments', function () use ($keys
 
     $options = ['arguments' =>
         [
-            'id'     => new Cassandra\Uuid('62c36092-82a1-3a00-93d1-46196ee77204'),
+            'id'     => new Uuid('62c36092-82a1-3a00-93d1-46196ee77204'),
             'artist' => 'Joséphine Baker',
             'title'  => 'La Petite Tonkinoise',
             'album'  => 'Bye Bye Blackbird'

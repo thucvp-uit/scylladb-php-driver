@@ -81,6 +81,10 @@ ZEND_METHOD(Cassandra_Date, __construct) {
     zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,
                             "Invalid seconds value: '%s'", ZSTR_VAL(secondsStr));
   }
+
+//  if (secondsStr != nullptr) {
+//    zend_string_release(secondsStr);
+//  }
 }
 ZEND_METHOD(Cassandra_Date, type) {
   zval type = php_driver_type_scalar(CASS_VALUE_TYPE_DATE);
