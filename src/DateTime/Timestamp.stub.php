@@ -14,7 +14,7 @@ namespace Cassandra {
         public function time(): int {}
         public function microtime(bool $get_as_float = false): float|string {}
         public function toDateTime(): \DateTime {}
-        public static function fromDateTIme(\DateTime $datetime): Timestamp {}
+        public static function fromDateTime(\DateTime $datetime): Timestamp {}
 
         public function __toString(): string {}
     }

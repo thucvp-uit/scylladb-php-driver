@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 146a6b943a7878c5f579ba0bb1470258381572b7 */
+ * Stub hash: acecd14a19c9ac1607c1c5c9673cf1f52e46d261 */
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Cassandra_Timestamp___construct, 0, 0, 0)
 	ZEND_ARG_TYPE_INFO(0, seconds, IS_LONG, 0)
@@ -17,7 +17,10 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_class_Cassandra_Timestamp_microt
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_class_Cassandra_Timestamp_toDateTime, 0, 0, DateTime, 0)
-	ZEND_ARG_OBJ_INFO(0, time, Cassandra\\Time, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_class_Cassandra_Timestamp_fromDateTime, 0, 1, Cassandra\\Timestamp, 0)
+	ZEND_ARG_OBJ_INFO(0, datetime, DateTime, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_Cassandra_Timestamp___toString, 0, 0, IS_STRING, 0)
@@ -29,6 +32,7 @@ ZEND_METHOD(Cassandra_Timestamp, type);
 ZEND_METHOD(Cassandra_Timestamp, time);
 ZEND_METHOD(Cassandra_Timestamp, microtime);
 ZEND_METHOD(Cassandra_Timestamp, toDateTime);
+ZEND_METHOD(Cassandra_Timestamp, fromDateTime);
 ZEND_METHOD(Cassandra_Timestamp, __toString);
 
 
@@ -38,6 +42,7 @@ static const zend_function_entry class_Cassandra_Timestamp_methods[] = {
 	ZEND_ME(Cassandra_Timestamp, time, arginfo_class_Cassandra_Timestamp_time, ZEND_ACC_PUBLIC)
 	ZEND_ME(Cassandra_Timestamp, microtime, arginfo_class_Cassandra_Timestamp_microtime, ZEND_ACC_PUBLIC)
 	ZEND_ME(Cassandra_Timestamp, toDateTime, arginfo_class_Cassandra_Timestamp_toDateTime, ZEND_ACC_PUBLIC)
+	ZEND_ME(Cassandra_Timestamp, fromDateTime, arginfo_class_Cassandra_Timestamp_fromDateTime, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
 	ZEND_ME(Cassandra_Timestamp, __toString, arginfo_class_Cassandra_Timestamp___toString, ZEND_ACC_PUBLIC)
 	ZEND_FE_END
 };
