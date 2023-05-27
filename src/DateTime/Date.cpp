@@ -50,9 +50,10 @@ PHP_SCYLLADB_API zend_result php_scylladb_date_initialize(php_scylladb_date *sel
 
   if (secondsStr != nullptr) {
     errno = 0;
-    secs = std::strtol(ZSTR_VAL(secondsStr), nullptr, 10);
+    char *end = nullptr;
+    secs = std::strtol(ZSTR_VAL(secondsStr), &end, 10);
 
-    if (errno != 0) {
+    if (secs == 0 && (end == ZSTR_VAL(secondsStr) || *end != '\0' || errno != 0)) {
       return FAILURE;
     }
 
