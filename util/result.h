@@ -18,10 +18,10 @@
 #include <cassandra.h>
 #include <php_driver_types.h>
 
-int php_driver_value(const CassValue* value, const CassDataType* data_type, php5to7_zval* out);
+int php_driver_value(const CassValue* value, const CassDataType* data_type, zval* out);
 
-int php_driver_get_keyspace_field(const CassKeyspaceMeta* metadata, const char* field_name, php5to7_zval* out);
-int php_driver_get_table_field(const CassTableMeta* metadata, const char* field_name, php5to7_zval* out);
-int php_driver_get_column_field(const CassColumnMeta* metadata, const char* field_name, php5to7_zval* out);
+int php_driver_get_keyspace_field(const CassKeyspaceMeta* metadata, const char* field_name, zval* out);
+int php_driver_get_table_field(const CassTableMeta* metadata, const char* field_name, zval* out);
+int php_driver_get_column_field(const CassColumnMeta* metadata, const char* field_name, zval* out);
 
-int php_driver_get_result(const CassResult* result, php5to7_zval* out);
+int php_driver_get_result(const CassResult* result, zval* out);

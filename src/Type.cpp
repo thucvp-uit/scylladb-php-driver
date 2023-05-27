@@ -48,7 +48,7 @@ zend_class_entry *php_driver_type_ce = NULL;
 
 #define XX_SCALAR_METHOD(name, value) PHP_METHOD(Type, name) \
 { \
-  php5to7_zval ztype; \
+  zval ztype; \
   if (zend_parse_parameters_none() == FAILURE) { \
     return; \
   } \
@@ -61,7 +61,7 @@ PHP_DRIVER_SCALAR_TYPES_MAP(XX_SCALAR_METHOD)
 
 PHP_METHOD(Type, collection)
 {
-  php5to7_zval ztype;
+  zval ztype;
   zval *value_type;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() , "O",
@@ -80,9 +80,9 @@ PHP_METHOD(Type, collection)
 
 PHP_METHOD(Type, tuple)
 {
-  php5to7_zval ztype;
+  zval ztype;
   php_driver_type *type;
-  php5to7_zval_args args = NULL;
+  zval* args = NULL;
   int argc = 0, i;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() , "+",
@@ -116,9 +116,9 @@ PHP_METHOD(Type, tuple)
 
 PHP_METHOD(Type, userType)
 {
-  php5to7_zval ztype;
+  zval ztype;
   php_driver_type *type;
-  php5to7_zval_args args = NULL;
+  zval* args = NULL;
   int argc = 0, i;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() , "+",
@@ -173,7 +173,7 @@ PHP_METHOD(Type, userType)
 
 PHP_METHOD(Type, set)
 {
-  php5to7_zval ztype;
+  zval ztype;
   zval *value_type;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() , "O",
@@ -192,7 +192,7 @@ PHP_METHOD(Type, set)
 
 PHP_METHOD(Type, map)
 {
-  php5to7_zval ztype;
+  zval ztype;
   zval *key_type;
   zval *value_type;
 

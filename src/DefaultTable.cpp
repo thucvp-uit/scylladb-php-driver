@@ -36,7 +36,7 @@ populate_partition_key(php_driver_table *table, zval *result )
     const CassColumnMeta *column =
       cass_table_meta_partition_key(table->meta, i);
     if (column) {
-      php5to7_zval zcolumn = php_driver_create_column(table->schema, column );
+      zval zcolumn = php_driver_create_column(table->schema, column );
       if (!Z_ISUNDEF(zcolumn)) {
         add_next_index_zval(result, &zcolumn);
       }
@@ -52,7 +52,7 @@ populate_clustering_key(php_driver_table *table, zval *result )
     const CassColumnMeta *column =
         cass_table_meta_clustering_key(table->meta, i);
     if (column) {
-      php5to7_zval zcolumn = php_driver_create_column(table->schema, column );
+      zval zcolumn = php_driver_create_column(table->schema, column );
       if (!Z_ISUNDEF(zcolumn)) {
         add_next_index_zval(result, &zcolumn);
       }
@@ -60,11 +60,11 @@ populate_clustering_key(php_driver_table *table, zval *result )
   }
 }
 
-php5to7_zval
+zval
 php_driver_create_table(php_driver_ref* schema,
                            const CassTableMeta *meta )
 {
-  php5to7_zval result;
+  zval result;
   php_driver_table *table;
   const char *name;
   size_t name_length;
@@ -126,9 +126,9 @@ PHP_METHOD(DefaultTable, name)
 PHP_METHOD(DefaultTable, option)
 {
   char *name;
-  php5to7_size name_len;
+  size_t name_len;
   php_driver_table *self;
-  php5to7_zval* result;
+  zval* result;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() , "s",
                             &name, &name_len) == FAILURE) {
@@ -372,8 +372,8 @@ PHP_METHOD(DefaultTable, column)
 {
   php_driver_table *self;
   char *name;
-  php5to7_size name_len;
-  php5to7_zval column;
+  size_t name_len;
+  zval column;
   const CassColumnMeta *meta;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() , "s", &name, &name_len) == FAILURE) {
@@ -409,7 +409,7 @@ PHP_METHOD(DefaultTable, columns)
   array_init(return_value);
   while (cass_iterator_next(iterator)) {
     const CassColumnMeta *meta;
-    php5to7_zval zcolumn;
+    zval zcolumn;
     php_driver_column *column;
 
     meta    = cass_iterator_get_column_meta(iterator);
@@ -520,8 +520,8 @@ PHP_METHOD(DefaultTable, index)
 {
   php_driver_table *self;
   char *name;
-  php5to7_size name_len;
-  php5to7_zval index;
+  size_t name_len;
+  zval index;
   const CassIndexMeta *meta;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() , "s", &name, &name_len) == FAILURE) {
@@ -556,7 +556,7 @@ PHP_METHOD(DefaultTable, indexes)
   array_init(return_value);
   while (cass_iterator_next(iterator)) {
     const CassIndexMeta *meta;
-    php5to7_zval zindex;
+    zval zindex;
 
     meta   = cass_iterator_get_index_meta(iterator);
     zindex = php_driver_create_index(self->schema, meta );
@@ -582,8 +582,8 @@ PHP_METHOD(DefaultTable, materializedView)
 {
   php_driver_table *self;
   char *name;
-  php5to7_size name_len;
-  php5to7_zval zview;
+  size_t name_len;
+  zval zview;
   const CassMaterializedViewMeta *meta;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() , "s", &name, &name_len) == FAILURE) {
@@ -619,7 +619,7 @@ PHP_METHOD(DefaultTable, materializedViews)
   array_init(return_value);
   while (cass_iterator_next(iterator)) {
     const CassMaterializedViewMeta *meta;
-    php5to7_zval zview;
+    zval zview;
     php_driver_materialized_view *view;
 
     meta  = cass_iterator_get_materialized_view_meta(iterator);
@@ -692,7 +692,7 @@ php_driver_type_default_table_gc(
 #else
         zval *object,
 #endif
-        php5to7_zval_gc table, int *n
+        zval** table, int *n
 )
 {
   *table = NULL;
@@ -727,7 +727,7 @@ php_driver_default_table_compare(zval *obj1, zval *obj2 )
 }
 
 static void
-php_driver_default_table_free(php5to7_zend_object_free *object )
+php_driver_default_table_free(zend_object *object )
 {
   php_driver_table *self = PHP5TO7_ZEND_OBJECT_GET(table, object);
 
@@ -748,7 +748,7 @@ php_driver_default_table_free(php5to7_zend_object_free *object )
   PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object
+static zend_object*
 php_driver_default_table_new(zend_class_entry *ce )
 {
   php_driver_table *self =

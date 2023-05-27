@@ -426,7 +426,7 @@ static int php_driver_collection_append(CassCollection* collection, zval* value,
   return result;
 }
 
-static int php_driver_tuple_set(CassTuple* tuple, php5to7_ulong index,
+static int php_driver_tuple_set(CassTuple* tuple, zend_ulong index,
                                 zval* value, CassValueType type) {
   int result = 1;
   php_driver_blob* blob;
@@ -763,7 +763,7 @@ int php_driver_collection_from_set(php_driver_set* set,
 int php_driver_collection_from_collection(php_driver_collection* coll,
                                           CassCollection** collection_ptr) {
   int result = 1;
-  php5to7_zval* current;
+  zval* current;
   php_driver_type* type;
   php_driver_type* value_type;
   CassCollection* collection;
@@ -826,8 +826,8 @@ int php_driver_collection_from_map(php_driver_map* map,
 
 int php_driver_tuple_from_tuple(php_driver_tuple* tuple, CassTuple** output) {
   int result = 1;
-  php5to7_ulong num_key;
-  php5to7_zval* current;
+  zend_ulong num_key;
+  zval* current;
   php_driver_type* type;
   CassTuple* tup;
 
@@ -835,7 +835,7 @@ int php_driver_tuple_from_tuple(php_driver_tuple* tuple, CassTuple** output) {
   tup = cass_tuple_new_from_data_type(type->data_type);
 
   PHP5TO7_ZEND_HASH_FOREACH_NUM_KEY_VAL(&tuple->values, num_key, current) {
-    php5to7_zval* zsub_type;
+    zval* zsub_type;
     php_driver_type* sub_type;
     if (!PHP5TO7_ZEND_HASH_INDEX_FIND(&type->data.tuple.types, num_key,
                                       zsub_type) ||
@@ -863,7 +863,7 @@ int php_driver_user_type_from_user_type_value(
     php_driver_user_type_value* user_type_value, CassUserType** output) {
   int result = 1;
   char* name;
-  php5to7_zval* current;
+  zval* current;
   php_driver_type* type;
   CassUserType* ut;
 
@@ -872,7 +872,7 @@ int php_driver_user_type_from_user_type_value(
 
   PHP5TO7_ZEND_HASH_FOREACH_STR_KEY_VAL(&user_type_value->values, name,
                                         current) {
-    php5to7_zval* zsub_type;
+    zval* zsub_type;
     php_driver_type* sub_type;
     if (!PHP5TO7_ZEND_HASH_FIND(&type->data.udt.types, name, strlen(name) + 1,
                                 zsub_type) ||

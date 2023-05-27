@@ -24,11 +24,11 @@
 BEGIN_EXTERN_C()
 zend_class_entry *php_driver_default_index_ce = NULL;
 
-php5to7_zval
+zval
 php_driver_create_index(php_driver_ref *schema,
                            const CassIndexMeta *meta )
 {
-  php5to7_zval result;
+  zval result;
   php_driver_index *index;
   const char *name;
   size_t name_length;
@@ -137,9 +137,9 @@ void php_driver_index_build_option(php_driver_index *index)
 PHP_METHOD(DefaultIndex, option)
 {
   char *name;
-  php5to7_size name_len;
+  size_t name_len;
   php_driver_index *self;
-  php5to7_zval* result;
+  zval* result;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() , "s",
                             &name, &name_len) == FAILURE) {
@@ -177,7 +177,7 @@ PHP_METHOD(DefaultIndex, options)
 PHP_METHOD(DefaultIndex, className)
 {
   php_driver_index *self;
-  php5to7_zval* result;
+  zval* result;
 
   if (zend_parse_parameters_none() == FAILURE)
     return;
@@ -241,7 +241,7 @@ php_driver_type_default_index_gc(
 #else
         zval *object,
 #endif
-        php5to7_zval_gc table, int *n
+        zval** table, int *n
 )
 {
   *table = NULL;
@@ -276,7 +276,7 @@ php_driver_default_index_compare(zval *obj1, zval *obj2 )
 }
 
 static void
-php_driver_default_index_free(php5to7_zend_object_free *object )
+php_driver_default_index_free(zend_object *object )
 {
   php_driver_index *self = PHP5TO7_ZEND_OBJECT_GET(index, object);
 
@@ -295,7 +295,7 @@ php_driver_default_index_free(php5to7_zend_object_free *object )
   PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object
+static zend_object*
 php_driver_default_index_new(zend_class_entry *ce )
 {
   php_driver_index *self =

@@ -185,7 +185,7 @@ static zend_function_entry php_driver_timeuuid_methods[] = {
 
 static php_driver_value_handlers php_driver_timeuuid_handlers;
 
-static HashTable *php_driver_timeuuid_gc(zend_object *object, php5to7_zval_gc table, int *n) {
+static HashTable *php_driver_timeuuid_gc(zend_object *object, zval** table, int *n) {
   *table = nullptr;
   *n = 0;
   return zend_std_get_properties(object);
@@ -235,12 +235,12 @@ static unsigned php_driver_timeuuid_hash_value(zval *obj) {
       (self->uuid.clock_seq_and_node ^ (self->uuid.clock_seq_and_node >> 32)));
 }
 
-static void php_driver_timeuuid_free(php5to7_zend_object_free *object) {
+static void php_driver_timeuuid_free(zend_object *object) {
   php_driver_uuid *self = PHP5TO7_ZEND_OBJECT_GET(uuid, object);
   zend_object_std_dtor(&self->zval);
 }
 
-static php5to7_zend_object php_driver_timeuuid_new(zend_class_entry *ce) {
+static zend_object* php_driver_timeuuid_new(zend_class_entry *ce) {
   auto *self = PHP5TO7_ZEND_OBJECT_ECALLOC(uuid, ce);
 
   PHP5TO7_ZEND_OBJECT_INIT_EX(uuid, timeuuid, self, ce);

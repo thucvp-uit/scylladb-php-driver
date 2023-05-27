@@ -70,7 +70,7 @@ PHP_METHOD(TypeCollection, __toString) {
 PHP_METHOD(TypeCollection, create) {
   php_driver_type* self;
   php_driver_collection* collection;
-  php5to7_zval_args args = NULL;
+  zval* args = NULL;
   int argc = 0, i;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS(), "*", &args, &argc) == FAILURE) {
@@ -134,7 +134,7 @@ static HashTable* php_driver_type_collection_gc(
 #else
     zval* object,
 #endif
-    php5to7_zval_gc table, int* n) {
+    zval** table, int* n) {
   *table = NULL;
   *n = 0;
   return zend_std_get_properties(object);
@@ -172,7 +172,7 @@ static int php_driver_type_collection_compare(zval* obj1, zval* obj2) {
   return php_driver_type_compare(type1, type2);
 }
 
-static void php_driver_type_collection_free(php5to7_zend_object_free* object) {
+static void php_driver_type_collection_free(zend_object* object) {
   php_driver_type* self = PHP5TO7_ZEND_OBJECT_GET(type, object);
 
   if (self->data_type) cass_data_type_free(self->data_type);
@@ -182,7 +182,7 @@ static void php_driver_type_collection_free(php5to7_zend_object_free* object) {
   PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object php_driver_type_collection_new(
+static zend_object* php_driver_type_collection_new(
     zend_class_entry* ce) {
   php_driver_type* self = PHP5TO7_ZEND_OBJECT_ECALLOC(type, ce);
 

@@ -24,11 +24,11 @@
 BEGIN_EXTERN_C()
 zend_class_entry *php_driver_default_function_ce = NULL;
 
-php5to7_zval
+zval
 php_driver_create_function(php_driver_ref* schema,
                               const CassFunctionMeta *meta )
 {
-  php5to7_zval result;
+  zval result;
   php_driver_function *function;
   const char *full_name;
   size_t full_name_length;
@@ -97,7 +97,7 @@ PHP_METHOD(DefaultFunction, arguments)
       size_t name_length;
       const CassDataType* data_type;
       if (cass_function_meta_argument(self->meta, i, &name, &name_length, &data_type) == CASS_OK) {
-        php5to7_zval type = php_driver_type_from_data_type(data_type );
+        zval type = php_driver_type_from_data_type(data_type );
         if (!Z_ISUNDEF(type)) {
           PHP5TO7_ADD_ASSOC_ZVAL_EX(&self->arguments,
                                     name, name_length + 1,
@@ -213,7 +213,7 @@ php_driver_type_default_function_gc(
 #else
         zval *object,
 #endif
-        php5to7_zval_gc table, int *n
+        zval** table, int *n
 )
 {
   *table = NULL;
@@ -248,7 +248,7 @@ php_driver_default_function_compare(zval *obj1, zval *obj2 )
 }
 
 static void
-php_driver_default_function_free(php5to7_zend_object_free *object )
+php_driver_default_function_free(zend_object *object )
 {
   php_driver_function *self = PHP5TO7_ZEND_OBJECT_GET(function, object);
 
@@ -269,7 +269,7 @@ php_driver_default_function_free(php5to7_zend_object_free *object )
   PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object
+static zend_object*
 php_driver_default_function_new(zend_class_entry *ce )
 {
   php_driver_function *self =

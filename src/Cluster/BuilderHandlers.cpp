@@ -314,7 +314,7 @@ static void php_driver_cluster_builder_free(zend_object *object)
         self->timestamp_gen = nullptr;
     }
 }
-php5to7_zend_object php_driver_cluster_builder_new(zend_class_entry *ce)
+zend_object* php_driver_cluster_builder_new(zend_class_entry *ce)
 {
     auto *self = static_cast<php_driver_cluster_builder *>(
         emalloc(sizeof(php_driver_cluster_builder) + zend_object_properties_size(ce)));

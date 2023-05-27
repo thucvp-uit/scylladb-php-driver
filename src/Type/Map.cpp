@@ -89,7 +89,7 @@ PHP_METHOD(TypeMap, __toString)
 PHP_METHOD(TypeMap, create)
 {
   php_driver_map *map;
-  php5to7_zval_args args = NULL;
+  zval* args = NULL;
   int argc = 0, i;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() , "*",
@@ -162,7 +162,7 @@ php_driver_type_map_gc(
 #else
         zval *object,
 #endif
-        php5to7_zval_gc table, int *n
+        zval** table, int *n
 )
 {
   *table = NULL;
@@ -212,7 +212,7 @@ php_driver_type_map_compare(zval *obj1, zval *obj2 )
 }
 
 static void
-php_driver_type_map_free(php5to7_zend_object_free *object )
+php_driver_type_map_free(zend_object *object )
 {
   php_driver_type *self = PHP5TO7_ZEND_OBJECT_GET(type, object);
 
@@ -224,7 +224,7 @@ php_driver_type_map_free(php5to7_zend_object_free *object )
   PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object
+static zend_object*
 php_driver_type_map_new(zend_class_entry *ce )
 {
   php_driver_type *self =

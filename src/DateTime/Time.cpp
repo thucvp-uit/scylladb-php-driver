@@ -200,7 +200,7 @@ static unsigned php_driver_time_hash_value(zval *obj) {
   return php_driver_bigint_hash(self->time);
 }
 
-static php5to7_zend_object php_driver_time_new(zend_class_entry *ce) {
+static zend_object* php_driver_time_new(zend_class_entry *ce) {
   auto *self = ZendCPP::Allocate<php_driver_time>(ce, &php_driver_time_handlers);
   self->time = 0;
 

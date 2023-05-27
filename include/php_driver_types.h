@@ -181,7 +181,7 @@ static zend_always_inline php_driver_duration *php_driver_duration_object_fetch(
 
 typedef struct php_driver_collection_
 {
-    php5to7_zval type;
+    zval type;
     HashTable values;
     unsigned hashv;
     int dirty;
@@ -196,7 +196,7 @@ typedef struct php_driver_map_entry_ php_driver_map_entry;
 
 typedef struct php_driver_map_
 {
-    php5to7_zval type;
+    zval type;
     php_driver_map_entry *entries;
     unsigned hashv;
     int dirty;
@@ -213,7 +213,7 @@ typedef struct php_driver_set_entry_ php_driver_set_entry;
 
 typedef struct php_driver_set_
 {
-    php5to7_zval type;
+    zval type;
     php_driver_set_entry *entries;
     unsigned hashv;
     int dirty;
@@ -229,7 +229,7 @@ static zend_always_inline php_driver_set *php_driver_set_object_fetch(zend_objec
 
 typedef struct php_driver_tuple_
 {
-    php5to7_zval type;
+    zval type;
     HashTable values;
     HashPosition pos;
     unsigned hashv;
@@ -243,7 +243,7 @@ static zend_always_inline php_driver_tuple *php_driver_tuple_object_fetch(zend_o
 
 typedef struct php_driver_user_type_value_
 {
-    php5to7_zval type;
+    zval type;
     HashTable values;
     HashPosition pos;
     unsigned hashv;
@@ -306,8 +306,8 @@ static zend_always_inline php_driver_statement *php_driver_statement_object_fetc
 
 typedef struct
 {
-    php5to7_zval statement;
-    php5to7_zval arguments;
+    zval statement;
+    zval arguments;
 } php_driver_batch_statement_entry;
 
 typedef struct php_driver_execution_options_
@@ -317,9 +317,9 @@ typedef struct php_driver_execution_options_
     int page_size;
     char *paging_state_token;
     size_t paging_state_token_size;
-    php5to7_zval timeout;
-    php5to7_zval arguments;
-    php5to7_zval retry_policy;
+    zval timeout;
+    zval arguments;
+    zval retry_policy;
     cass_int64_t timestamp;
     zend_object zval;
 } php_driver_execution_options;
@@ -348,11 +348,11 @@ typedef struct php_driver_rows_
 {
     php_driver_ref *statement;
     php_driver_ref *session;
-    php5to7_zval rows;
-    php5to7_zval next_rows;
+    zval rows;
+    zval next_rows;
     php_driver_ref *result;
     php_driver_ref *next_result;
-    php5to7_zval future_next_page;
+    zval future_next_page;
     zend_object zval;
 } php_driver_rows;
 static zend_always_inline php_driver_rows *php_driver_rows_object_fetch(zend_object *obj)
@@ -364,7 +364,7 @@ typedef struct php_driver_future_rows_
 {
     php_driver_ref *statement;
     php_driver_ref *session;
-    php5to7_zval rows;
+    zval rows;
     php_driver_ref *result;
     CassFuture *future;
     zend_object zval;
@@ -454,7 +454,7 @@ static zend_always_inline php_driver_cluster_builder *php_driver_cluster_builder
 typedef struct php_driver_future_prepared_statement_
 {
     CassFuture *future;
-    php5to7_zval prepared_statement;
+    zval prepared_statement;
     zend_object zval;
 } php_driver_future_prepared_statement;
 static zend_always_inline php_driver_future_prepared_statement *php_driver_future_prepared_statement_object_fetch(
@@ -466,7 +466,7 @@ static zend_always_inline php_driver_future_prepared_statement *php_driver_futur
 
 typedef struct php_driver_future_value_
 {
-    php5to7_zval value;
+    zval value;
     zend_object zval;
 } php_driver_future_value;
 static zend_always_inline php_driver_future_value *php_driver_future_value_object_fetch(zend_object *obj)
@@ -488,7 +488,7 @@ typedef struct php_driver_future_session_
 {
     CassFuture *future;
     php_driver_ref *session;
-    php5to7_zval default_session;
+    zval default_session;
     cass_bool_t persist;
     char *hash_key;
     int hash_key_len;
@@ -522,7 +522,7 @@ typedef struct php_driver_session_
     int default_page_size;
     char *keyspace;
     char *hash_key;
-    php5to7_zval default_timeout;
+    zval default_timeout;
     cass_bool_t persist;
     zend_object zval;
 } php_driver_session;
@@ -569,12 +569,12 @@ static zend_always_inline php_driver_keyspace *php_driver_keyspace_object_fetch(
 
 typedef struct php_driver_table_
 {
-    php5to7_zval name;
-    php5to7_zval options;
-    php5to7_zval partition_key;
-    php5to7_zval primary_key;
-    php5to7_zval clustering_key;
-    php5to7_zval clustering_order;
+    zval name;
+    zval options;
+    zval partition_key;
+    zval primary_key;
+    zval clustering_key;
+    zval clustering_order;
     php_driver_ref *schema;
     const CassTableMeta *meta;
     zend_object zval;
@@ -586,13 +586,13 @@ static zend_always_inline php_driver_table *php_driver_table_object_fetch(zend_o
 
 typedef struct php_driver_materialized_view_
 {
-    php5to7_zval name;
-    php5to7_zval options;
-    php5to7_zval partition_key;
-    php5to7_zval primary_key;
-    php5to7_zval clustering_key;
-    php5to7_zval clustering_order;
-    php5to7_zval base_table;
+    zval name;
+    zval options;
+    zval partition_key;
+    zval primary_key;
+    zval clustering_key;
+    zval clustering_order;
+    zval base_table;
     php_driver_ref *schema;
     const CassMaterializedViewMeta *meta;
     zend_object zval;
@@ -604,8 +604,8 @@ static zend_always_inline php_driver_materialized_view *php_driver_materialized_
 
 typedef struct php_driver_column_
 {
-    php5to7_zval name;
-    php5to7_zval type;
+    zval name;
+    zval type;
     int reversed;
     int frozen;
     php_driver_ref *schema;
@@ -619,10 +619,10 @@ static zend_always_inline php_driver_column *php_driver_column_object_fetch(zend
 
 typedef struct php_driver_index_
 {
-    php5to7_zval name;
-    php5to7_zval kind;
-    php5to7_zval target;
-    php5to7_zval options;
+    zval name;
+    zval kind;
+    zval target;
+    zval options;
     php_driver_ref *schema;
     const CassIndexMeta *meta;
     zend_object zval;
@@ -634,12 +634,12 @@ static zend_always_inline php_driver_index *php_driver_index_object_fetch(zend_o
 
 typedef struct php_driver_function_
 {
-    php5to7_zval simple_name;
-    php5to7_zval arguments;
-    php5to7_zval return_type;
-    php5to7_zval signature;
-    php5to7_zval language;
-    php5to7_zval body;
+    zval simple_name;
+    zval arguments;
+    zval return_type;
+    zval signature;
+    zval language;
+    zval body;
     php_driver_ref *schema;
     const CassFunctionMeta *meta;
     zend_object zval;
@@ -651,14 +651,14 @@ static zend_always_inline php_driver_function *php_driver_function_object_fetch(
 
 typedef struct php_driver_aggregate_
 {
-    php5to7_zval simple_name;
-    php5to7_zval argument_types;
-    php5to7_zval state_function;
-    php5to7_zval final_function;
-    php5to7_zval initial_condition;
-    php5to7_zval state_type;
-    php5to7_zval return_type;
-    php5to7_zval signature;
+    zval simple_name;
+    zval argument_types;
+    zval state_function;
+    zval final_function;
+    zval initial_condition;
+    zval state_type;
+    zval return_type;
+    zval signature;
     php_driver_ref *schema;
     const CassAggregateMeta *meta;
     zend_object zval;
@@ -675,16 +675,16 @@ typedef struct php_driver_type_
     union {
         struct
         {
-            php5to7_zval value_type;
+            zval value_type;
         } collection;
         struct
         {
-            php5to7_zval value_type;
+            zval value_type;
         } set;
         struct
         {
-            php5to7_zval key_type;
-            php5to7_zval value_type;
+            zval key_type;
+            zval value_type;
         } map;
         struct
         {

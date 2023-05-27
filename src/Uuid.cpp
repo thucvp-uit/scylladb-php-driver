@@ -26,7 +26,7 @@ void
 php_driver_uuid_init(INTERNAL_FUNCTION_PARAMETERS)
 {
   char *value;
-  php5to7_size value_len;
+  size_t value_len;
   php_driver_uuid *self;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() , "|s", &value, &value_len) == FAILURE) {
@@ -75,7 +75,7 @@ PHP_METHOD(Uuid, __toString)
 /* {{{ Uuid::type() */
 PHP_METHOD(Uuid, type)
 {
-  php5to7_zval type = php_driver_type_scalar(CASS_VALUE_TYPE_UUID );
+  zval type = php_driver_type_scalar(CASS_VALUE_TYPE_UUID );
   RETURN_ZVAL(&type, 1, 1);
 }
 /* }}} */
@@ -133,7 +133,7 @@ php_driver_uuid_gc(
 #else
         zval *object,
 #endif
-        php5to7_zval_gc table, int *n
+        zval** table, int *n
 )
 {
   *table = NULL;
@@ -151,9 +151,9 @@ php_driver_uuid_properties(
 )
 {
   char string[CASS_UUID_STRING_LENGTH];
-  php5to7_zval type;
-  php5to7_zval uuid;
-  php5to7_zval version;
+  zval type;
+  zval uuid;
+  zval version;
 
 #if PHP_MAJOR_VERSION >= 8
   php_driver_uuid *self = PHP5TO7_ZEND_OBJECT_GET(uuid, object);
@@ -211,7 +211,7 @@ php_driver_uuid_hash_value(zval *obj )
 }
 
 static void
-php_driver_uuid_free(php5to7_zend_object_free *object )
+php_driver_uuid_free(zend_object *object )
 {
   php_driver_uuid *self = PHP5TO7_ZEND_OBJECT_GET(uuid, object);
 
@@ -219,7 +219,7 @@ php_driver_uuid_free(php5to7_zend_object_free *object )
   PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object
+static zend_object*
 php_driver_uuid_new(zend_class_entry *ce )
 {
   php_driver_uuid *self =

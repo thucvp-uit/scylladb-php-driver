@@ -23,7 +23,7 @@ zend_class_entry *php_driver_default_schema_ce = NULL;
 PHP_METHOD(DefaultSchema, keyspace)
 {
   char *name;
-  php5to7_size name_len;
+  size_t name_len;
   php_driver_schema *self;
   php_driver_keyspace *keyspace;
   const CassKeyspaceMeta *meta;
@@ -61,7 +61,7 @@ PHP_METHOD(DefaultSchema, keyspaces)
     const CassValue         *value;
     const char              *keyspace_name;
     size_t                   keyspace_name_len;
-    php5to7_zval             zkeyspace;
+    zval             zkeyspace;
     php_driver_keyspace      *keyspace;
 
     meta = cass_iterator_get_keyspace_meta(iterator);
@@ -139,7 +139,7 @@ php_driver_default_schema_compare(zval *obj1, zval *obj2 )
 }
 
 static void
-php_driver_default_schema_free(php5to7_zend_object_free *object )
+php_driver_default_schema_free(zend_object *object )
 {
   php_driver_schema *self = PHP5TO7_ZEND_OBJECT_GET(schema, object);
 
@@ -152,7 +152,7 @@ php_driver_default_schema_free(php5to7_zend_object_free *object )
   PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object
+static zend_object*
 php_driver_default_schema_new(zend_class_entry *ce )
 {
   php_driver_schema *self =

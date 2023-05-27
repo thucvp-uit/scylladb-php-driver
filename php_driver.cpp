@@ -123,7 +123,7 @@ PHP_INI_END()
 
 static int le_php_driver_cluster_res;
 int php_le_php_driver_cluster() { return le_php_driver_cluster_res; }
-static void php_driver_cluster_dtor(php5to7_zend_resource rsrc) {
+static void php_driver_cluster_dtor(zend_resource* rsrc) {
   auto *cluster = (CassCluster *)rsrc->ptr;
 
   if (cluster) {
@@ -137,7 +137,7 @@ static void php_driver_cluster_dtor(php5to7_zend_resource rsrc) {
 
 static int le_php_driver_session_res;
 int php_le_php_driver_session() { return le_php_driver_session_res; }
-static void php_driver_session_dtor(php5to7_zend_resource rsrc) {
+static void php_driver_session_dtor(zend_resource* rsrc) {
   auto *psession = (php_driver_psession *)rsrc->ptr;
 
   if (psession) {
@@ -154,7 +154,7 @@ static void php_driver_session_dtor(php5to7_zend_resource rsrc) {
 
 static int le_php_driver_prepared_statement_res;
 int php_le_php_driver_prepared_statement() { return le_php_driver_prepared_statement_res; }
-static void php_driver_prepared_statement_dtor(php5to7_zend_resource rsrc) {
+static void php_driver_prepared_statement_dtor(zend_resource* rsrc) {
   auto *preparedStmt = (php_driver_pprepared_statement *)rsrc->ptr;
 
   if (preparedStmt) {

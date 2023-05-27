@@ -26,7 +26,7 @@ php_driver_inet_init(INTERNAL_FUNCTION_PARAMETERS)
 {
   php_driver_inet *self;
   char *string;
-  php5to7_size string_len;
+  size_t string_len;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() , "s", &string, &string_len) == FAILURE) {
     return;
@@ -66,7 +66,7 @@ PHP_METHOD(Inet, __toString)
 /* {{{ Inet::type() */
 PHP_METHOD(Inet, type)
 {
-  php5to7_zval type = php_driver_type_scalar(CASS_VALUE_TYPE_INET );
+  zval type = php_driver_type_scalar(CASS_VALUE_TYPE_INET );
   RETURN_ZVAL(&type, 1, 1);
 }
 /* }}} */
@@ -114,7 +114,7 @@ php_driver_inet_gc(
 #else
         zval *object,
 #endif
-        php5to7_zval_gc table, int *n
+        zval** table, int *n
 )
 {
   *table = NULL;
@@ -132,8 +132,8 @@ php_driver_inet_properties(
 )
 {
   char *string;
-  php5to7_zval type;
-  php5to7_zval address;
+  zval type;
+  zval address;
 
 #if PHP_MAJOR_VERSION >= 8
   php_driver_inet *self = PHP5TO7_ZEND_OBJECT_GET(inet, object);
@@ -184,7 +184,7 @@ php_driver_inet_hash_value(zval *obj )
 }
 
 static void
-php_driver_inet_free(php5to7_zend_object_free *object )
+php_driver_inet_free(zend_object *object )
 {
   php_driver_inet *self = PHP5TO7_ZEND_OBJECT_GET(inet, object);
 
@@ -192,7 +192,7 @@ php_driver_inet_free(php5to7_zend_object_free *object )
   PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object
+static zend_object*
 php_driver_inet_new(zend_class_entry *ce )
 {
   php_driver_inet *self =

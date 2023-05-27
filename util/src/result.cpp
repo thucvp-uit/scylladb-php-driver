@@ -27,7 +27,7 @@
 #include "src/Tuple.h"
 #include "src/UserTypeValue.h"
 
-int php_driver_value(const CassValue *value, const CassDataType *data_type, php5to7_zval *out)
+int php_driver_value(const CassValue *value, const CassDataType *data_type, zval *out)
 {
     const char *v_string;
     size_t v_string_len;
@@ -191,7 +191,7 @@ int php_driver_value(const CassValue *value, const CassDataType *data_type, php5
 
         while (cass_iterator_next(iterator))
         {
-            php5to7_zval v;
+            zval v;
 
             if (php_driver_value(cass_iterator_get_value(iterator), primary_type, &v) == FAILURE)
             {
@@ -218,8 +218,8 @@ int php_driver_value(const CassValue *value, const CassDataType *data_type, php5
 
         while (cass_iterator_next(iterator))
         {
-            php5to7_zval k;
-            php5to7_zval v;
+            zval k;
+            zval v;
 
             if (php_driver_value(cass_iterator_get_map_key(iterator), primary_type, &k) == FAILURE ||
                 php_driver_value(cass_iterator_get_map_value(iterator), secondary_type, &v) == FAILURE)
@@ -247,7 +247,7 @@ int php_driver_value(const CassValue *value, const CassDataType *data_type, php5
 
         while (cass_iterator_next(iterator))
         {
-            php5to7_zval v;
+            zval v;
 
             if (php_driver_value(cass_iterator_get_value(iterator), primary_type, &v) == FAILURE)
             {
@@ -277,7 +277,7 @@ int php_driver_value(const CassValue *value, const CassDataType *data_type, php5
 
             if (!cass_value_is_null(value))
             {
-                php5to7_zval v;
+                zval v;
 
                 primary_type = cass_data_type_sub_data_type(data_type, index);
                 if (php_driver_value(value, primary_type, &v) == FAILURE)
@@ -313,7 +313,7 @@ int php_driver_value(const CassValue *value, const CassDataType *data_type, php5
             {
                 const char *name;
                 size_t name_length;
-                php5to7_zval v;
+                zval v;
 
                 primary_type = cass_data_type_sub_data_type(data_type, index);
                 if (php_driver_value(value, primary_type, &v) == FAILURE)
@@ -341,7 +341,7 @@ int php_driver_value(const CassValue *value, const CassDataType *data_type, php5
     return SUCCESS;
 }
 
-int php_driver_get_keyspace_field(const CassKeyspaceMeta *metadata, const char *field_name, php5to7_zval *out)
+int php_driver_get_keyspace_field(const CassKeyspaceMeta *metadata, const char *field_name, zval *out)
 {
     const CassValue *value;
 
@@ -357,7 +357,7 @@ int php_driver_get_keyspace_field(const CassKeyspaceMeta *metadata, const char *
     return php_driver_value(value, cass_value_data_type(value), out);
 }
 
-int php_driver_get_table_field(const CassTableMeta *metadata, const char *field_name, php5to7_zval *out)
+int php_driver_get_table_field(const CassTableMeta *metadata, const char *field_name, zval *out)
 {
     const CassValue *value;
 
@@ -373,7 +373,7 @@ int php_driver_get_table_field(const CassTableMeta *metadata, const char *field_
     return php_driver_value(value, cass_value_data_type(value), out);
 }
 
-int php_driver_get_column_field(const CassColumnMeta *metadata, const char *field_name, php5to7_zval *out)
+int php_driver_get_column_field(const CassColumnMeta *metadata, const char *field_name, zval *out)
 {
     const CassValue *value;
 
@@ -389,10 +389,10 @@ int php_driver_get_column_field(const CassColumnMeta *metadata, const char *fiel
     return php_driver_value(value, cass_value_data_type(value), out);
 }
 
-int php_driver_get_result(const CassResult *result, php5to7_zval *out)
+int php_driver_get_result(const CassResult *result, zval *out)
 {
-    php5to7_zval rows;
-    php5to7_zval row;
+    zval rows;
+    zval row;
     const CassRow *cass_row;
     const char *column_name;
     size_t column_name_len;
@@ -419,7 +419,7 @@ int php_driver_get_result(const CassResult *result, php5to7_zval *out)
 
         for (i = 0; i < columns; i++)
         {
-            php5to7_zval value;
+            zval value;
 
             if (column_names[i] == NULL)
             {

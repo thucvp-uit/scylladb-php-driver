@@ -92,7 +92,7 @@ PHP_METHOD(TypeTuple, create)
 {
   php_driver_type* self;
   php_driver_tuple* tuple;
-  php5to7_zval_args args = NULL;
+  zval* args = NULL;
   int argc               = 0, i, num_types;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() , "*",
@@ -121,7 +121,7 @@ PHP_METHOD(TypeTuple, create)
     }
 
     for (i = 0; i < argc; i++) {
-      php5to7_zval* sub_type;
+      zval* sub_type;
 
       if (!PHP5TO7_ZEND_HASH_INDEX_FIND(&self->data.tuple.types, i, sub_type) || !php_driver_validate_object(&args[i], sub_type )) {
         PHP5TO7_MAYBE_EFREE(args);
@@ -171,7 +171,7 @@ php_driver_type_tuple_gc(
 #else
   zval* object,
 #endif
-  php5to7_zval_gc table,
+  zval** table,
   int* n )
 {
   *table = NULL;
@@ -188,7 +188,7 @@ php_driver_type_tuple_properties(
 #endif
 )
 {
-  php5to7_zval types;
+  zval types;
 #if PHP_MAJOR_VERSION >= 8
   php_driver_type* self = PHP5TO7_ZEND_OBJECT_GET(type, object);
 #else
@@ -219,7 +219,7 @@ php_driver_type_tuple_compare(zval* obj1, zval* obj2 )
 }
 
 static void
-php_driver_type_tuple_free(php5to7_zend_object_free* object )
+php_driver_type_tuple_free(zend_object* object )
 {
   php_driver_type* self = PHP5TO7_ZEND_OBJECT_GET(type, object);
 
@@ -231,7 +231,7 @@ php_driver_type_tuple_free(php5to7_zend_object_free* object )
   PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object
+static zend_object*
 php_driver_type_tuple_new(zend_class_entry* ce )
 {
   php_driver_type* self = PHP5TO7_ZEND_OBJECT_ECALLOC(type, ce);

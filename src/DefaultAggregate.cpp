@@ -70,7 +70,7 @@ PHP_METHOD(DefaultAggregate, argumentTypes)
     for (i = 0; i < count; ++i) {
       const CassDataType* data_type = cass_aggregate_meta_argument_type(self->meta, i);
       if (data_type) {
-        php5to7_zval type = php_driver_type_from_data_type(data_type );
+        zval type = php_driver_type_from_data_type(data_type );
         if (!Z_ISUNDEF(type)) {
           add_next_index_zval(&self->argument_types,
                               &type);
@@ -220,7 +220,7 @@ php_driver_type_default_aggregate_gc(
 #else
         zval *object,
 #endif
-        php5to7_zval_gc table, int *n
+        zval** table, int *n
 )
 {
   *table = NULL;
@@ -255,7 +255,7 @@ php_driver_default_aggregate_compare(zval *obj1, zval *obj2 )
 }
 
 static void
-php_driver_default_aggregate_free(php5to7_zend_object_free *object )
+php_driver_default_aggregate_free(zend_object *object )
 {
   php_driver_aggregate *self = PHP5TO7_ZEND_OBJECT_GET(aggregate, object);
 
@@ -278,7 +278,7 @@ php_driver_default_aggregate_free(php5to7_zend_object_free *object )
   PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object
+static zend_object*
 php_driver_default_aggregate_new(zend_class_entry *ce )
 {
   php_driver_aggregate *self =

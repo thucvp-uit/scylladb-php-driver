@@ -45,9 +45,9 @@ php_driver_collection_del(php_driver_collection *collection, ulong index)
 }
 
 static int
-php_driver_collection_get(php_driver_collection *collection, ulong index, php5to7_zval *zvalue)
+php_driver_collection_get(php_driver_collection *collection, ulong index, zval *zvalue)
 {
-  php5to7_zval *value;
+  zval *value;
   if (PHP5TO7_ZEND_HASH_INDEX_FIND(&collection->values, index, value)) {
     *zvalue = *value;
     return 1;
@@ -58,8 +58,8 @@ php_driver_collection_get(php_driver_collection *collection, ulong index, php5to
 static int
 php_driver_collection_find(php_driver_collection *collection, zval *object, long *index)
 {
-  php5to7_ulong num_key;
-  php5to7_zval *current;
+  zend_ulong num_key;
+  zval *current;
   PHP5TO7_ZEND_HASH_FOREACH_NUM_KEY_VAL(&collection->values, num_key, current) {
     zval compare;
     is_equal_function(&compare, object, current);
@@ -75,7 +75,7 @@ php_driver_collection_find(php_driver_collection *collection, zval *object, long
 static void
 php_driver_collection_populate(php_driver_collection *collection, zval *array)
 {
-  php5to7_zval *current;
+  zval *current;
   PHP5TO7_ZEND_HASH_FOREACH_VAL(&collection->values, current) {
     if (add_next_index_zval(array, current) == SUCCESS)
       Z_TRY_ADDREF_P(current);
@@ -134,7 +134,7 @@ PHP_METHOD(Collection, values)
 PHP_METHOD(Collection, add)
 {
   php_driver_collection *self = NULL;
-  php5to7_zval_args args = NULL;
+  zval* args = NULL;
   int argc = 0, i;
   php_driver_type *type;
 
@@ -173,7 +173,7 @@ PHP_METHOD(Collection, get)
 {
   long key;
   php_driver_collection *self = NULL;
-  php5to7_zval value;
+  zval value;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &key) == FAILURE)
     return;
@@ -213,7 +213,7 @@ PHP_METHOD(Collection, count)
 /* {{{ Collection::current() */
 PHP_METHOD(Collection, current)
 {
-  php5to7_zval *current;
+  zval *current;
   php_driver_collection *collection = PHP_DRIVER_GET_COLLECTION(getThis());
 
   if (PHP5TO7_ZEND_HASH_GET_CURRENT_DATA(&collection->values, current)) {
@@ -225,7 +225,7 @@ PHP_METHOD(Collection, current)
 /* {{{ Collection::key() */
 PHP_METHOD(Collection, key)
 {
-  php5to7_ulong num_key;
+  zend_ulong num_key;
   php_driver_collection *collection = PHP_DRIVER_GET_COLLECTION(getThis());
   if (PHP5TO7_ZEND_HASH_GET_CURRENT_KEY(&collection->values, NULL, &num_key) == HASH_KEY_IS_LONG) {
     RETURN_LONG(num_key);
@@ -348,7 +348,7 @@ php_driver_collection_gc(
 #else
         zval *object,
 #endif
-        php5to7_zval_gc table, int *n)
+        zval** table, int *n)
 {
   *table = NULL;
   *n = 0;
@@ -364,7 +364,7 @@ php_driver_collection_properties(
 #endif
 )
 {
-  php5to7_zval values;
+  zval values;
 
 #if PHP_MAJOR_VERSION >= 8
   php_driver_collection  *self = PHP5TO7_ZEND_OBJECT_GET(collection, object);
@@ -394,8 +394,8 @@ php_driver_collection_compare(zval *obj1, zval *obj2)
 #endif
   HashPosition pos1;
   HashPosition pos2;
-  php5to7_zval *current1;
-  php5to7_zval *current2;
+  zval *current1;
+  zval *current2;
   php_driver_collection *collection1;
   php_driver_collection *collection2;
   php_driver_type *type1;
@@ -436,7 +436,7 @@ php_driver_collection_compare(zval *obj1, zval *obj2)
 static unsigned
 php_driver_collection_hash_value(zval *obj)
 {
-  php5to7_zval *current;
+  zval *current;
   unsigned hashv = 0;
   php_driver_collection *self = PHP_DRIVER_GET_COLLECTION(obj);
 
@@ -454,7 +454,7 @@ php_driver_collection_hash_value(zval *obj)
 }
 
 static void
-php_driver_collection_free(php5to7_zend_object_free *object)
+php_driver_collection_free(zend_object *object)
 {
   php_driver_collection *self =
       PHP5TO7_ZEND_OBJECT_GET(collection, object);
@@ -466,7 +466,7 @@ php_driver_collection_free(php5to7_zend_object_free *object)
   PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object
+static zend_object*
 php_driver_collection_new(zend_class_entry *ce)
 {
   php_driver_collection *self =

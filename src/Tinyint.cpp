@@ -35,7 +35,7 @@ static zend_result to_double(zval *result, php_driver_numeric *tinyint )
 
 static zend_result to_long(zval *result, php_driver_numeric *tinyint )
 {
-    ZVAL_LONG(result, (php5to7_long)tinyint->data.tinyint.value);
+    ZVAL_LONG(result, (zend_long)tinyint->data.tinyint.value);
     return SUCCESS;
 }
 
@@ -149,7 +149,7 @@ PHP_METHOD(Tinyint, __toString)
 /* {{{ Tinyint::type() */
 PHP_METHOD(Tinyint, type)
 {
-    php5to7_zval type = php_driver_type_scalar(CASS_VALUE_TYPE_TINY_INT );
+    zval type = php_driver_type_scalar(CASS_VALUE_TYPE_TINY_INT );
     RETURN_ZVAL(&type, 1, 1);
 }
 /* }}} */
@@ -467,7 +467,7 @@ static HashTable *php_driver_tinyint_gc(
 #else
     zval *object,
 #endif
-    php5to7_zval_gc table, int *n )
+    zval** table, int *n )
 {
     *table = NULL;
     *n = 0;
@@ -482,8 +482,8 @@ static HashTable *php_driver_tinyint_properties(
 #endif
 )
 {
-    php5to7_zval type;
-    php5to7_zval value;
+    zval type;
+    zval value;
 
 #if PHP_MAJOR_VERSION >= 8
     php_driver_numeric *self = PHP5TO7_ZEND_OBJECT_GET(numeric, object);
@@ -559,7 +559,7 @@ static
     return SUCCESS;
 }
 
-static void php_driver_tinyint_free(php5to7_zend_object_free *object )
+static void php_driver_tinyint_free(zend_object *object )
 {
     php_driver_numeric *self = PHP5TO7_ZEND_OBJECT_GET(numeric, object);
 
@@ -567,7 +567,7 @@ static void php_driver_tinyint_free(php5to7_zend_object_free *object )
     PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object php_driver_tinyint_new(zend_class_entry *ce )
+static zend_object* php_driver_tinyint_new(zend_class_entry *ce )
 {
     php_driver_numeric *self = PHP5TO7_ZEND_OBJECT_ECALLOC(numeric, ce);
 

@@ -19,7 +19,7 @@
 BEGIN_EXTERN_C()
 zend_class_entry *php_driver_batch_statement_ce = NULL;
 
-void php_driver_batch_statement_entry_dtor(php5to7_dtor dest)
+void php_driver_batch_statement_entry_dtor(zval* dest)
 {
     auto *batch_statement_entry = static_cast<php_driver_batch_statement_entry *>(Z_PTR_P(dest));
 
@@ -145,7 +145,7 @@ static int php_driver_batch_statement_compare(zval *obj1, zval *obj2 )
     return Z_OBJ_HANDLE_P(obj1) != Z_OBJ_HANDLE_P(obj1);
 }
 
-static void php_driver_batch_statement_free(php5to7_zend_object_free *object )
+static void php_driver_batch_statement_free(zend_object *object )
 {
     php_driver_statement *self = PHP5TO7_ZEND_OBJECT_GET(statement, object);
 
@@ -155,7 +155,7 @@ static void php_driver_batch_statement_free(php5to7_zend_object_free *object )
     PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object php_driver_batch_statement_new(zend_class_entry *ce )
+static zend_object* php_driver_batch_statement_new(zend_class_entry *ce )
 {
     php_driver_statement *self = PHP5TO7_ZEND_OBJECT_ECALLOC(statement, ce);
 

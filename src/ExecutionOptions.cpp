@@ -36,14 +36,14 @@ static void init_execution_options(php_driver_execution_options *self)
 
 static zend_result build_from_array(php_driver_execution_options *self, zval *options, int copy)
 {
-    php5to7_zval *consistency = NULL;
-    php5to7_zval *serial_consistency = NULL;
-    php5to7_zval *page_size = NULL;
-    php5to7_zval *paging_state_token = NULL;
-    php5to7_zval *timeout = NULL;
-    php5to7_zval *arguments = NULL;
-    php5to7_zval *retry_policy = NULL;
-    php5to7_zval *timestamp = NULL;
+    zval *consistency = NULL;
+    zval *serial_consistency = NULL;
+    zval *page_size = NULL;
+    zval *paging_state_token = NULL;
+    zval *timeout = NULL;
+    zval *arguments = NULL;
+    zval *retry_policy = NULL;
+    zval *timestamp = NULL;
 
     if (PHP5TO7_ZEND_HASH_FIND(Z_ARRVAL_P(options), "consistency", sizeof("consistency"), consistency))
     {
@@ -222,7 +222,7 @@ PHP_METHOD(ExecutionOptions, __construct)
 PHP_METHOD(ExecutionOptions, __get)
 {
     char *name;
-    php5to7_size name_len;
+    size_t name_len;
 
     php_driver_execution_options *self = NULL;
 
@@ -344,7 +344,7 @@ static int php_driver_execution_options_compare(zval *obj1, zval *obj2)
     return Z_OBJ_HANDLE_P(obj1) != Z_OBJ_HANDLE_P(obj1);
 }
 
-static void php_driver_execution_options_free(php5to7_zend_object_free *object)
+static void php_driver_execution_options_free(zend_object *object)
 {
     php_driver_execution_options *self = PHP5TO7_ZEND_OBJECT_GET(execution_options, object);
 
@@ -360,7 +360,7 @@ static void php_driver_execution_options_free(php5to7_zend_object_free *object)
     PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object php_driver_execution_options_new(zend_class_entry *ce)
+static zend_object* php_driver_execution_options_new(zend_class_entry *ce)
 {
     php_driver_execution_options *self = PHP5TO7_ZEND_OBJECT_ECALLOC(execution_options, ce);
 

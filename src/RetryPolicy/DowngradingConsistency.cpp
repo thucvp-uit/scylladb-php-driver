@@ -27,7 +27,7 @@ static zend_object_handlers
     php_driver_retry_policy_downgrading_consistency_handlers;
 
 static void php_driver_retry_policy_downgrading_consistency_free(
-    php5to7_zend_object_free *object) {
+    zend_object *object) {
   php_driver_retry_policy *self = PHP5TO7_ZEND_OBJECT_GET(retry_policy, object);
 
   cass_retry_policy_free(self->policy);
@@ -36,7 +36,7 @@ static void php_driver_retry_policy_downgrading_consistency_free(
   PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object php_driver_retry_policy_downgrading_consistency_new(
+static zend_object* php_driver_retry_policy_downgrading_consistency_new(
     zend_class_entry *ce) {
   php_driver_retry_policy *self = PHP5TO7_ZEND_OBJECT_ECALLOC(retry_policy, ce);
 

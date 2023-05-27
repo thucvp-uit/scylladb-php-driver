@@ -55,7 +55,7 @@ PHP_METHOD(TypeUserType, __construct)
 PHP_METHOD(TypeUserType, withName)
 {
   char *name;
-  php5to7_size name_len;
+  size_t name_len;
   php_driver_type *self;
   php_driver_type *user_type;
 
@@ -97,7 +97,7 @@ PHP_METHOD(TypeUserType, name)
 PHP_METHOD(TypeUserType, withKeyspace)
 {
   char *keyspace;
-  php5to7_size keyspace_len;
+  size_t keyspace_len;
   php_driver_type *self;
   php_driver_type *user_type;
 
@@ -172,7 +172,7 @@ PHP_METHOD(TypeUserType, create)
 {
   php_driver_type *self;
   php_driver_user_type_value *user_type_value;
-  php5to7_zval_args args = NULL;
+  zval* args = NULL;
   int argc = 0, i;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() , "*",
@@ -201,7 +201,7 @@ PHP_METHOD(TypeUserType, create)
     for (i = 0; i < argc; i += 2) {
       zval *name = &args[i];
       zval *value = &args[i + 1];
-      php5to7_zval *sub_type;
+      zval *sub_type;
       if (Z_TYPE_P(name) != IS_STRING) {
         zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0 ,
                                 "Argument %d is not a string", i + 1);
@@ -278,7 +278,7 @@ php_driver_type_user_type_gc(
 #else
         zval *object,
 #endif
-        php5to7_zval_gc table, int *n
+        zval** table, int *n
 )
 {
   *table = NULL;
@@ -295,7 +295,7 @@ php_driver_type_user_type_properties(
 #endif
 )
 {
-  php5to7_zval types;
+  zval types;
 
 #if PHP_MAJOR_VERSION >= 8
   php_driver_type *self  = PHP5TO7_ZEND_OBJECT_GET(type, object);
@@ -327,7 +327,7 @@ php_driver_type_user_type_compare(zval *obj1, zval *obj2 )
 }
 
 static void
-php_driver_type_user_type_free(php5to7_zend_object_free *object )
+php_driver_type_user_type_free(zend_object *object )
 {
   php_driver_type *self = PHP5TO7_ZEND_OBJECT_GET(type, object);
 
@@ -340,7 +340,7 @@ php_driver_type_user_type_free(php5to7_zend_object_free *object )
   PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object
+static zend_object*
 php_driver_type_user_type_new(zend_class_entry *ce )
 {
   php_driver_type *self = PHP5TO7_ZEND_OBJECT_ECALLOC(type, ce);

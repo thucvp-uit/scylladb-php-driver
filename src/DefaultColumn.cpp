@@ -24,11 +24,11 @@
 BEGIN_EXTERN_C()
 zend_class_entry *php_driver_default_column_ce = NULL;
 
-php5to7_zval
+zval
 php_driver_create_column(php_driver_ref *schema,
                          const CassColumnMeta *meta )
 {
-  php5to7_zval result;
+  zval result;
   php_driver_column *column;
   const char *name;
   size_t name_length;
@@ -177,7 +177,7 @@ PHP_METHOD(DefaultColumn, isFrozen)
 PHP_METHOD(DefaultColumn, indexName)
 {
   php_driver_column *self;
-  php5to7_zval value;
+  zval value;
 
   if (zend_parse_parameters_none() == FAILURE) {
     return;
@@ -192,7 +192,7 @@ PHP_METHOD(DefaultColumn, indexName)
 PHP_METHOD(DefaultColumn, indexOptions)
 {
   php_driver_column *self;
-  php5to7_zval value;
+  zval value;
 
   if (zend_parse_parameters_none() == FAILURE) {
     return;
@@ -227,7 +227,7 @@ php_driver_type_default_column_gc(
 #else
         zval *object,
 #endif
-        php5to7_zval_gc table, int *n
+        zval** table, int *n
 )
 {
   *table = NULL;
@@ -262,7 +262,7 @@ php_driver_default_column_compare(zval *obj1, zval *obj2 )
 }
 
 static void
-php_driver_default_column_free(php5to7_zend_object_free *object )
+php_driver_default_column_free(zend_object *object )
 {
   php_driver_column *self = PHP5TO7_ZEND_OBJECT_GET(column, object);
 
@@ -279,7 +279,7 @@ php_driver_default_column_free(php5to7_zend_object_free *object )
   PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object
+static zend_object*
 php_driver_default_column_new(zend_class_entry *ce )
 {
   php_driver_column *self =

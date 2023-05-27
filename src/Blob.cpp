@@ -24,7 +24,7 @@ zend_class_entry *php_driver_blob_ce = NULL;
 void php_driver_blob_init(INTERNAL_FUNCTION_PARAMETERS) {
   php_driver_blob *self;
   char *string;
-  php5to7_size string_len;
+  size_t string_len;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS(), "s", &string, &string_len) ==
       FAILURE) {
@@ -65,7 +65,7 @@ PHP_METHOD(Blob, __toString) {
 
 /* {{{ Blob::type() */
 PHP_METHOD(Blob, type) {
-  php5to7_zval type = php_driver_type_scalar(CASS_VALUE_TYPE_BLOB);
+  zval type = php_driver_type_scalar(CASS_VALUE_TYPE_BLOB);
   RETURN_ZVAL(&type, 1, 1);
 }
 /* }}} */
@@ -121,7 +121,7 @@ static HashTable *php_driver_blob_gc(
 #else
     zval *object,
 #endif
-    php5to7_zval_gc table, int *n) {
+    zval** table, int *n) {
   *table = NULL;
   *n = 0;
   return zend_std_get_properties(object);
@@ -136,8 +136,8 @@ static HashTable *php_driver_blob_properties(
 ) {
   char *hex;
   size_t hex_len;
-  php5to7_zval type;
-  php5to7_zval bytes;
+  zval type;
+  zval bytes;
 
 #if PHP_MAJOR_VERSION >= 8
   php_driver_blob *self = PHP5TO7_ZEND_OBJECT_GET(blob, object);
@@ -187,7 +187,7 @@ static unsigned php_driver_blob_hash_value(zval *obj) {
   return zend_inline_hash_func((const char *)self->data, self->size);
 }
 
-static void php_driver_blob_free(php5to7_zend_object_free *object) {
+static void php_driver_blob_free(zend_object *object) {
   php_driver_blob *self = PHP5TO7_ZEND_OBJECT_GET(blob, object);
 
   if (self->data) {
@@ -198,7 +198,7 @@ static void php_driver_blob_free(php5to7_zend_object_free *object) {
   PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object php_driver_blob_new(zend_class_entry *ce) {
+static zend_object* php_driver_blob_new(zend_class_entry *ce) {
   php_driver_blob *self = PHP5TO7_ZEND_OBJECT_ECALLOC(blob, ce);
 
   PHP5TO7_ZEND_OBJECT_INIT(blob, self, ce);

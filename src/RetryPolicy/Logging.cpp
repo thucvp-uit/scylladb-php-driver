@@ -54,7 +54,7 @@ static zend_function_entry php_driver_retry_policy_logging_methods[] = {
 static zend_object_handlers php_driver_retry_policy_logging_handlers;
 
 static void
-php_driver_retry_policy_logging_free(php5to7_zend_object_free *object )
+php_driver_retry_policy_logging_free(zend_object *object )
 {
   php_driver_retry_policy *self = PHP5TO7_ZEND_OBJECT_GET(retry_policy, object);
 
@@ -66,7 +66,7 @@ php_driver_retry_policy_logging_free(php5to7_zend_object_free *object )
   PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object
+static zend_object*
 php_driver_retry_policy_logging_new(zend_class_entry *ce )
 {
   php_driver_retry_policy *self = PHP5TO7_ZEND_OBJECT_ECALLOC(retry_policy, ce);

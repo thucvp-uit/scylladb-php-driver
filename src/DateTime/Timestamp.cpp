@@ -61,7 +61,7 @@ PHP_METHOD(Timestamp, __construct) {
 
 
 PHP_METHOD(Timestamp, type) {
-  php5to7_zval type = php_driver_type_scalar(CASS_VALUE_TYPE_TIMESTAMP);
+  zval type = php_driver_type_scalar(CASS_VALUE_TYPE_TIMESTAMP);
   RETURN_ZVAL(&type, 1, 1);
 }
 
@@ -174,9 +174,9 @@ static HashTable *php_driver_timestamp_gc(zend_object *object, zval **table, int
   return zend_std_get_properties(object);
 }
 static HashTable *php_driver_timestamp_properties(zend_object *object) {
-  php5to7_zval type;
-  php5to7_zval seconds;
-  php5to7_zval microseconds;
+  zval type;
+  zval seconds;
+  zval microseconds;
 
   php_driver_timestamp *self = PHP5TO7_ZEND_OBJECT_GET(timestamp, object);
   HashTable *props = zend_std_get_properties(object);
@@ -215,12 +215,12 @@ static unsigned php_driver_timestamp_hash_value(zval *obj) {
   return php_driver_bigint_hash(self->timestamp);
 }
 
-static void php_driver_timestamp_free(php5to7_zend_object_free *object) {
+static void php_driver_timestamp_free(zend_object *object) {
   php_driver_timestamp *self = PHP5TO7_ZEND_OBJECT_GET(timestamp, object);
   zend_object_std_dtor(&self->zval);
 }
 
-static php5to7_zend_object php_driver_timestamp_new(zend_class_entry *ce) {
+static zend_object* php_driver_timestamp_new(zend_class_entry *ce) {
   auto *self = PHP5TO7_ZEND_OBJECT_ECALLOC(timestamp, ce);
 
   PHP5TO7_ZEND_OBJECT_INIT(timestamp, self, ce);

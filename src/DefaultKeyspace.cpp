@@ -31,7 +31,7 @@ zend_class_entry *php_driver_default_keyspace_ce = NULL;
 
 PHP_METHOD(DefaultKeyspace, name) {
   php_driver_keyspace *self;
-  php5to7_zval value;
+  zval value;
 
   if (zend_parse_parameters_none() == FAILURE) return;
 
@@ -43,7 +43,7 @@ PHP_METHOD(DefaultKeyspace, name) {
 
 PHP_METHOD(DefaultKeyspace, replicationClassName) {
   php_driver_keyspace *self;
-  php5to7_zval value;
+  zval value;
 
   if (zend_parse_parameters_none() == FAILURE) return;
 
@@ -55,7 +55,7 @@ PHP_METHOD(DefaultKeyspace, replicationClassName) {
 
 PHP_METHOD(DefaultKeyspace, replicationOptions) {
   php_driver_keyspace *self;
-  php5to7_zval value;
+  zval value;
 
   if (zend_parse_parameters_none() == FAILURE) return;
 
@@ -67,7 +67,7 @@ PHP_METHOD(DefaultKeyspace, replicationOptions) {
 
 PHP_METHOD(DefaultKeyspace, hasDurableWrites) {
   php_driver_keyspace *self;
-  php5to7_zval value;
+  zval value;
 
   if (zend_parse_parameters_none() == FAILURE) return;
 
@@ -79,9 +79,9 @@ PHP_METHOD(DefaultKeyspace, hasDurableWrites) {
 
 PHP_METHOD(DefaultKeyspace, table) {
   char *name;
-  php5to7_size name_len;
+  size_t name_len;
   php_driver_keyspace *self;
-  php5to7_zval ztable;
+  zval ztable;
   const CassTableMeta *meta;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS(), "s", &name, &name_len) == FAILURE) {
@@ -114,7 +114,7 @@ PHP_METHOD(DefaultKeyspace, tables) {
   array_init(return_value);
   while (cass_iterator_next(iterator)) {
     const CassTableMeta *meta;
-    php5to7_zval ztable;
+    zval ztable;
     php_driver_table *table;
 
     meta = cass_iterator_get_table_meta(iterator);
@@ -142,9 +142,9 @@ PHP_METHOD(DefaultKeyspace, tables) {
 
 PHP_METHOD(DefaultKeyspace, userType) {
   char *name;
-  php5to7_size name_len;
+  size_t name_len;
   php_driver_keyspace *self;
-  php5to7_zval ztype;
+  zval ztype;
   const CassDataType *user_type;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS(), "s", &name, &name_len) == FAILURE) {
@@ -174,7 +174,7 @@ PHP_METHOD(DefaultKeyspace, userTypes) {
   array_init(return_value);
   while (cass_iterator_next(iterator)) {
     const CassDataType *user_type;
-    php5to7_zval ztype;
+    zval ztype;
     const char *type_name;
     size_t type_name_len;
 
@@ -192,8 +192,8 @@ PHP_METHOD(DefaultKeyspace, userTypes) {
 PHP_METHOD(DefaultKeyspace, materializedView) {
   php_driver_keyspace *self;
   char *name;
-  php5to7_size name_len;
-  php5to7_zval zview;
+  size_t name_len;
+  zval zview;
   const CassMaterializedViewMeta *meta;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS(), "s", &name, &name_len) == FAILURE) {
@@ -226,7 +226,7 @@ PHP_METHOD(DefaultKeyspace, materializedViews) {
   array_init(return_value);
   while (cass_iterator_next(iterator)) {
     const CassMaterializedViewMeta *meta;
-    php5to7_zval zview;
+    zval zview;
     php_driver_materialized_view *view;
 
     meta = cass_iterator_get_materialized_view_meta(iterator);
@@ -252,7 +252,7 @@ PHP_METHOD(DefaultKeyspace, materializedViews) {
   cass_iterator_free(iterator);
 }
 
-int php_driver_arguments_string(php5to7_zval_args args, int argc, smart_str *arguments) {
+int php_driver_arguments_string(zval* args, int argc, smart_str *arguments) {
   int i;
 
   for (i = 0; i < argc; ++i) {
@@ -285,8 +285,8 @@ int php_driver_arguments_string(php5to7_zval_args args, int argc, smart_str *arg
 PHP_METHOD(DefaultKeyspace, function) {
   php_driver_keyspace *self;
   char *name;
-  php5to7_size name_len;
-  php5to7_zval_args args = NULL;
+  size_t name_len;
+  zval* args = NULL;
   smart_str arguments = PHP5TO7_SMART_STR_INIT;
   int argc = 0;
   const CassFunctionMeta *meta = NULL;
@@ -308,7 +308,7 @@ PHP_METHOD(DefaultKeyspace, function) {
                                                PHP5TO7_SMART_STR_VAL(arguments),
                                                PHP5TO7_SMART_STR_LEN(arguments));
   if (meta) {
-    php5to7_zval zfunction = php_driver_create_function(self->schema, meta);
+    zval zfunction = php_driver_create_function(self->schema, meta);
     RETVAL_ZVAL(&zfunction, 1, 1);
   } else {
     RETVAL_FALSE;
@@ -330,7 +330,7 @@ PHP_METHOD(DefaultKeyspace, functions) {
   array_init(return_value);
   while (cass_iterator_next(iterator)) {
     const CassFunctionMeta *meta = cass_iterator_get_function_meta(iterator);
-    php5to7_zval zfunction = php_driver_create_function(self->schema, meta);
+    zval zfunction = php_driver_create_function(self->schema, meta);
 
     if (!Z_ISUNDEF(zfunction)) {
       php_driver_function *function = PHP_DRIVER_GET_FUNCTION(&zfunction);
@@ -348,9 +348,9 @@ PHP_METHOD(DefaultKeyspace, functions) {
   cass_iterator_free(iterator);
 }
 
-static php5to7_zval php_driver_create_aggregate(php_driver_ref *schema,
+static zval php_driver_create_aggregate(php_driver_ref *schema,
                                                 const CassAggregateMeta *meta) {
-  php5to7_zval result;
+  zval result;
   php_driver_aggregate *aggregate;
   const char *full_name;
   size_t full_name_length;
@@ -398,7 +398,7 @@ PHP_METHOD(DefaultKeyspace, aggregate) {
                                                 PHP5TO7_SMART_STR_VAL(arguments),
                                                 PHP5TO7_SMART_STR_LEN(arguments));
   if (meta) {
-    php5to7_zval zaggregate = php_driver_create_aggregate(self->schema, meta);
+    zval zaggregate = php_driver_create_aggregate(self->schema, meta);
     RETVAL_ZVAL(&zaggregate, 1, 1);
   } else {
     RETVAL_FALSE;
@@ -420,7 +420,7 @@ PHP_METHOD(DefaultKeyspace, aggregates) {
   array_init(return_value);
   while (cass_iterator_next(iterator)) {
     const CassAggregateMeta *meta = cass_iterator_get_aggregate_meta(iterator);
-    php5to7_zval zaggregate = php_driver_create_aggregate(self->schema, meta);
+    zval zaggregate = php_driver_create_aggregate(self->schema, meta);
 
     if (!Z_ISUNDEF(zaggregate)) {
       php_driver_aggregate *aggregate = PHP_DRIVER_GET_AGGREGATE(&zaggregate);
@@ -475,7 +475,7 @@ static HashTable *php_driver_type_default_keyspace_gc(
 #else
     zval *object,
 #endif
-    php5to7_zval_gc table, int *n) {
+    zval** table, int *n) {
   *table = NULL;
   *n = 0;
   return zend_std_get_properties(object);
@@ -502,7 +502,7 @@ static int php_driver_default_keyspace_compare(zval *obj1, zval *obj2) {
   return Z_OBJ_HANDLE_P(obj1) != Z_OBJ_HANDLE_P(obj1);
 }
 
-static void php_driver_default_keyspace_free(php5to7_zend_object_free *object) {
+static void php_driver_default_keyspace_free(zend_object *object) {
   php_driver_keyspace *self = PHP5TO7_ZEND_OBJECT_GET(keyspace, object);
 
   if (self->schema) {
@@ -515,7 +515,7 @@ static void php_driver_default_keyspace_free(php5to7_zend_object_free *object) {
   PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object php_driver_default_keyspace_new(zend_class_entry *ce) {
+static zend_object* php_driver_default_keyspace_new(zend_class_entry *ce) {
   php_driver_keyspace *self = PHP5TO7_ZEND_OBJECT_ECALLOC(keyspace, ce);
 
   self->meta = NULL;

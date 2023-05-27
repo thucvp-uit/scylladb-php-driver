@@ -95,7 +95,7 @@ static HashTable *php_driver_type_scalar_gc(zend_object *object, zval **table,
 }
 
 static HashTable *php_driver_type_scalar_properties(zend_object *object) {
-  php5to7_zval name;
+  zval name;
   php_driver_type *self = PHP5TO7_ZEND_OBJECT_GET(type, object);
   HashTable *props = zend_std_get_properties(object);
 
@@ -118,7 +118,7 @@ static int php_driver_type_scalar_compare(zval *obj1, zval *obj2) {
   return php_driver_type_compare(type1, type2);
 }
 
-static void php_driver_type_scalar_free(php5to7_zend_object_free *object) {
+static void php_driver_type_scalar_free(zend_object *object) {
   php_driver_type *self = PHP5TO7_ZEND_OBJECT_GET(type, object);
 
   if (self->data_type) cass_data_type_free(self->data_type);
@@ -127,7 +127,7 @@ static void php_driver_type_scalar_free(php5to7_zend_object_free *object) {
   PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object php_driver_type_scalar_new(zend_class_entry *ce) {
+static zend_object* php_driver_type_scalar_new(zend_class_entry *ce) {
   auto self = PHP5TO7_ZEND_OBJECT_ECALLOC(type, ce);
 
   self->type = CASS_VALUE_TYPE_UNKNOWN;

@@ -87,22 +87,9 @@ extern "C"
 #define CPP_DRIVER_VERSION(major, minor, patch) (((major) << 16) + ((minor) << 8) + (patch))
 
 #define CURRENT_CPP_DRIVER_VERSION CPP_DRIVER_VERSION(CASS_VERSION_MAJOR, CASS_VERSION_MINOR, CASS_VERSION_PATCH)
-
-    typedef zval php5to7_zval;
-    typedef zval *php5to7_zval_args;
-    typedef zend_string *php5to7_string;
-    typedef zend_long php5to7_long;
-    typedef zend_ulong php5to7_ulong;
-    typedef zval php5to7_zend_resource_le;
-    typedef zend_resource *php5to7_zend_resource;
-    typedef zend_object *php5to7_zend_object;
-    typedef zend_object php5to7_zend_object_free;
-    typedef zval **php5to7_zval_gc;
-    typedef zval *php5to7_dtor;
-    typedef size_t php5to7_size;
     typedef unsigned long ulong;
 
-    static inline int php5to7_string_compare(php5to7_string s1, php5to7_string s2)
+    static inline int php5to7_string_compare(zend_string* s1, zend_string* s2)
     {
         if (s1->len != s2->len)
         {
@@ -197,7 +184,7 @@ extern "C"
 #define PHP5TO7_ZEND_HASH_FIND(ht, key, len, res) ((res = zend_hash_str_find((ht), (key), (size_t)(len - 1))) != NULL)
 
 #define PHP5TO7_ZEND_HASH_INDEX_FIND(ht, index, res)                                                                   \
-    ((res = zend_hash_index_find((ht), (php5to7_ulong)(index))) != NULL)
+    ((res = zend_hash_index_find((ht), (zend_ulong)(index))) != NULL)
 
 #define PHP5TO7_ZEND_HASH_NEXT_INDEX_INSERT(ht, val, val_size) ((void)zend_hash_next_index_insert((ht), (val)))
 

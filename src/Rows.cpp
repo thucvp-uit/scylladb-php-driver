@@ -109,8 +109,8 @@ PHP_METHOD(Rows, current)
 
 PHP_METHOD(Rows, key)
 {
-    php5to7_ulong num_index;
-    php5to7_string str_index;
+    zend_ulong num_index;
+    zend_string* str_index;
     php_driver_rows *self = NULL;
 
     if (zend_parse_parameters_none() == FAILURE)
@@ -164,13 +164,13 @@ PHP_METHOD(Rows, offsetExists)
 
     self = PHP_DRIVER_GET_ROWS(getThis());
 
-    RETURN_BOOL(zend_hash_index_exists(Z_ARRVAL(self->rows), (php5to7_ulong)Z_LVAL_P(offset)));
+    RETURN_BOOL(zend_hash_index_exists(Z_ARRVAL(self->rows), (zend_ulong)Z_LVAL_P(offset)));
 }
 
 PHP_METHOD(Rows, offsetGet)
 {
     zval *offset;
-    php5to7_zval *value;
+    zval *value;
     php_driver_rows *self = NULL;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() , "z", &offset) == FAILURE)
@@ -374,7 +374,7 @@ PHP_METHOD(Rows, pagingStateToken)
 PHP_METHOD(Rows, first)
 {
     HashPosition pos;
-    php5to7_zval *entry;
+    zval *entry;
     php_driver_rows *self = NULL;
 
     if (zend_parse_parameters_none() == FAILURE)
@@ -489,7 +489,7 @@ static int php_driver_rows_compare(zval *obj1, zval *obj2 )
     return Z_OBJ_HANDLE_P(obj1) != Z_OBJ_HANDLE_P(obj1);
 }
 
-static void php_driver_rows_free(php5to7_zend_object_free *object )
+static void php_driver_rows_free(zend_object *object )
 {
     php_driver_rows *self = PHP5TO7_ZEND_OBJECT_GET(rows, object);
 
@@ -506,7 +506,7 @@ static void php_driver_rows_free(php5to7_zend_object_free *object )
     PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object php_driver_rows_new(zend_class_entry *ce )
+static zend_object* php_driver_rows_new(zend_class_entry *ce )
 {
     php_driver_rows *self = PHP5TO7_ZEND_OBJECT_ECALLOC(rows, ce);
 

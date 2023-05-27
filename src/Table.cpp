@@ -20,11 +20,11 @@
 BEGIN_EXTERN_C()
 zend_class_entry *php_driver_table_ce = NULL;
 
-php5to7_zval
+zval
 php_driver_table_build_options(CassIterator* iterator ) {
   const char *name;
   size_t name_length;
-  php5to7_zval zoptions;
+  zval zoptions;
 
 
   array_init(&zoptions);
@@ -40,7 +40,7 @@ php_driver_table_build_options(CassIterator* iterator ) {
       if (value) {
         const CassDataType *data_type = cass_value_data_type(value);
         if (data_type) {
-          php5to7_zval zvalue;
+          zval zvalue;
           ZVAL_UNDEF(&zvalue);
           if (php_driver_value(value,
                                   data_type,

@@ -73,7 +73,7 @@ PHP_METHOD(TypeSet, __toString)
 PHP_METHOD(TypeSet, create)
 {
   php_driver_set *set;
-  php5to7_zval_args args = NULL;
+  zval* args = NULL;
   int argc = 0, i;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() , "*",
@@ -134,7 +134,7 @@ php_driver_type_set_gc(
 #else
         zval *object,
 #endif
-        php5to7_zval_gc table, int *n
+        zval** table, int *n
 )
 {
   *table = NULL;
@@ -179,7 +179,7 @@ php_driver_type_set_compare(zval *obj1, zval *obj2 )
 }
 
 static void
-php_driver_type_set_free(php5to7_zend_object_free *object )
+php_driver_type_set_free(zend_object *object )
 {
   php_driver_type *self = PHP5TO7_ZEND_OBJECT_GET(type, object);
 
@@ -190,7 +190,7 @@ php_driver_type_set_free(php5to7_zend_object_free *object )
   PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object
+static zend_object*
 php_driver_type_set_new(zend_class_entry *ce )
 {
   php_driver_type *self =

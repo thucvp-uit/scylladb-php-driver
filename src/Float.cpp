@@ -87,7 +87,7 @@ PHP_METHOD(Float, __toString)
 /* {{{ Float::type() */
 PHP_METHOD(Float, type)
 {
-  php5to7_zval type = php_driver_type_scalar(CASS_VALUE_TYPE_FLOAT );
+  zval type = php_driver_type_scalar(CASS_VALUE_TYPE_FLOAT );
   RETURN_ZVAL(&type, 1, 1);
 }
 /* }}} */
@@ -385,7 +385,7 @@ php_driver_float_gc(
 #else
         zval *object,
 #endif
-        php5to7_zval_gc table, int *n
+        zval** table, int *n
 )
 {
   *table = NULL;
@@ -402,8 +402,8 @@ php_driver_float_properties(
 #endif
 )
 {
-  php5to7_zval type;
-  php5to7_zval value;
+  zval type;
+  zval value;
 
 #if PHP_MAJOR_VERSION >= 8
   php_driver_numeric *self = PHP5TO7_ZEND_OBJECT_GET(numeric, object);
@@ -497,7 +497,7 @@ php_driver_float_cast(
 }
 
 static void
-php_driver_float_free(php5to7_zend_object_free *object )
+php_driver_float_free(zend_object *object )
 {
   php_driver_numeric *self = PHP5TO7_ZEND_OBJECT_GET(numeric, object);
 
@@ -505,7 +505,7 @@ php_driver_float_free(php5to7_zend_object_free *object )
   PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object
+static zend_object*
 php_driver_float_new(zend_class_entry *ce )
 {
   php_driver_numeric *self =

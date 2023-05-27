@@ -36,14 +36,14 @@
 
 struct php_driver_map_entry_
 {
-    php5to7_zval key;
-    php5to7_zval value;
+    zval key;
+    zval value;
     UT_hash_handle hh;
 };
 
 struct php_driver_set_entry_
 {
-    php5to7_zval value;
+    zval value;
     UT_hash_handle hh;
 };
 

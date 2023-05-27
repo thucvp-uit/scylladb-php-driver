@@ -60,7 +60,7 @@ php_driver_map_set(php_driver_map *map, zval *zkey, zval *zvalue )
     ZVAL_COPY(&entry->value, zvalue);
     HASH_ADD_ZVAL(map->entries, key, entry);
   } else {
-    php5to7_zval prev_value = entry->value;
+    zval prev_value = entry->value;
     ZVAL_COPY(&entry->value, zvalue);
     zval_ptr_dtor(&prev_value);
   }
@@ -69,7 +69,7 @@ php_driver_map_set(php_driver_map *map, zval *zkey, zval *zvalue )
 }
 
 static int
-php_driver_map_get(php_driver_map *map, zval *zkey, php5to7_zval *zvalue )
+php_driver_map_get(php_driver_map *map, zval *zkey, zval *zvalue )
 {
   php_driver_map_entry *entry;
   php_driver_type *type;
@@ -170,8 +170,8 @@ PHP_METHOD(Map, __construct)
   php_driver_map *self;
   zval *key_type;
   zval *value_type;
-  php5to7_zval scalar_key_type;
-  php5to7_zval scalar_value_type;
+  zval scalar_key_type;
+  zval scalar_value_type;
 
   ZVAL_UNDEF(&scalar_key_type);
   ZVAL_UNDEF(&scalar_value_type);
@@ -269,7 +269,7 @@ PHP_METHOD(Map, get)
 {
   zval *key;
   php_driver_map *self = NULL;
-  php5to7_zval value;
+  zval value;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() , "z", &key) == FAILURE)
     return;
@@ -370,7 +370,7 @@ PHP_METHOD(Map, offsetGet)
 {
   zval *key;
   php_driver_map *self = NULL;
-  php5to7_zval value;
+  zval value;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() , "z", &key) == FAILURE)
     return;
@@ -496,7 +496,7 @@ php_driver_map_gc(
 #else
         zval *object,
 #endif
-        php5to7_zval_gc table, int *n
+        zval** table, int *n
 )
 {
   *table = NULL;
@@ -513,8 +513,8 @@ php_driver_map_properties(
 #endif
 )
 {
-  php5to7_zval keys;
-  php5to7_zval values;
+  zval keys;
+  zval values;
 
 #if PHP_MAJOR_VERSION >= 8
   php_driver_map *self = PHP5TO7_ZEND_OBJECT_GET(map, object);
@@ -610,7 +610,7 @@ php_driver_map_hash_value(zval *obj )
 }
 
 static void
-php_driver_map_free(php5to7_zend_object_free *object )
+php_driver_map_free(zend_object *object )
 {
   php_driver_map *self = PHP5TO7_ZEND_OBJECT_GET(map, object);
   php_driver_map_entry *curr, *temp;
@@ -628,7 +628,7 @@ php_driver_map_free(php5to7_zend_object_free *object )
   PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object
+static zend_object*
 php_driver_map_new(zend_class_entry *ce )
 {
   php_driver_map *self =

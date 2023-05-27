@@ -31,7 +31,7 @@ static int get_param(zval* value,
                      cass_int64_t *destination  )
 {
   if (Z_TYPE_P(value) == IS_LONG) {
-    php5to7_long long_value = Z_LVAL_P(value);
+    zend_long long_value = Z_LVAL_P(value);
 
     if (long_value > max || long_value < min) {
       zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0 ,
@@ -168,7 +168,7 @@ PHP_METHOD(Duration, __toString)
 
 PHP_METHOD(Duration, type)
 {
-  php5to7_zval type = php_driver_type_scalar(CASS_VALUE_TYPE_DURATION );
+  zval type = php_driver_type_scalar(CASS_VALUE_TYPE_DURATION );
   RETURN_ZVAL(&type, 1, 1);
 }
 
@@ -250,7 +250,7 @@ php_driver_duration_properties(
   php_driver_duration  *self = PHP_DRIVER_GET_DURATION(object);
 #endif
 
-  php5to7_zval wrapped_months, wrapped_days, wrapped_nanos;
+  zval wrapped_months, wrapped_days, wrapped_nanos;
 
 
 
@@ -314,7 +314,7 @@ php_driver_duration_hash_value(zval *obj )
 }
 
 static void
-php_driver_duration_free(php5to7_zend_object_free *object )
+php_driver_duration_free(zend_object *object )
 {
   php_driver_duration *self = PHP5TO7_ZEND_OBJECT_GET(duration, object);
 
@@ -324,7 +324,7 @@ php_driver_duration_free(php5to7_zend_object_free *object )
   PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object
+static zend_object*
 php_driver_duration_new(zend_class_entry *ce )
 {
   php_driver_duration *self = PHP5TO7_ZEND_OBJECT_ECALLOC(duration, ce);

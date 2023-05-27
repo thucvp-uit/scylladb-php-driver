@@ -129,7 +129,7 @@ php_driver_future_rows_compare(zval *obj1, zval *obj2 )
 }
 
 static void
-php_driver_future_rows_free(php5to7_zend_object_free *object )
+php_driver_future_rows_free(zend_object *object )
 {
   php_driver_future_rows *self = PHP5TO7_ZEND_OBJECT_GET(future_rows, object);
 
@@ -147,7 +147,7 @@ php_driver_future_rows_free(php5to7_zend_object_free *object )
   PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object
+static zend_object*
 php_driver_future_rows_new(zend_class_entry *ce )
 {
   php_driver_future_rows *self =

@@ -35,7 +35,7 @@ populate_partition_key(php_driver_materialized_view *view, zval *result )
     const CassColumnMeta *column =
         cass_materialized_view_meta_partition_key(view->meta, i);
     if (column) {
-      php5to7_zval zcolumn = php_driver_create_column(view->schema, column );
+      zval zcolumn = php_driver_create_column(view->schema, column );
       if (!Z_ISUNDEF(zcolumn)) {
         add_next_index_zval(result, &zcolumn);
       }
@@ -51,7 +51,7 @@ populate_clustering_key(php_driver_materialized_view *view, zval *result )
     const CassColumnMeta *column =
         cass_materialized_view_meta_clustering_key(view->meta, i);
     if (column) {
-      php5to7_zval zcolumn = php_driver_create_column(view->schema, column );
+      zval zcolumn = php_driver_create_column(view->schema, column );
       if (!Z_ISUNDEF(zcolumn)) {
         add_next_index_zval(result, &zcolumn);
       }
@@ -59,11 +59,11 @@ populate_clustering_key(php_driver_materialized_view *view, zval *result )
   }
 }
 
-php5to7_zval
+zval
 php_driver_create_materialized_view(php_driver_ref* schema,
                                        const CassMaterializedViewMeta *meta )
 {
-  php5to7_zval result;
+  zval result;
   php_driver_materialized_view *view;
   const char *name;
   size_t name_length;
@@ -126,9 +126,9 @@ PHP_METHOD(DefaultMaterializedView, name)
 PHP_METHOD(DefaultMaterializedView, option)
 {
   char *name;
-  php5to7_size name_len;
+  size_t name_len;
   php_driver_materialized_view *self;
-  php5to7_zval* result;
+  zval* result;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() , "s",
                             &name, &name_len) == FAILURE) {
@@ -372,8 +372,8 @@ PHP_METHOD(DefaultMaterializedView, column)
 {
   php_driver_materialized_view *self;
   char *name;
-  php5to7_size name_len;
-  php5to7_zval column;
+  size_t name_len;
+  zval column;
   const CassColumnMeta *meta;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() , "s", &name, &name_len) == FAILURE) {
@@ -408,7 +408,7 @@ PHP_METHOD(DefaultMaterializedView, columns)
   array_init(return_value);
   while (cass_iterator_next(iterator)) {
     const CassColumnMeta *meta;
-    php5to7_zval zcolumn;
+    zval zcolumn;
     php_driver_column *column;
 
     meta    = cass_iterator_get_column_meta(iterator);
@@ -584,7 +584,7 @@ php_driver_type_default_materialized_view_gc(
 #else
         zval *object,
 #endif
-        php5to7_zval_gc table, int *n
+        zval** table, int *n
 )
 {
   *table = NULL;
@@ -619,7 +619,7 @@ php_driver_default_materialized_view_compare(zval *obj1, zval *obj2 )
 }
 
 static void
-php_driver_default_materialized_view_free(php5to7_zend_object_free *object )
+php_driver_default_materialized_view_free(zend_object *object )
 {
   php_driver_materialized_view *self = PHP5TO7_ZEND_OBJECT_GET(materialized_view, object);
 
@@ -641,7 +641,7 @@ php_driver_default_materialized_view_free(php5to7_zend_object_free *object )
   PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object
+static zend_object*
 php_driver_default_materialized_view_new(zend_class_entry *ce )
 {
   php_driver_materialized_view *self =
