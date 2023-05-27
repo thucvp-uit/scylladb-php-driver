@@ -37,7 +37,23 @@ it('Cassandra\\Date::toDateTime', function () {
     expect($date->toDateTime())
         ->toBeInstanceOf(DateTimeInterface::class)
         ->not()
+        ->toBeNull()
+        ->and($date->toDateTime(new Cassandra\Time()))
+        ->toBeInstanceOf(DateTimeInterface::class)
+        ->not()
         ->toBeNull();
+});
+
+
+it('Cassandra\\Date::type', function () {
+    $date = new Date();
+
+    expect($date->type())
+        ->toBeInstanceOf(Cassandra\Type::class)
+        ->not()
+        ->toBeNull()
+        ->and($date->type()->name())
+        ->toBe('date');
 });
 
 
@@ -70,4 +86,10 @@ it('Create new Cassandra\\Date from DateTime', function () {
         ->toBeInstanceOf(Date::class)
         ->not()
         ->toBeNull();
+});
+
+
+it('formats the string with __toString', function () {
+    $date = new Date();
+    expect((string)$date)->toBe('Cassandra\\Date(seconds=' . CarbonImmutable::now()->startOfDay()->getTimestamp() . ')');
 });

@@ -13,7 +13,7 @@ namespace Cassandra {
         public static function fromDateTime(\DateTimeInterface $datetime): Date {}
         public function toDateTime(Time $time = UNKNOWN): \DateTime {}
         public function seconds(): int {}
-        public function type(): Type\Scalar {}
+        public function type(): Type {}
 
         public function __toString(): string {}
     }

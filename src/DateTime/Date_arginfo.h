@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 40189fb306e833716d5ecf6df923f1316a14980a */
+ * Stub hash: 9639d4368e5025a7499d0cff6c7c01e8e5a2bb49 */
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Cassandra_Date___construct, 0, 0, 0)
 	ZEND_ARG_TYPE_MASK(0, value, MAY_BE_LONG|MAY_BE_STRING, NULL)
@@ -16,7 +16,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_Cassandra_Date_seconds, 0, 0, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_class_Cassandra_Date_type, 0, 0, Cassandra\\Type\\Scalar, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_class_Cassandra_Date_type, 0, 0, Cassandra\\Type, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_Cassandra_Date___toString, 0, 0, IS_STRING, 0)

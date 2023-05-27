@@ -146,7 +146,10 @@ ZEND_METHOD(Cassandra_Timestamp, toDateTime) {
 
   if (status == FAILURE) {
     zend_throw_exception(php_driver_runtime_exception_ce, "Failed to create DateTime object", 0);
+    return;
   }
+
+  RETURN_ZVAL(&datetime, 1, 1);
 }
 
 ZEND_METHOD(Cassandra_Timestamp, fromDateTime) {

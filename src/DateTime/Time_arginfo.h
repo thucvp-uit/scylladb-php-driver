@@ -1,11 +1,11 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 31dd82ebab72df759d85545c9f8c9cc23279e2c4 */
+ * Stub hash: 3bb0a2aed3abdc6efd589715b61a4e159f33b1a2 */
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Cassandra_Time___construct, 0, 0, 0)
 	ZEND_ARG_TYPE_MASK(0, nanoseconds, MAY_BE_LONG|MAY_BE_STRING, NULL)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_class_Cassandra_Time_type, 0, 0, Cassandra\\Type\\Scalar, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_class_Cassandra_Time_type, 0, 0, Cassandra\\Type, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_Cassandra_Time_seconds, 0, 0, IS_LONG, 0)

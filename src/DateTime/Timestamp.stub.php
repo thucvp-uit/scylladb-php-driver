@@ -10,7 +10,7 @@ namespace Cassandra {
     final class Timestamp implements Value {
         public function __construct(int $seconds = UNKNOWN, int $microseconds = UNKNOWN) {}
 
-        public function type(): Type\Scalar {}
+        public function type(): Type {}
         public function time(): int {}
         public function microtime(bool $get_as_float = false): float|string {}
         public function toDateTime(): \DateTime {}
