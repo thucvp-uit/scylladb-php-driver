@@ -55,6 +55,10 @@ void php_driver_timestamp_init(INTERNAL_FUNCTION_PARAMETERS) {
   self->timestamp = value;
 }
 
+PHP_METHOD(Timestamp, __construct) {
+  php_driver_timestamp_init(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+}
+
 
 PHP_METHOD(Timestamp, type) {
   php5to7_zval type = php_driver_type_scalar(CASS_VALUE_TYPE_TIMESTAMP);
