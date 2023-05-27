@@ -15,7 +15,6 @@
  */
 
 #include <DateTime/Date.h>
-
 #include <php.h>
 #include <util/hash.h>
 #include <util/types.h>
@@ -50,6 +49,7 @@ PHP_SCYLLADB_API zend_result php_scylladb_date_initialize(php_scylladb_date *sel
   cass_int64_t secs = -1;
 
   if (secondsStr != nullptr) {
+    errno = 0;
     secs = std::strtol(ZSTR_VAL(secondsStr), nullptr, 10);
 
     if (errno != 0) {
@@ -82,9 +82,9 @@ ZEND_METHOD(Cassandra_Date, __construct) {
                             "Invalid seconds value: '%s'", ZSTR_VAL(secondsStr));
   }
 
-//  if (secondsStr != nullptr) {
-//    zend_string_release(secondsStr);
-//  }
+  //  if (secondsStr != nullptr) {
+  //    zend_string_release(secondsStr);
+  //  }
 }
 ZEND_METHOD(Cassandra_Date, type) {
   zval type = php_driver_type_scalar(CASS_VALUE_TYPE_DATE);
@@ -137,8 +137,8 @@ ZEND_METHOD(Cassandra_Date, fromDateTime) {
   // clang-format on
 
   zval getTimeStampResult = {0};
-  zend_call_method_with_0_params(Z_OBJ_P(datetime), Z_OBJCE_P(datetime), nullptr,
-                                 "gettimestamp", &getTimeStampResult);
+  zend_call_method_with_0_params(Z_OBJ_P(datetime), Z_OBJCE_P(datetime), nullptr, "gettimestamp",
+                                 &getTimeStampResult);
 
   auto self = php_scylladb_date_instantiate(return_value);
 
