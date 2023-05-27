@@ -194,10 +194,9 @@ extern "C"
 
 #define PHP5TO7_ZEND_HASH_ZVAL_COPY(dst, src) zend_hash_copy((dst), (src), (copy_ctor_func_t)zval_add_ref);
 
-#define PHP5TO7_ZEND_HASH_SORT(ht, compare_func, renumber) zend_hash_sort(ht, compare_func, renumber)
-#define PHP5TO7_ZVAL_IS_BOOL_P(zv) (Z_TYPE_P(zv) == IS_TRUE || Z_TYPE_P(zv) == IS_FALSE)
-#define PHP5TO7_ZVAL_IS_FALSE_P(zv) (Z_TYPE_P(zv) == IS_FALSE)
-#define PHP5TO7_ZVAL_IS_TRUE_P(zv) (Z_TYPE_P(zv) == IS_TRUE)
+#define PHP_SCYLLADB_Z_IS_BOOL_P(zv) (Z_TYPE_P(zv) == IS_TRUE || Z_TYPE_P(zv) == IS_FALSE)
+#define PHP_SCYLLADB_Z_IS_FALSE_P(zv) (Z_TYPE_P(zv) == IS_FALSE)
+#define PHP_SCYLLADB_Z_IS_TRUE_P(zv) (Z_TYPE_P(zv) == IS_TRUE)
 
 #define PHP5TO7_ZVAL_MAYBE_DESTROY(zv)                                                                                 \
     do                                                                                                                 \
@@ -217,6 +216,8 @@ extern "C"
     PHP_RINIT_FUNCTION(php_driver);
     PHP_RSHUTDOWN_FUNCTION(php_driver);
     PHP_MINFO_FUNCTION(php_driver);
+    PHP_INI_MH(OnUpdateLogLevel);
+    PHP_INI_MH(OnUpdateLog);
 
     zend_class_entry *exception_class(CassError rc);
 
@@ -254,9 +255,6 @@ extern "C"
 
 #define PHP_DRIVER_DEFAULT_LOG PHP_DRIVER_NAME ".log"
 #define PHP_DRIVER_DEFAULT_LOG_LEVEL "ERROR"
-
-    PHP_INI_MH(OnUpdateLogLevel);
-    PHP_INI_MH(OnUpdateLog);
 
 #ifdef __cplusplus
 }

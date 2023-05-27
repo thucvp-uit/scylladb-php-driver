@@ -359,7 +359,7 @@ php_driver_set_properties(
 
   array_init(&values);
   php_driver_set_populate(self, &values );
-  PHP5TO7_ZEND_HASH_SORT(Z_ARRVAL_P(&values), php_driver_data_compare, 1);
+  zend_hash_sort(Z_ARRVAL_P(&values), php_driver_data_compare, 1);
   PHP5TO7_ZEND_HASH_UPDATE(props, "values", sizeof("values"), &values, sizeof(zval));
 
   return props;

@@ -133,7 +133,7 @@ PHP_METHOD(SSLOptionsBuilder, withTrustedCerts)
     zend_string_release(path_str);
 #endif
 
-    if (PHP5TO7_ZVAL_IS_FALSE_P(&readable)) {
+    if (PHP_SCYLLADB_Z_IS_FALSE_P(&readable)) {
       zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0 ,
                               "The path '%s' doesn't exist or is not readable", Z_STRVAL_P(path));
 
@@ -199,7 +199,7 @@ PHP_METHOD(SSLOptionsBuilder, withClientCert)
   zend_string_release(client_cert_str);
 #endif
 
-  if (PHP5TO7_ZVAL_IS_FALSE_P(&readable)) {
+  if (PHP_SCYLLADB_Z_IS_FALSE_P(&readable)) {
     zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0 ,
                             "The path '%s' doesn't exist or is not readable", client_cert);
     return;
@@ -235,7 +235,7 @@ PHP_METHOD(SSLOptionsBuilder, withPrivateKey)
   zend_string_release(private_key_str);
 #endif
 
-  if (PHP5TO7_ZVAL_IS_FALSE_P(&readable)) {
+  if (PHP_SCYLLADB_Z_IS_FALSE_P(&readable)) {
     zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0 ,
       "The path '%s' doesn't exist or is not readable", private_key);
     return;

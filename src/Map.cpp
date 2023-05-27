@@ -532,13 +532,13 @@ php_driver_map_properties(
 
   array_init(&keys);
   php_driver_map_populate_keys(self, &keys );
-  PHP5TO7_ZEND_HASH_SORT(Z_ARRVAL_P(&keys), php_driver_data_compare, 1);
+  zend_hash_sort(Z_ARRVAL_P(&keys), php_driver_data_compare, 1);
   PHP5TO7_ZEND_HASH_UPDATE(props, "keys", sizeof("keys"), &keys, sizeof(zval *));
 
 
   array_init(&values);
   php_driver_map_populate_values(self, &values );
-  PHP5TO7_ZEND_HASH_SORT(Z_ARRVAL_P(&values), php_driver_data_compare, 1);
+  zend_hash_sort(Z_ARRVAL_P(&values), php_driver_data_compare, 1);
   PHP5TO7_ZEND_HASH_UPDATE(props, "values", sizeof("values"), &values, sizeof(zval *));
 
   return props;
