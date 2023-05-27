@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
+#include <DateTime/DateTime.h>
 #include <util/hash.h>
 #include <util/math.h>
 #include <util/types.h>
-
-#include <DateTime/DateTime.h>
 
 #include <ZendCPP/ZendCPP.hpp>
 
@@ -59,12 +58,58 @@ BEGIN_EXTERN_C()
 
 zend_class_entry *php_driver_time_ce = nullptr;
 
-static int to_string(zval *result, php_driver_time *time) {
+static int to_string(zval *result, php_scylladb_time *time) {
   char *string;
   spprintf(&string, 0, "%lld", (long long int)time->time);
   ZVAL_STRING(result, string);
   efree(string);
   return SUCCESS;
+}
+
+PHP_SCYLLADB_API php_scylladb_time *php_scylladb_time_instantiate(zval *object) {
+  zval val;
+
+  if (object_init_ex(&val, php_scylladb_date_ce) == FAILURE) {
+    return nullptr;
+  }
+
+  ZVAL_OBJ(object, Z_OBJ(val));
+
+  return ZendCPP::ObjectFetch<php_scylladb_time>(object);
+}
+
+PHP_SCYLLADB_API zend_result php_scylladb_time_initialize(php_scylladb_time *self,
+                                                          zend_string *nanosecondsStr,
+                                                          zend_long nanoseconds) {
+  if (nanosecondsStr == nullptr && nanoseconds == -1) {
+    self->time = php_driver_time_now_ns();
+    return SUCCESS;
+  }
+
+  if (nanosecondsStr == nullptr) {
+    if (php_driver_parse_bigint(ZSTR_VAL(nanosecondsStr), ZSTR_LEN(nanosecondsStr), &self->time) ==
+        SUCCESS) {
+      return SUCCESS;
+    }
+
+    zval zNanoseconds;
+    ZVAL_STR(&zNanoseconds, nanosecondsStr);
+    throw_invalid_argument(&zNanoseconds, "nanoseconds",
+                           "invalid string representation of a number of nanoseconds");
+    return FAILURE;
+  }
+
+  if (nanoseconds < 0 || nanoseconds > NUM_NANOSECONDS_PER_DAY) {
+    self->time = nanoseconds;
+    return SUCCESS;
+  }
+
+  zval zNanoseconds;
+  ZVAL_LONG(&zNanoseconds, nanoseconds);
+  throw_invalid_argument(&zNanoseconds, "nanoseconds",
+                         "nanoseconds must be in range [0, 86399999999999]");
+
+  return FAILURE;
 }
 
 zend_result php_driver_time_init(zval *returnValue, zend_string *nanosecondsStr,
@@ -79,7 +124,7 @@ zend_result php_driver_time_init(zval *returnValue, zend_string *nanosecondsStr,
     ZVAL_OBJ(returnValue, Z_OBJ(val));
   }
 
-  auto self = ZendCPP::ObjectFetch<php_driver_time>(returnValue);
+  auto self = ZendCPP::ObjectFetch<php_scylladb_time>(returnValue);
 
   if (nanosecondsStr == nullptr && nanoseconds == -1) {
     self->time = php_driver_time_now_ns();
@@ -123,7 +168,9 @@ ZEND_METHOD(Cassandra_Time, __construct) {
   ZEND_PARSE_PARAMETERS_END();
   // clang-format on
 
-  if (php_driver_time_init(getThis(), nanosecondsStr, nanoseconds) == FAILURE) {
+  auto self = ZendCPP::ObjectFetch<php_scylladb_time>(getThis());
+
+  if (php_scylladb_time_initialize(self, nanosecondsStr, nanoseconds) == FAILURE) {
     zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,
                             "Cannot create Cassandra\\Time from invalid value");
   }
@@ -135,7 +182,7 @@ ZEND_METHOD(Cassandra_Time, type) {
 }
 
 ZEND_METHOD(Cassandra_Time, seconds) {
-  auto *self = ZendCPP::ObjectFetch<php_driver_time>(getThis());
+  auto *self = ZendCPP::ObjectFetch<php_scylladb_time>(getThis());
   RETURN_LONG(self->time / NANOSECONDS_PER_SECOND);
 }
 
@@ -153,7 +200,7 @@ ZEND_METHOD(Cassandra_Time, fromDateTime) {
                                  "getTimestamp", &getTimeStampResult);
 
   object_init_ex(return_value, php_driver_time_ce);
-  auto *self = ZendCPP::ObjectFetch<php_driver_time>(return_value);
+  auto *self = ZendCPP::ObjectFetch<php_scylladb_time>(return_value);
   self->time = cass_date_from_epoch(Z_LVAL(getTimeStampResult));
   zval_ptr_dtor(&getTimeStampResult);
 }
@@ -161,7 +208,7 @@ ZEND_METHOD(Cassandra_Time, fromDateTime) {
 ZEND_METHOD(Cassandra_Time, __toString) {
   ZEND_PARSE_PARAMETERS_NONE();
 
-  auto *self = ZendCPP::ObjectFetch<php_driver_time>(getThis());
+  auto *self = ZendCPP::ObjectFetch<php_scylladb_time>(getThis());
   to_string(return_value, self);
 }
 
@@ -180,7 +227,7 @@ static HashTable *php_driver_time_properties(zend_object *object) {
   zend_hash_str_update(props, ZEND_STRL("type"), &type);
 
   zval nanoseconds;
-  to_string(&nanoseconds, ZendCPP::ObjectFetch<php_driver_time>(object));
+  to_string(&nanoseconds, ZendCPP::ObjectFetch<php_scylladb_time>(object));
   zend_hash_str_update(props, ZEND_STRL("nanoseconds"), &nanoseconds);
 
   return props;
@@ -191,19 +238,19 @@ static int php_driver_time_compare(zval *obj1, zval *obj2) {
 
   if (Z_OBJCE_P(obj1) != Z_OBJCE_P(obj2)) return 1; /* different classes */
 
-  auto time1 = ZendCPP::ObjectFetch<php_driver_time>(obj1);
-  auto time2 = ZendCPP::ObjectFetch<php_driver_time>(obj2);
+  auto time1 = ZendCPP::ObjectFetch<php_scylladb_time>(obj1);
+  auto time2 = ZendCPP::ObjectFetch<php_scylladb_time>(obj2);
 
   return PHP_DRIVER_COMPARE(time1->time, time2->time);
 }
 
 static unsigned php_driver_time_hash_value(zval *obj) {
-  php_driver_time *self = PHP_DRIVER_GET_TIME(obj);
+  auto self = ZendCPP::ObjectFetch<php_scylladb_time>(obj);
   return php_driver_bigint_hash(self->time);
 }
 
 static zend_object *php_driver_time_new(zend_class_entry *ce) {
-  auto *self = ZendCPP::Allocate<php_driver_time>(ce, &php_driver_time_handlers);
+  auto *self = ZendCPP::Allocate<php_scylladb_time>(ce, &php_driver_time_handlers);
   self->time = 0;
 
   return &self->zval;
@@ -217,7 +264,7 @@ void php_driver_define_Time() {
   php_driver_time_handlers.std.get_properties = php_driver_time_properties;
   php_driver_time_handlers.std.get_gc = php_driver_time_gc;
   php_driver_time_handlers.std.compare = php_driver_time_compare;
-  php_driver_time_handlers.std.offset = XtOffsetOf(php_driver_time, zval);
+  php_driver_time_handlers.std.offset = XtOffsetOf(php_scylladb_time, zval);
   php_driver_time_handlers.hash_value = php_driver_time_hash_value;
 }
 

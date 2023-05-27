@@ -15,14 +15,12 @@
  */
 
 #include <DateTime/DateTime.h>
+#include <php.h>
 #include <util/hash.h>
 #include <util/types.h>
 
 #include <ZendCPP/ZendCPP.hpp>
 #include <ctime>
-
-#include "php_driver.h"
-#include "php_driver_types.h"
 
 BEGIN_EXTERN_C()
 
@@ -44,8 +42,8 @@ PHP_SCYLLADB_API php_scylladb_date *php_scylladb_date_instantiate(zval *object) 
 }
 
 PHP_SCYLLADB_API zend_result php_scylladb_date_initialize(php_scylladb_date *self,
-                                                        zend_string *secondsStr,
-                                                        zend_long seconds) {
+                                                          zend_string *secondsStr,
+                                                          zend_long seconds) {
   cass_int64_t secs = -1;
 
   if (secondsStr != nullptr) {
@@ -102,10 +100,10 @@ ZEND_METHOD(Cassandra_Date, toDateTime) {
   ZEND_PARSE_PARAMETERS_END();
   // clang-format on
 
-  php_driver_time *time_obj = nullptr;
+  php_scylladb_time *time_obj = nullptr;
 
   if (ztime != nullptr) {
-    time_obj = ZendCPP::ObjectFetch<php_driver_time>(ztime);
+    time_obj = ZendCPP::ObjectFetch<php_scylladb_time>(ztime);
   }
 
   auto *self = ZendCPP::ObjectFetch<php_scylladb_date>(getThis());

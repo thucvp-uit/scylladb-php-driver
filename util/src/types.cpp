@@ -620,7 +620,9 @@ void php_driver_scalar_init(INTERNAL_FUNCTION_PARAMETERS) {
     ZEND_PARSE_PARAMETERS_END();
     // clang-format on
 
-    if (php_driver_time_init(return_value, nanosecondsStr, nanoseconds) == FAILURE) {
+    auto time = php_scylladb_time_instantiate(return_value);
+
+    if (php_scylladb_time_initialize(time, nanosecondsStr, nanoseconds) == FAILURE) {
       zend_throw_exception_ex(php_driver_runtime_exception_ce, 0,
                               "Cannot create Cassandra\\Date from invalid value");
     }

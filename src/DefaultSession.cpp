@@ -91,7 +91,7 @@ static int bind_argument_by_index(CassStatement* statement, size_t index, zval* 
     }
 
     if (instanceof_function(Z_OBJCE_P(value), php_driver_time_ce)) {
-      php_driver_time* time = PHP_DRIVER_GET_TIME(value);
+      php_scylladb_time* time = Z_SCYLLADB_TIME_P(value);
       CHECK_RESULT(cass_statement_bind_int64(statement, index, time->time));
     }
 
@@ -248,7 +248,7 @@ static int bind_argument_by_name(CassStatement* statement, const char* name, zva
     }
 
     if (instanceof_function(Z_OBJCE_P(value), php_driver_time_ce)) {
-      php_driver_time* time = PHP_DRIVER_GET_TIME(value);
+      php_scylladb_time* time = Z_SCYLLADB_TIME_P(value);
       CHECK_RESULT(cass_statement_bind_int64_by_name(statement, name, time->time));
     }
 

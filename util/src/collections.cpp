@@ -281,7 +281,7 @@ static int php_driver_collection_append(CassCollection* collection, zval* value,
   php_driver_numeric* numeric;
   php_driver_timestamp* timestamp;
   php_scylladb_date* date;
-  php_driver_time* time;
+  php_scylladb_time* time;
   php_driver_uuid* uuid;
   php_driver_inet* inet;
   php_driver_duration* duration;
@@ -347,7 +347,7 @@ static int php_driver_collection_append(CassCollection* collection, zval* value,
       CHECK_ERROR(cass_collection_append_uint32(collection, date->date));
       break;
     case CASS_VALUE_TYPE_TIME:
-      time = PHP_DRIVER_GET_TIME(value);
+      time = Z_SCYLLADB_TIME_P(value);
       CHECK_ERROR(cass_collection_append_int64(collection, time->time));
       break;
     case CASS_VALUE_TYPE_UUID:
@@ -417,7 +417,7 @@ static int php_driver_tuple_set(CassTuple* tuple, zend_ulong index, zval* value,
   php_driver_numeric* numeric;
   php_driver_timestamp* timestamp;
   php_scylladb_date* date;
-  php_driver_time* time;
+  php_scylladb_time* time;
   php_driver_uuid* uuid;
   php_driver_inet* inet;
   php_driver_duration* duration;
@@ -487,7 +487,7 @@ static int php_driver_tuple_set(CassTuple* tuple, zend_ulong index, zval* value,
       CHECK_ERROR(cass_tuple_set_uint32(tuple, index, date->date));
       break;
     case CASS_VALUE_TYPE_TIME:
-      time = PHP_DRIVER_GET_TIME(value);
+      time = Z_SCYLLADB_TIME_P(value);
       CHECK_ERROR(cass_tuple_set_int64(tuple, index, time->time));
       break;
     case CASS_VALUE_TYPE_UUID:
@@ -556,7 +556,7 @@ static int php_driver_user_type_set(CassUserType* ut, const char* name, zval* va
   php_driver_numeric* numeric;
   php_driver_timestamp* timestamp;
   php_scylladb_date* date;
-  php_driver_time* time;
+  php_scylladb_time* time;
   php_driver_uuid* uuid;
   php_driver_inet* inet;
   php_driver_duration* duration;
@@ -626,7 +626,7 @@ static int php_driver_user_type_set(CassUserType* ut, const char* name, zval* va
       CHECK_ERROR(cass_user_type_set_uint32_by_name(ut, name, date->date));
       break;
     case CASS_VALUE_TYPE_TIME:
-      time = PHP_DRIVER_GET_TIME(value);
+      time = Z_SCYLLADB_TIME_P(value);
       CHECK_ERROR(cass_user_type_set_int64_by_name(ut, name, time->time));
       break;
     case CASS_VALUE_TYPE_UUID:

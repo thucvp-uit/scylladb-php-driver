@@ -44,7 +44,7 @@ int php_driver_value(const CassValue *value, const CassDataType *data_type, zval
     php_driver_numeric *numeric = NULL;
     php_driver_timestamp *timestamp = NULL;
     php_scylladb_date *date = NULL;
-    php_driver_time *time = NULL;
+    php_scylladb_time *time = NULL;
     php_driver_blob *blob = NULL;
     php_driver_inet *inet = NULL;
     php_driver_duration *duration = NULL;
@@ -111,7 +111,7 @@ int php_driver_value(const CassValue *value, const CassDataType *data_type, zval
         break;
     case CASS_VALUE_TYPE_TIME:
         object_init_ex(out, php_driver_time_ce);
-        time = PHP_DRIVER_GET_TIME(out);
+        time = Z_SCYLLADB_TIME_P(out);
         ASSERT_SUCCESS_BLOCK(cass_value_get_int64(value, &time->time), zval_ptr_dtor(out); return FAILURE;);
         break;
     case CASS_VALUE_TYPE_BLOB:

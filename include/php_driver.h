@@ -244,8 +244,7 @@ typedef unsigned long ulong;
 #define PHP_DRIVER_DEFAULT_LOG PHP_DRIVER_NAME ".log"
 #define PHP_DRIVER_DEFAULT_LOG_LEVEL "ERROR"
 
-zend_result php_driver_time_init(zval *returnValue, zend_string *nanosecondsStr = nullptr,
-                                 zend_long nanoseconds = -1);
+
 #ifdef __cplusplus
 }
 #endif

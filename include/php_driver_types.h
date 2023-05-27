@@ -24,7 +24,6 @@ BEGIN_EXTERN_C()
 #define PHP_DRIVER_GET_NUMERIC(obj) php_driver_numeric_object_fetch(Z_OBJ_P(obj))
 #define PHP_DRIVER_GET_BLOB(obj) php_driver_blob_object_fetch(Z_OBJ_P(obj))
 #define PHP_DRIVER_GET_TIMESTAMP(obj) php_driver_timestamp_object_fetch(Z_OBJ_P(obj))
-#define PHP_DRIVER_GET_TIME(obj) php_driver_time_object_fetch(Z_OBJ_P(obj))
 #define PHP_DRIVER_GET_UUID(obj) php_driver_uuid_object_fetch(Z_OBJ_P(obj))
 #define PHP_DRIVER_GET_INET(obj) php_driver_inet_object_fetch(Z_OBJ_P(obj))
 #define PHP_DRIVER_GET_COLLECTION(obj) php_driver_collection_object_fetch(Z_OBJ_P(obj))
@@ -115,16 +114,6 @@ static zend_always_inline php_driver_timestamp *php_driver_timestamp_object_fetc
     return (php_driver_timestamp *)((char *)obj - ((size_t)(&(((php_driver_timestamp *)0)->zval))));
 }
 
-
-typedef struct php_driver_time_
-{
-    cass_int64_t time;
-    zend_object zval;
-} php_driver_time;
-static zend_always_inline php_driver_time *php_driver_time_object_fetch(zend_object *obj)
-{
-    return (php_driver_time *)((char *)obj - offsetof(php_driver_time, zval));
-}
 
 typedef struct php_driver_blob_
 {
@@ -716,7 +705,6 @@ extern PHP_SCYLLADB_API zend_class_entry *php_driver_decimal_ce;
 extern PHP_SCYLLADB_API zend_class_entry *php_driver_float_ce;
 extern PHP_SCYLLADB_API zend_class_entry *php_driver_inet_ce;
 extern PHP_SCYLLADB_API zend_class_entry *php_driver_timestamp_ce;
-extern PHP_SCYLLADB_API zend_class_entry *php_driver_time_ce;
 extern PHP_SCYLLADB_API zend_class_entry *php_driver_uuid_interface_ce;
 extern PHP_SCYLLADB_API zend_class_entry *php_driver_uuid_ce;
 extern PHP_SCYLLADB_API zend_class_entry *php_driver_timeuuid_ce;
