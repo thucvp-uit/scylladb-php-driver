@@ -91,7 +91,7 @@ void php_driver_bigint_init(INTERNAL_FUNCTION_PARAMETERS)
         if (double_value > INT64_MAX || double_value < INT64_MIN)
         {
             zend_throw_exception_ex(php_driver_range_exception_ce, 0,
-                                    "value must be between " LL_FORMAT " and " LL_FORMAT ", %g given", INT64_MIN,
+                                    "value must be between " L_FORMAT " and " L_FORMAT ", %g given", INT64_MIN,
                                     INT64_MAX, double_value);
             return;
         }

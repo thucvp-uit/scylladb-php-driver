@@ -46,6 +46,7 @@ extern "C"
 #include <Zend/zend_types.h>
 
 #define LL_FORMAT "%lld"
+#define L_FORMAT "%ld"
 
 #if PHP_VERSION_ID < 80100
 #error PHP 8.1.0 or later is required in order to build the driver

@@ -19,7 +19,7 @@ zend_class_entry *php_driver_duration_ce = NULL;
 static void to_string(zval *result, cass_int64_t value)
 {
   char *string;
-  spprintf(&string, 0, LL_FORMAT, value);
+  spprintf(&string, 0, L_FORMAT, value);
   ZVAL_STRING(result, string);
   efree(string);
 }
@@ -35,7 +35,7 @@ static int get_param(zval* value,
 
     if (long_value > max || long_value < min) {
       zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0 ,
-        "%s must be between " LL_FORMAT " and " LL_FORMAT ", " LL_FORMAT " given",
+        "%s must be between " L_FORMAT " and " L_FORMAT ", " L_FORMAT " given",
         param_name, min, max, long_value);
       return 0;
     }
@@ -46,7 +46,7 @@ static int get_param(zval* value,
 
     if (double_value > max || double_value < min) {
       zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0 ,
-        "%s must be between " LL_FORMAT " and " LL_FORMAT ", %g given",
+        "%s must be between " L_FORMAT " and " L_FORMAT ", %g given",
         param_name, min, max, double_value);
       return 0;
     }
@@ -59,7 +59,7 @@ static int get_param(zval* value,
 
     if (parsed_big_int > max || parsed_big_int < min) {
       zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0 ,
-        "%s must be between " LL_FORMAT " and " LL_FORMAT ", " LL_FORMAT " given",
+        "%s must be between " L_FORMAT " and " L_FORMAT ", " L_FORMAT " given",
         param_name, min, max, parsed_big_int);
       return 0;
     }
@@ -71,7 +71,7 @@ static int get_param(zval* value,
 
     if (bigint_value > max || bigint_value < min) {
       zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0 ,
-        "%s must be between " LL_FORMAT " and " LL_FORMAT ", " LL_FORMAT " given",
+        "%s must be between " L_FORMAT " and " L_FORMAT ", " L_FORMAT " given",
         param_name, min, max, bigint_value);
       return 0;
     }
@@ -105,7 +105,7 @@ char *php_driver_duration_to_string(php_driver_duration *duration)
   if (final_nanos < 0)
     final_nanos = -final_nanos;
   
-  spprintf(&rep, 0, "%s%dmo%dd" LL_FORMAT "ns", is_negative ? "-" : "", final_months, final_days, final_nanos);
+  spprintf(&rep, 0, "%s%dmo%dd" L_FORMAT "ns", is_negative ? "-" : "", final_months, final_days, final_nanos);
   return rep;
 }
 
