@@ -33,4 +33,4 @@ test('can validate unequals uuids', function () {
 
 test('will throw an error when input a bad uuid', function () use ($badUuid) {
     new Uuid($badUuid);
-})->throws(InvalidArgumentException::class, sprintf('Invalids UUID: \'%s\'', $badUuid));
+})->throws(InvalidArgumentException::class, sprintf('Invalid UUID: \'%s\'', $badUuid));
