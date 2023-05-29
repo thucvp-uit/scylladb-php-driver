@@ -13,6 +13,7 @@ cmake-build-release/
 /cassandra.log
 /tmp/*
 *.ac
+/php/
 .phpunit.result.cache
 *.dep
 *~

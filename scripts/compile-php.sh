@@ -5,7 +5,7 @@ print_usage() {
   echo ""
   echo "Usage: compile-php.sh [OPTION] [ARG]"
   echo "-v ARG php version"
-  echo "-o ARG output path, default: $HOME"
+  echo "-o ARG output path, default: $(pwd)"
   echo "-z (yes|no) Use ZTS"
   echo "-d (yes|no) Compile in debug mode"
   echo "-k keep PHP source code"
@@ -152,35 +152,6 @@ compile_php() {
   } >>/dev/null
 
   popd || exit 1
-
-  rm -rf "/tmp/php-src-php-$PHP_VERSION" >>/dev/null
-
-  if is_linux; then
-    {
-      if [ "$(command -v update-alternatives)" ]; then
-        sudo update-alternatives --remove php "$OUTPUT_PATH/bin/php"
-        sudo update-alternatives --remove phpize "$OUTPUT_PATH/bin/phpize"
-        sudo update-alternatives --remove php-config "$OUTPUT_PATH/bin/php-config"
-        sudo update-alternatives --remove php-cgi "$OUTPUT_PATH/bin/php-cgi"
-        sudo update-alternatives --remove phpdbg "$OUTPUT_PATH/bin/phpdbg"
-
-        sudo update-alternatives --install /bin/php php "$OUTPUT_PATH/bin/php" 1
-        sudo update-alternatives --install /bin/php-config php-config "$OUTPUT_PATH/bin/php-config" 1
-        sudo update-alternatives --install /bin/phpize phpize "$OUTPUT_PATH/bin/phpize" 1
-        sudo update-alternatives --install /bin/php-cgi php-cgi "$OUTPUT_PATH/bin/php-cgi" 1
-        sudo update-alternatives --install /bin/phpdbg phpdbg "$OUTPUT_PATH/bin/phpdbg" 1
-      else
-        sudo rm -f /bin/php /bin/phpize /bin/php-config /bin/php-cgi /bin/phpdbg
-
-        sudo ln -sf "$OUTPUT_PATH/bin/php" /bin/php
-        sudo ln -sf "$OUTPUT_PATH/bin/phpize" /bin/phpize
-        sudo ln -sf "$OUTPUT_PATH/bin/php-config" /bin/php-config
-        sudo ln -sf "$OUTPUT_PATH/bin/php-cgi" /bin/php-cgi
-        sudo ln -sf "$OUTPUT_PATH/bin/phpdbg" /bin/phpdbg
-      fi
-
-    } >>/dev/null
-  fi
 }
 
 check_deps() {
@@ -218,7 +189,7 @@ if [[ -z "$ENABLE_DEBUG" ]]; then
 fi
 
 if [[ -z "$OUTPUT" ]]; then
-  OUTPUT="$HOME"
+  OUTPUT="$(pwd)"
 fi
 
 if [[ -z "$ENABLE_SANITIZERS" ]]; then
