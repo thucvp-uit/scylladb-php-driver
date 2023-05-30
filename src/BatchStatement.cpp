@@ -19,7 +19,7 @@
 BEGIN_EXTERN_C()
 zend_class_entry *php_driver_batch_statement_ce = NULL;
 
-void php_driver_batch_statement_entry_dtor(php5to7_dtor dest)
+void php_driver_batch_statement_entry_dtor(zval* dest)
 {
     auto *batch_statement_entry = static_cast<php_driver_batch_statement_entry *>(Z_PTR_P(dest));
 
@@ -90,11 +90,11 @@ PHP_METHOD(BatchStatement, add)
 
     batch_statement_entry = (php_driver_batch_statement_entry *)ecalloc(1, sizeof(php_driver_batch_statement_entry));
 
-    PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(batch_statement_entry->statement), statement);
+    ZVAL_COPY(&batch_statement_entry->statement, statement);
 
     if (arguments)
     {
-        PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(batch_statement_entry->arguments), arguments);
+        ZVAL_COPY(&batch_statement_entry->arguments, arguments);
     }
 
 #if PHP_MAJOR_VERSION >= 7
@@ -145,17 +145,17 @@ static int php_driver_batch_statement_compare(zval *obj1, zval *obj2 )
     return Z_OBJ_HANDLE_P(obj1) != Z_OBJ_HANDLE_P(obj1);
 }
 
-static void php_driver_batch_statement_free(php5to7_zend_object_free *object )
+static void php_driver_batch_statement_free(zend_object *object )
 {
     php_driver_statement *self = PHP5TO7_ZEND_OBJECT_GET(statement, object);
 
     zend_hash_destroy(&self->data.batch.statements);
 
     zend_object_std_dtor(&self->zval );
-    PHP5TO7_MAYBE_EFREE(self);
+
 }
 
-static php5to7_zend_object php_driver_batch_statement_new(zend_class_entry *ce )
+static zend_object* php_driver_batch_statement_new(zend_class_entry *ce )
 {
     php_driver_statement *self = PHP5TO7_ZEND_OBJECT_ECALLOC(statement, ce);
 
@@ -173,7 +173,7 @@ void php_driver_define_BatchStatement()
     INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\BatchStatement", php_driver_batch_statement_methods);
     php_driver_batch_statement_ce = zend_register_internal_class(&ce );
     zend_class_implements(php_driver_batch_statement_ce , 1, php_driver_statement_ce);
-    php_driver_batch_statement_ce->ce_flags |= PHP5TO7_ZEND_ACC_FINAL;
+    php_driver_batch_statement_ce->ce_flags |= ZEND_ACC_FINAL;
     php_driver_batch_statement_ce->create_object = php_driver_batch_statement_new;
 
     memcpy(&php_driver_batch_statement_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));

@@ -205,7 +205,7 @@ static zend_result to_string(zval *result, php_driver_numeric *decimal)
     int string_len;
     php_driver_format_decimal(decimal->data.decimal.value, decimal->data.decimal.scale, &string, &string_len);
 
-    PHP5TO7_ZVAL_STRINGL(result, string, string_len);
+    ZVAL_STRINGL(result, string, string_len);
     efree(string);
 
     return SUCCESS;
@@ -303,8 +303,8 @@ PHP_METHOD(Decimal, __toString)
 /* {{{ Decimal::type() */
 PHP_METHOD(Decimal, type)
 {
-    php5to7_zval type = php_driver_type_scalar(CASS_VALUE_TYPE_DECIMAL);
-    RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(type), 1, 1);
+    zval type = php_driver_type_scalar(CASS_VALUE_TYPE_DECIMAL);
+    RETURN_ZVAL(&type, 1, 1);
 }
 /* }}} */
 
@@ -317,7 +317,7 @@ PHP_METHOD(Decimal, value)
     int string_len;
     php_driver_format_integer(self->data.decimal.value, &string, &string_len);
 
-    PHP5TO7_RETVAL_STRINGL(string, string_len);
+    RETVAL_STRINGL(string, string_len);
     efree(string);
 }
 /* }}} */
@@ -548,7 +548,7 @@ static HashTable *php_driver_decimal_gc(
 #else
     zval *object,
 #endif
-    php5to7_zval_gc table, int *n)
+    zval** table, int *n)
 {
     *table = NULL;
     *n = 0;
@@ -565,9 +565,9 @@ static HashTable *php_driver_decimal_properties(
 {
     char *string;
     int string_len;
-    php5to7_zval type;
-    php5to7_zval value;
-    php5to7_zval scale;
+    zval type;
+    zval value;
+    zval scale;
 
 #if PHP_MAJOR_VERSION >= 8
     php_driver_numeric *self = PHP5TO7_ZEND_OBJECT_GET(numeric, object);
@@ -577,17 +577,17 @@ static HashTable *php_driver_decimal_properties(
     HashTable *props = zend_std_get_properties(object);
 
     type = php_driver_type_scalar(CASS_VALUE_TYPE_DECIMAL);
-    PHP5TO7_ZEND_HASH_UPDATE(props, "type", sizeof("type"), PHP5TO7_ZVAL_MAYBE_P(type), sizeof(zval));
+    PHP5TO7_ZEND_HASH_UPDATE(props, "type", sizeof("type"), &type, sizeof(zval));
 
     php_driver_format_integer(self->data.decimal.value, &string, &string_len);
-    PHP5TO7_ZVAL_MAYBE_MAKE(PHP5TO7_ZVAL_MAYBE_P(value));
-    PHP5TO7_ZVAL_STRINGL(PHP5TO7_ZVAL_MAYBE_P(value), string, string_len);
-    efree(string);
-    PHP5TO7_ZEND_HASH_UPDATE(props, "value", sizeof("value"), PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval));
 
-    PHP5TO7_ZVAL_MAYBE_MAKE(scale);
-    ZVAL_LONG(PHP5TO7_ZVAL_MAYBE_P(scale), self->data.decimal.scale);
-    PHP5TO7_ZEND_HASH_UPDATE(props, "scale", sizeof("scale"), PHP5TO7_ZVAL_MAYBE_P(scale), sizeof(zval));
+    ZVAL_STRINGL(&value, string, string_len);
+    efree(string);
+    PHP5TO7_ZEND_HASH_UPDATE(props, "value", sizeof("value"), &value, sizeof(zval));
+
+
+    ZVAL_LONG(&scale, self->data.decimal.scale);
+    PHP5TO7_ZEND_HASH_UPDATE(props, "scale", sizeof("scale"), &scale, sizeof(zval));
 
     return props;
 }
@@ -653,17 +653,17 @@ static
     }
 }
 
-static void php_driver_decimal_free(php5to7_zend_object_free *object)
+static void php_driver_decimal_free(zend_object *object)
 {
     php_driver_numeric *self = PHP5TO7_ZEND_OBJECT_GET(numeric, object);
 
     mpz_clear(self->data.decimal.value);
 
     zend_object_std_dtor(&self->zval);
-    PHP5TO7_MAYBE_EFREE(self);
+
 }
 
-static php5to7_zend_object php_driver_decimal_new(zend_class_entry *ce)
+static zend_object* php_driver_decimal_new(zend_class_entry *ce)
 {
     php_driver_numeric *self = PHP5TO7_ZEND_OBJECT_ECALLOC(numeric, ce);
 
@@ -681,7 +681,7 @@ void php_driver_define_Decimal()
     INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\Decimal", php_driver_decimal_methods);
     php_driver_decimal_ce = zend_register_internal_class(&ce);
     zend_class_implements(php_driver_decimal_ce, 2, php_driver_value_ce, php_driver_numeric_ce);
-    php_driver_decimal_ce->ce_flags |= PHP5TO7_ZEND_ACC_FINAL;
+    php_driver_decimal_ce->ce_flags |= ZEND_ACC_FINAL;
     php_driver_decimal_ce->create_object = php_driver_decimal_new;
 
     memcpy(&php_driver_decimal_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));

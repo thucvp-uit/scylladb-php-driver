@@ -33,9 +33,11 @@ jobs:
         run: |
           ./scripts/compile-extension.sh
       - name: Composer install
+        working-directory: ./tests
         run: |
           composer install
       - name: Run tests
+        working-directory: ./tests
         run: |
           vendor/bin/pest
         env:

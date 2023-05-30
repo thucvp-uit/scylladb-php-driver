@@ -25,7 +25,7 @@ static int php_driver_default_cluster_compare(zval *obj1, zval *obj2)
     return Z_OBJ_HANDLE_P(obj1) != Z_OBJ_HANDLE_P(obj1);
 }
 
-static void php_driver_default_cluster_free(php5to7_zend_object_free *object)
+static void php_driver_default_cluster_free(zend_object *object)
 {
     php_driver_cluster *self = PHP5TO7_ZEND_OBJECT_GET(cluster, object);
 
@@ -55,7 +55,7 @@ zend_object *php_driver_default_cluster_new(zend_class_entry *ce)
     self->persist = cass_false;
     self->hash_key = nullptr;
 
-    PHP5TO7_ZVAL_UNDEF(self->default_timeout);
+    ZVAL_UNDEF(&self->default_timeout);
 
     zend_object_std_init(&self->zval, ce);
     self->zval.handlers = &php_driver_default_cluster_handlers;

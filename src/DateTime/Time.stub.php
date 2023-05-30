@@ -8,9 +8,9 @@ namespace Cassandra {
      * @strict-properties
      */
     final class Time implements Value {
-        public function __construct(int $nanoseconds = UNKNOWN) {}
+        public function __construct(int|string $nanoseconds = UNKNOWN) {}
 
-        public function type(): Type\Scalar {}
+        public function type(): Type {}
         public function seconds(): int {}
         public static function fromDateTime(\DateTimeInterface $datetime): Time {}
 

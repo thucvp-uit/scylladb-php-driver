@@ -23,7 +23,7 @@ zend_class_entry *php_driver_default_schema_ce = NULL;
 PHP_METHOD(DefaultSchema, keyspace)
 {
   char *name;
-  php5to7_size name_len;
+  size_t name_len;
   php_driver_schema *self;
   php_driver_keyspace *keyspace;
   const CassKeyspaceMeta *meta;
@@ -61,25 +61,25 @@ PHP_METHOD(DefaultSchema, keyspaces)
     const CassValue         *value;
     const char              *keyspace_name;
     size_t                   keyspace_name_len;
-    php5to7_zval             zkeyspace;
+    zval             zkeyspace;
     php_driver_keyspace      *keyspace;
 
     meta = cass_iterator_get_keyspace_meta(iterator);
     value = cass_keyspace_meta_field_by_name(meta, "keyspace_name");
 
     ASSERT_SUCCESS_BLOCK(cass_value_get_string(value, &keyspace_name, &keyspace_name_len),
-      zval_ptr_dtor(PHP5TO7_ZVAL_MAYBE_ADDR_OF(return_value));
+      zval_ptr_dtor(return_value);
       return;
     );
 
-    PHP5TO7_ZVAL_MAYBE_MAKE(zkeyspace);
-    object_init_ex(PHP5TO7_ZVAL_MAYBE_P(zkeyspace), php_driver_default_keyspace_ce);
-    keyspace = PHP_DRIVER_GET_KEYSPACE(PHP5TO7_ZVAL_MAYBE_P(zkeyspace));
+
+    object_init_ex(&zkeyspace, php_driver_default_keyspace_ce);
+    keyspace = PHP_DRIVER_GET_KEYSPACE(&zkeyspace);
     keyspace->schema = php_driver_add_ref(self->schema);
     keyspace->meta   = meta;
     PHP5TO7_ADD_ASSOC_ZVAL_EX(return_value,
                               keyspace_name, keyspace_name_len + 1,
-                              PHP5TO7_ZVAL_MAYBE_P(zkeyspace));
+                              &zkeyspace);
   }
 
   cass_iterator_free(iterator);
@@ -139,7 +139,7 @@ php_driver_default_schema_compare(zval *obj1, zval *obj2 )
 }
 
 static void
-php_driver_default_schema_free(php5to7_zend_object_free *object )
+php_driver_default_schema_free(zend_object *object )
 {
   php_driver_schema *self = PHP5TO7_ZEND_OBJECT_GET(schema, object);
 
@@ -149,10 +149,10 @@ php_driver_default_schema_free(php5to7_zend_object_free *object )
   }
 
   zend_object_std_dtor(&self->zval );
-  PHP5TO7_MAYBE_EFREE(self);
+
 }
 
-static php5to7_zend_object
+static zend_object*
 php_driver_default_schema_new(zend_class_entry *ce )
 {
   php_driver_schema *self =
@@ -170,7 +170,7 @@ void php_driver_define_DefaultSchema()
   INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\DefaultSchema", php_driver_default_schema_methods);
   php_driver_default_schema_ce = zend_register_internal_class(&ce );
   zend_class_implements(php_driver_default_schema_ce , 1, php_driver_schema_ce);
-  php_driver_default_schema_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
+  php_driver_default_schema_ce->ce_flags     |= ZEND_ACC_FINAL;
   php_driver_default_schema_ce->create_object = php_driver_default_schema_new;
 
   memcpy(&php_driver_default_schema_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));

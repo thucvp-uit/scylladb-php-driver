@@ -24,7 +24,7 @@ zend_class_entry *php_driver_blob_ce = NULL;
 void php_driver_blob_init(INTERNAL_FUNCTION_PARAMETERS) {
   php_driver_blob *self;
   char *string;
-  php5to7_size string_len;
+  size_t string_len;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS(), "s", &string, &string_len) ==
       FAILURE) {
@@ -58,15 +58,15 @@ PHP_METHOD(Blob, __toString) {
   size_t hex_len;
   php_driver_bytes_to_hex((const char *)self->data, self->size, &hex, &hex_len);
 
-  PHP5TO7_RETVAL_STRINGL(hex, hex_len);
+  RETVAL_STRINGL(hex, hex_len);
   efree(hex);
 }
 /* }}} */
 
 /* {{{ Blob::type() */
 PHP_METHOD(Blob, type) {
-  php5to7_zval type = php_driver_type_scalar(CASS_VALUE_TYPE_BLOB);
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(type), 1, 1);
+  zval type = php_driver_type_scalar(CASS_VALUE_TYPE_BLOB);
+  RETURN_ZVAL(&type, 1, 1);
 }
 /* }}} */
 
@@ -77,7 +77,7 @@ PHP_METHOD(Blob, bytes) {
   size_t hex_len;
   php_driver_bytes_to_hex((const char *)self->data, self->size, &hex, &hex_len);
 
-  PHP5TO7_RETVAL_STRINGL(hex, hex_len);
+  RETVAL_STRINGL(hex, hex_len);
   efree(hex);
 }
 /* }}} */
@@ -86,7 +86,7 @@ PHP_METHOD(Blob, bytes) {
 PHP_METHOD(Blob, toBinaryString) {
   php_driver_blob *blob = PHP_DRIVER_GET_BLOB(getThis());
 
-  PHP5TO7_RETVAL_STRINGL((const char *)blob->data, blob->size);
+  RETVAL_STRINGL((const char *)blob->data, blob->size);
 }
 /* }}} */
 
@@ -121,7 +121,7 @@ static HashTable *php_driver_blob_gc(
 #else
     zval *object,
 #endif
-    php5to7_zval_gc table, int *n) {
+    zval** table, int *n) {
   *table = NULL;
   *n = 0;
   return zend_std_get_properties(object);
@@ -136,8 +136,8 @@ static HashTable *php_driver_blob_properties(
 ) {
   char *hex;
   size_t hex_len;
-  php5to7_zval type;
-  php5to7_zval bytes;
+  zval type;
+  zval bytes;
 
 #if PHP_MAJOR_VERSION >= 8
   php_driver_blob *self = PHP5TO7_ZEND_OBJECT_GET(blob, object);
@@ -148,14 +148,14 @@ static HashTable *php_driver_blob_properties(
 
   type = php_driver_type_scalar(CASS_VALUE_TYPE_BLOB);
   PHP5TO7_ZEND_HASH_UPDATE(props, "type", sizeof("type"),
-                           PHP5TO7_ZVAL_MAYBE_P(type), sizeof(zval));
+                           &type, sizeof(zval));
 
   php_driver_bytes_to_hex((const char *)self->data, self->size, &hex, &hex_len);
-  PHP5TO7_ZVAL_MAYBE_MAKE(bytes);
-  PHP5TO7_ZVAL_STRINGL(PHP5TO7_ZVAL_MAYBE_P(bytes), hex, hex_len);
+
+  ZVAL_STRINGL(&bytes, hex, hex_len);
   efree(hex);
   PHP5TO7_ZEND_HASH_UPDATE(props, "bytes", sizeof("bytes"),
-                           PHP5TO7_ZVAL_MAYBE_P(bytes), sizeof(zval));
+                           &bytes, sizeof(zval));
 
   return props;
 }
@@ -187,7 +187,7 @@ static unsigned php_driver_blob_hash_value(zval *obj) {
   return zend_inline_hash_func((const char *)self->data, self->size);
 }
 
-static void php_driver_blob_free(php5to7_zend_object_free *object) {
+static void php_driver_blob_free(zend_object *object) {
   php_driver_blob *self = PHP5TO7_ZEND_OBJECT_GET(blob, object);
 
   if (self->data) {
@@ -195,10 +195,10 @@ static void php_driver_blob_free(php5to7_zend_object_free *object) {
   }
 
   zend_object_std_dtor(&self->zval);
-  PHP5TO7_MAYBE_EFREE(self);
+
 }
 
-static php5to7_zend_object php_driver_blob_new(zend_class_entry *ce) {
+static zend_object* php_driver_blob_new(zend_class_entry *ce) {
   php_driver_blob *self = PHP5TO7_ZEND_OBJECT_ECALLOC(blob, ce);
 
   PHP5TO7_ZEND_OBJECT_INIT(blob, self, ce);
@@ -225,7 +225,7 @@ void php_driver_define_Blob() {
   php_driver_blob_handlers.std.compare_objects = php_driver_blob_compare;
 #endif
 #endif
-  php_driver_blob_ce->ce_flags |= PHP5TO7_ZEND_ACC_FINAL;
+  php_driver_blob_ce->ce_flags |= ZEND_ACC_FINAL;
   php_driver_blob_ce->create_object = php_driver_blob_new;
 
   php_driver_blob_handlers.hash_value = php_driver_blob_hash_value;

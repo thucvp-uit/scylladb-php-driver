@@ -67,10 +67,9 @@ php_driver_retry_policy_logging_free(php5to7_zend_object_free *object)
   }
 
   zend_object_std_dtor(&self->zval );
-  PHP5TO7_MAYBE_EFREE(self);
 }
 
-static php5to7_zend_object
+static zend_object*
 php_driver_retry_policy_logging_new(zend_class_entry *ce )
 {
   php_driver_retry_policy *self = PHP5TO7_ZEND_OBJECT_ECALLOC(retry_policy, ce);

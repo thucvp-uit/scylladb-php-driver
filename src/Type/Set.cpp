@@ -37,7 +37,7 @@ PHP_METHOD(TypeSet, name)
     return;
   }
 
-  PHP5TO7_RETVAL_STRING("set");
+  RETVAL_STRING("set");
 }
 
 PHP_METHOD(TypeSet, valueType)
@@ -49,13 +49,13 @@ PHP_METHOD(TypeSet, valueType)
   }
 
   self = PHP_DRIVER_GET_TYPE(getThis());
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->data.set.value_type), 1, 0);
+  RETURN_ZVAL(&self->data.set.value_type, 1, 0);
 }
 
 PHP_METHOD(TypeSet, __toString)
 {
   php_driver_type *self;
-  smart_str string = PHP5TO7_SMART_STR_INIT;
+  smart_str string = {NULL,0};
 
   if (zend_parse_parameters_none() == FAILURE) {
     return;
@@ -66,14 +66,14 @@ PHP_METHOD(TypeSet, __toString)
   php_driver_type_string(self, &string );
   smart_str_0(&string);
 
-  PHP5TO7_RETVAL_STRING(PHP5TO7_SMART_STR_VAL(string));
+  RETVAL_STRING(PHP5TO7_SMART_STR_VAL(string));
   smart_str_free(&string);
 }
 
 PHP_METHOD(TypeSet, create)
 {
   php_driver_set *set;
-  php5to7_zval_args args = NULL;
+  zval* args = NULL;
   int argc = 0, i;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() , "*",
@@ -84,17 +84,17 @@ PHP_METHOD(TypeSet, create)
   object_init_ex(return_value, php_driver_set_ce);
   set = PHP_DRIVER_GET_SET(return_value);
 
-  PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(set->type), getThis());
+  ZVAL_COPY(&set->type, getThis());
 
   if (argc > 0) {
     for (i = 0; i < argc; i++) {
-      if (!php_driver_set_add(set, PHP5TO7_ZVAL_ARG(args[i]) )) {
-        PHP5TO7_MAYBE_EFREE(args);
+      if (!php_driver_set_add(set, &args[i] )) {
+
         return;
       }
     }
 
-    PHP5TO7_MAYBE_EFREE(args);
+
   }
 }
 
@@ -134,7 +134,7 @@ php_driver_type_set_gc(
 #else
         zval *object,
 #endif
-        php5to7_zval_gc table, int *n
+        zval** table, int *n
 )
 {
   *table = NULL;
@@ -160,8 +160,8 @@ php_driver_type_set_properties(
 
   PHP5TO7_ZEND_HASH_UPDATE(props,
                            "valueType", sizeof("valueType"),
-                           PHP5TO7_ZVAL_MAYBE_P(self->data.set.value_type), sizeof(zval));
-  Z_ADDREF_P(PHP5TO7_ZVAL_MAYBE_P(self->data.set.value_type));
+                           &self->data.set.value_type, sizeof(zval));
+  Z_ADDREF_P(&self->data.set.value_type);
 
   return props;
 }
@@ -179,7 +179,7 @@ php_driver_type_set_compare(zval *obj1, zval *obj2 )
 }
 
 static void
-php_driver_type_set_free(php5to7_zend_object_free *object )
+php_driver_type_set_free(zend_object *object )
 {
   php_driver_type *self = PHP5TO7_ZEND_OBJECT_GET(type, object);
 
@@ -187,10 +187,10 @@ php_driver_type_set_free(php5to7_zend_object_free *object )
   PHP5TO7_ZVAL_MAYBE_DESTROY(self->data.set.value_type);
 
   zend_object_std_dtor(&self->zval );
-  PHP5TO7_MAYBE_EFREE(self);
+
 }
 
-static php5to7_zend_object
+static zend_object*
 php_driver_type_set_new(zend_class_entry *ce )
 {
   php_driver_type *self =
@@ -198,7 +198,7 @@ php_driver_type_set_new(zend_class_entry *ce )
 
   self->type = CASS_VALUE_TYPE_SET;
   self->data_type = cass_data_type_new(self->type);
-  PHP5TO7_ZVAL_UNDEF(self->data.set.value_type);
+  ZVAL_UNDEF(&self->data.set.value_type);
 
   PHP5TO7_ZEND_OBJECT_INIT_EX(type, type_set, self, ce);
 }
@@ -208,7 +208,7 @@ void php_driver_define_TypeSet()
   zend_class_entry ce;
 
   INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\Type\\Set", php_driver_type_set_methods);
-  php_driver_type_set_ce = php5to7_zend_register_internal_class_ex(&ce, php_driver_type_ce);
+  php_driver_type_set_ce = zend_register_internal_class_ex(&ce, php_driver_type_ce);
   memcpy(&php_driver_type_set_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
   php_driver_type_set_handlers.get_properties  = php_driver_type_set_properties;
 #if PHP_VERSION_ID >= 50400
@@ -219,7 +219,7 @@ void php_driver_define_TypeSet()
 #else
   php_driver_type_set_handlers.compare_objects = php_driver_type_set_compare;
 #endif
-  php_driver_type_set_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
+  php_driver_type_set_ce->ce_flags     |= ZEND_ACC_FINAL;
   php_driver_type_set_ce->create_object = php_driver_type_set_new;
 }
 END_EXTERN_C()

@@ -37,7 +37,7 @@ static zend_result to_double(zval *result, php_driver_numeric *smallint )
 
 static zend_result to_long(zval *result, php_driver_numeric *smallint )
 {
-    ZVAL_LONG(result, (php5to7_long)smallint->data.smallint.value);
+    ZVAL_LONG(result, (zend_long)smallint->data.smallint.value);
     return SUCCESS;
 }
 
@@ -45,7 +45,7 @@ static zend_result to_string(zval *result, php_driver_numeric *smallint )
 {
     char *string;
     spprintf(&string, 0, "%d", smallint->data.smallint.value);
-    PHP5TO7_ZVAL_STRING(result, string);
+    ZVAL_STRING(result, string);
     efree(string);
     return SUCCESS;
 }
@@ -152,8 +152,8 @@ PHP_METHOD(Smallint, __toString)
 /* {{{ Smallint::type() */
 PHP_METHOD(Smallint, type)
 {
-    php5to7_zval type = php_driver_type_scalar(CASS_VALUE_TYPE_SMALL_INT );
-    RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(type), 1, 1);
+    zval type = php_driver_type_scalar(CASS_VALUE_TYPE_SMALL_INT );
+    RETURN_ZVAL(&type, 1, 1);
 }
 /* }}} */
 
@@ -472,7 +472,7 @@ static HashTable *php_driver_smallint_gc(
 #else
     zval *object,
 #endif
-    php5to7_zval_gc table, int *n )
+    zval** table, int *n )
 {
     *table = NULL;
     *n = 0;
@@ -487,8 +487,8 @@ static HashTable *php_driver_smallint_properties(
 #endif
 )
 {
-    php5to7_zval type;
-    php5to7_zval value;
+    zval type;
+    zval value;
 
 #if PHP_MAJOR_VERSION >= 8
     php_driver_numeric *self = PHP5TO7_ZEND_OBJECT_GET(numeric, object);
@@ -498,11 +498,11 @@ static HashTable *php_driver_smallint_properties(
     HashTable *props = zend_std_get_properties(object );
 
     type = php_driver_type_scalar(CASS_VALUE_TYPE_SMALL_INT );
-    PHP5TO7_ZEND_HASH_UPDATE(props, "type", sizeof("type"), PHP5TO7_ZVAL_MAYBE_P(type), sizeof(zval));
+    PHP5TO7_ZEND_HASH_UPDATE(props, "type", sizeof("type"), &type, sizeof(zval));
 
-    PHP5TO7_ZVAL_MAYBE_MAKE(value);
-    to_string(PHP5TO7_ZVAL_MAYBE_P(value), self );
-    PHP5TO7_ZEND_HASH_UPDATE(props, "value", sizeof("value"), PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval));
+
+    to_string(&value, self );
+    PHP5TO7_ZEND_HASH_UPDATE(props, "value", sizeof("value"), &value, sizeof(zval));
 
     return props;
 }
@@ -564,15 +564,15 @@ static
     return SUCCESS;
 }
 
-static void php_driver_smallint_free(php5to7_zend_object_free *object )
+static void php_driver_smallint_free(zend_object *object )
 {
     php_driver_numeric *self = PHP5TO7_ZEND_OBJECT_GET(numeric, object);
 
     zend_object_std_dtor(&self->zval );
-    PHP5TO7_MAYBE_EFREE(self);
+
 }
 
-static php5to7_zend_object php_driver_smallint_new(zend_class_entry *ce )
+static zend_object* php_driver_smallint_new(zend_class_entry *ce )
 {
     php_driver_numeric *self = PHP5TO7_ZEND_OBJECT_ECALLOC(numeric, ce);
 
@@ -588,7 +588,7 @@ void php_driver_define_Smallint()
     INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\Smallint", php_driver_smallint_methods);
     php_driver_smallint_ce = zend_register_internal_class(&ce );
     zend_class_implements(php_driver_smallint_ce , 2, php_driver_value_ce, php_driver_numeric_ce);
-    php_driver_smallint_ce->ce_flags |= PHP5TO7_ZEND_ACC_FINAL;
+    php_driver_smallint_ce->ce_flags |= ZEND_ACC_FINAL;
     php_driver_smallint_ce->create_object = php_driver_smallint_new;
 
     memcpy(&php_driver_smallint_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));

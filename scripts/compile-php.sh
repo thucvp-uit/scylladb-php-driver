@@ -129,18 +129,20 @@ compile_php() {
   fi
 
   rm -rf "$OUTPUT_PATH" || exit 1
+  mkdir -p "$OUTPUT_PATH" || exit 1
 
   if [ ! -f "php-$PHP_VERSION.tar.gz" ]; then
     wget -O "php-$PHP_VERSION.tar.gz" "https://github.com/php/php-src/archive/refs/tags/php-$PHP_VERSION.tar.gz" || exit 1
   fi
 
-  tar -C "/tmp" -xzf "php-$PHP_VERSION.tar.gz" || exit 1
+  tar -C "$OUTPUT_PATH" -xzf "php-$PHP_VERSION.tar.gz" || exit 1
+  mv "$OUTPUT_PATH/php-src-php-$PHP_VERSION" "$OUTPUT_PATH/src" || exit 1
 
   if [[ "$KEEP_PHP_SOURCE" == "no" ]]; then
     rm -f "php-$PHP_VERSION.tar.gz" || exit 1
   fi
 
-  pushd "/tmp/php-src-php-$PHP_VERSION" || exit 1
+  pushd "$OUTPUT_PATH/src" || exit 1
 
   {
     ./buildconf --force || exit 1

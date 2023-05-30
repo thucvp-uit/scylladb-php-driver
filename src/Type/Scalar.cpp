@@ -44,7 +44,7 @@ PHP_METHOD(TypeScalar, name) {
 
   self = PHP_DRIVER_GET_TYPE(getThis());
   name = php_driver_scalar_type_name(self->type);
-  PHP5TO7_RETVAL_STRING(name);
+  RETVAL_STRING(name);
 }
 
 PHP_METHOD(TypeScalar, __toString) {
@@ -57,7 +57,7 @@ PHP_METHOD(TypeScalar, __toString) {
 
   self = PHP_DRIVER_GET_TYPE(getThis());
   name = php_driver_scalar_type_name(self->type);
-  PHP5TO7_RETVAL_STRING(name);
+  RETVAL_STRING(name);
 }
 
 PHP_METHOD(TypeScalar, create) {
@@ -95,7 +95,7 @@ static HashTable *php_driver_type_scalar_gc(zend_object *object, zval **table,
 }
 
 static HashTable *php_driver_type_scalar_properties(zend_object *object) {
-  php5to7_zval name;
+  zval name;
   php_driver_type *self = PHP5TO7_ZEND_OBJECT_GET(type, object);
   HashTable *props = zend_std_get_properties(object);
 
@@ -103,10 +103,10 @@ static HashTable *php_driver_type_scalar_properties(zend_object *object) {
   CassValueType type =
       self->type == CASS_VALUE_TYPE_TEXT ? CASS_VALUE_TYPE_VARCHAR : self->type;
 
-  PHP5TO7_ZVAL_STRING(PHP5TO7_ZVAL_MAYBE_P(name),
+  ZVAL_STRING(&name,
                       php_driver_scalar_type_name(type));
   PHP5TO7_ZEND_HASH_UPDATE(props, "name", sizeof("name"),
-                           PHP5TO7_ZVAL_MAYBE_P(name), sizeof(zval));
+                           &name, sizeof(zval));
   return props;
 }
 
@@ -118,16 +118,16 @@ static int php_driver_type_scalar_compare(zval *obj1, zval *obj2) {
   return php_driver_type_compare(type1, type2);
 }
 
-static void php_driver_type_scalar_free(php5to7_zend_object_free *object) {
+static void php_driver_type_scalar_free(zend_object *object) {
   php_driver_type *self = PHP5TO7_ZEND_OBJECT_GET(type, object);
 
   if (self->data_type) cass_data_type_free(self->data_type);
 
   zend_object_std_dtor(&self->zval);
-  PHP5TO7_MAYBE_EFREE(self);
+
 }
 
-static php5to7_zend_object php_driver_type_scalar_new(zend_class_entry *ce) {
+static zend_object* php_driver_type_scalar_new(zend_class_entry *ce) {
   auto self = PHP5TO7_ZEND_OBJECT_ECALLOC(type, ce);
 
   self->type = CASS_VALUE_TYPE_UNKNOWN;
@@ -142,14 +142,14 @@ void php_driver_define_TypeScalar() {
   INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\Type\\Scalar",
                    php_driver_type_scalar_methods);
   php_driver_type_scalar_ce =
-      php5to7_zend_register_internal_class_ex(&ce, php_driver_type_ce);
+      zend_register_internal_class_ex(&ce, php_driver_type_ce);
   memcpy(&php_driver_type_scalar_handlers, zend_get_std_object_handlers(),
          sizeof(zend_object_handlers));
   php_driver_type_scalar_handlers.get_properties =
       php_driver_type_scalar_properties;
   php_driver_type_scalar_handlers.get_gc = php_driver_type_scalar_gc;
   php_driver_type_scalar_handlers.compare = php_driver_type_scalar_compare;
-  php_driver_type_scalar_ce->ce_flags |= PHP5TO7_ZEND_ACC_FINAL;
+  php_driver_type_scalar_ce->ce_flags |= ZEND_ACC_FINAL;
   php_driver_type_scalar_ce->create_object = php_driver_type_scalar_new;
 }
 END_EXTERN_C()

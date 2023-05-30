@@ -23,9 +23,6 @@ BEGIN_EXTERN_C()
 
 #define PHP_DRIVER_GET_NUMERIC(obj) php_driver_numeric_object_fetch(Z_OBJ_P(obj))
 #define PHP_DRIVER_GET_BLOB(obj) php_driver_blob_object_fetch(Z_OBJ_P(obj))
-#define PHP_DRIVER_GET_TIMESTAMP(obj) php_driver_timestamp_object_fetch(Z_OBJ_P(obj))
-#define PHP_DRIVER_GET_DATE(obj) php_driver_date_object_fetch(Z_OBJ_P(obj))
-#define PHP_DRIVER_GET_TIME(obj) php_driver_time_object_fetch(Z_OBJ_P(obj))
 #define PHP_DRIVER_GET_UUID(obj) php_driver_uuid_object_fetch(Z_OBJ_P(obj))
 #define PHP_DRIVER_GET_INET(obj) php_driver_inet_object_fetch(Z_OBJ_P(obj))
 #define PHP_DRIVER_GET_COLLECTION(obj) php_driver_collection_object_fetch(Z_OBJ_P(obj))
@@ -106,35 +103,6 @@ static zend_always_inline php_driver_numeric *php_driver_numeric_object_fetch(ze
     return (php_driver_numeric *)((char *)obj - ((size_t)(&(((php_driver_numeric *)0)->zval))));
 }
 
-typedef struct php_driver_timestamp_
-{
-    cass_int64_t timestamp;
-    zend_object zval;
-} php_driver_timestamp;
-static zend_always_inline php_driver_timestamp *php_driver_timestamp_object_fetch(zend_object *obj)
-{
-    return (php_driver_timestamp *)((char *)obj - ((size_t)(&(((php_driver_timestamp *)0)->zval))));
-}
-
-typedef struct php_driver_date_
-{
-    cass_uint32_t date;
-    zend_object zval;
-} php_driver_date;
-static zend_always_inline php_driver_date *php_driver_date_object_fetch(zend_object *obj)
-{
-    return (php_driver_date *)((char *)obj - ((size_t)(&(((php_driver_date *)0)->zval))));
-}
-
-typedef struct php_driver_time_
-{
-    cass_int64_t time;
-    zend_object zval;
-} php_driver_time;
-static zend_always_inline php_driver_time *php_driver_time_object_fetch(zend_object *obj)
-{
-    return (php_driver_time *)((char *)obj - offsetof(php_driver_time, zval));
-}
 
 typedef struct php_driver_blob_
 {
@@ -181,7 +149,7 @@ static zend_always_inline php_driver_duration *php_driver_duration_object_fetch(
 
 typedef struct php_driver_collection_
 {
-    php5to7_zval type;
+    zval type;
     HashTable values;
     unsigned hashv;
     int dirty;
@@ -196,7 +164,7 @@ typedef struct php_driver_map_entry_ php_driver_map_entry;
 
 typedef struct php_driver_map_
 {
-    php5to7_zval type;
+    zval type;
     php_driver_map_entry *entries;
     unsigned hashv;
     int dirty;
@@ -213,7 +181,7 @@ typedef struct php_driver_set_entry_ php_driver_set_entry;
 
 typedef struct php_driver_set_
 {
-    php5to7_zval type;
+    zval type;
     php_driver_set_entry *entries;
     unsigned hashv;
     int dirty;
@@ -229,7 +197,7 @@ static zend_always_inline php_driver_set *php_driver_set_object_fetch(zend_objec
 
 typedef struct php_driver_tuple_
 {
-    php5to7_zval type;
+    zval type;
     HashTable values;
     HashPosition pos;
     unsigned hashv;
@@ -243,7 +211,7 @@ static zend_always_inline php_driver_tuple *php_driver_tuple_object_fetch(zend_o
 
 typedef struct php_driver_user_type_value_
 {
-    php5to7_zval type;
+    zval type;
     HashTable values;
     HashPosition pos;
     unsigned hashv;
@@ -306,8 +274,8 @@ static zend_always_inline php_driver_statement *php_driver_statement_object_fetc
 
 typedef struct
 {
-    php5to7_zval statement;
-    php5to7_zval arguments;
+    zval statement;
+    zval arguments;
 } php_driver_batch_statement_entry;
 
 typedef struct php_driver_execution_options_
@@ -317,9 +285,9 @@ typedef struct php_driver_execution_options_
     int page_size;
     char *paging_state_token;
     size_t paging_state_token_size;
-    php5to7_zval timeout;
-    php5to7_zval arguments;
-    php5to7_zval retry_policy;
+    zval timeout;
+    zval arguments;
+    zval retry_policy;
     cass_int64_t timestamp;
     zend_object zval;
 } php_driver_execution_options;
@@ -348,11 +316,11 @@ typedef struct php_driver_rows_
 {
     php_driver_ref *statement;
     php_driver_ref *session;
-    php5to7_zval rows;
-    php5to7_zval next_rows;
+    zval rows;
+    zval next_rows;
     php_driver_ref *result;
     php_driver_ref *next_result;
-    php5to7_zval future_next_page;
+    zval future_next_page;
     zend_object zval;
 } php_driver_rows;
 static zend_always_inline php_driver_rows *php_driver_rows_object_fetch(zend_object *obj)
@@ -364,7 +332,7 @@ typedef struct php_driver_future_rows_
 {
     php_driver_ref *statement;
     php_driver_ref *session;
-    php5to7_zval rows;
+    zval rows;
     php_driver_ref *result;
     CassFuture *future;
     zend_object zval;
@@ -454,7 +422,7 @@ static zend_always_inline php_driver_cluster_builder *php_driver_cluster_builder
 typedef struct php_driver_future_prepared_statement_
 {
     CassFuture *future;
-    php5to7_zval prepared_statement;
+    zval prepared_statement;
     zend_object zval;
 } php_driver_future_prepared_statement;
 static zend_always_inline php_driver_future_prepared_statement *php_driver_future_prepared_statement_object_fetch(
@@ -466,7 +434,7 @@ static zend_always_inline php_driver_future_prepared_statement *php_driver_futur
 
 typedef struct php_driver_future_value_
 {
-    php5to7_zval value;
+    zval value;
     zend_object zval;
 } php_driver_future_value;
 static zend_always_inline php_driver_future_value *php_driver_future_value_object_fetch(zend_object *obj)
@@ -488,7 +456,7 @@ typedef struct php_driver_future_session_
 {
     CassFuture *future;
     php_driver_ref *session;
-    php5to7_zval default_session;
+    zval default_session;
     cass_bool_t persist;
     char *hash_key;
     int hash_key_len;
@@ -522,7 +490,7 @@ typedef struct php_driver_session_
     int default_page_size;
     char *keyspace;
     char *hash_key;
-    php5to7_zval default_timeout;
+    zval default_timeout;
     cass_bool_t persist;
     zend_object zval;
 } php_driver_session;
@@ -569,12 +537,12 @@ static zend_always_inline php_driver_keyspace *php_driver_keyspace_object_fetch(
 
 typedef struct php_driver_table_
 {
-    php5to7_zval name;
-    php5to7_zval options;
-    php5to7_zval partition_key;
-    php5to7_zval primary_key;
-    php5to7_zval clustering_key;
-    php5to7_zval clustering_order;
+    zval name;
+    zval options;
+    zval partition_key;
+    zval primary_key;
+    zval clustering_key;
+    zval clustering_order;
     php_driver_ref *schema;
     const CassTableMeta *meta;
     zend_object zval;
@@ -586,13 +554,13 @@ static zend_always_inline php_driver_table *php_driver_table_object_fetch(zend_o
 
 typedef struct php_driver_materialized_view_
 {
-    php5to7_zval name;
-    php5to7_zval options;
-    php5to7_zval partition_key;
-    php5to7_zval primary_key;
-    php5to7_zval clustering_key;
-    php5to7_zval clustering_order;
-    php5to7_zval base_table;
+    zval name;
+    zval options;
+    zval partition_key;
+    zval primary_key;
+    zval clustering_key;
+    zval clustering_order;
+    zval base_table;
     php_driver_ref *schema;
     const CassMaterializedViewMeta *meta;
     zend_object zval;
@@ -604,8 +572,8 @@ static zend_always_inline php_driver_materialized_view *php_driver_materialized_
 
 typedef struct php_driver_column_
 {
-    php5to7_zval name;
-    php5to7_zval type;
+    zval name;
+    zval type;
     int reversed;
     int frozen;
     php_driver_ref *schema;
@@ -619,10 +587,10 @@ static zend_always_inline php_driver_column *php_driver_column_object_fetch(zend
 
 typedef struct php_driver_index_
 {
-    php5to7_zval name;
-    php5to7_zval kind;
-    php5to7_zval target;
-    php5to7_zval options;
+    zval name;
+    zval kind;
+    zval target;
+    zval options;
     php_driver_ref *schema;
     const CassIndexMeta *meta;
     zend_object zval;
@@ -634,12 +602,12 @@ static zend_always_inline php_driver_index *php_driver_index_object_fetch(zend_o
 
 typedef struct php_driver_function_
 {
-    php5to7_zval simple_name;
-    php5to7_zval arguments;
-    php5to7_zval return_type;
-    php5to7_zval signature;
-    php5to7_zval language;
-    php5to7_zval body;
+    zval simple_name;
+    zval arguments;
+    zval return_type;
+    zval signature;
+    zval language;
+    zval body;
     php_driver_ref *schema;
     const CassFunctionMeta *meta;
     zend_object zval;
@@ -651,14 +619,14 @@ static zend_always_inline php_driver_function *php_driver_function_object_fetch(
 
 typedef struct php_driver_aggregate_
 {
-    php5to7_zval simple_name;
-    php5to7_zval argument_types;
-    php5to7_zval state_function;
-    php5to7_zval final_function;
-    php5to7_zval initial_condition;
-    php5to7_zval state_type;
-    php5to7_zval return_type;
-    php5to7_zval signature;
+    zval simple_name;
+    zval argument_types;
+    zval state_function;
+    zval final_function;
+    zval initial_condition;
+    zval state_type;
+    zval return_type;
+    zval signature;
     php_driver_ref *schema;
     const CassAggregateMeta *meta;
     zend_object zval;
@@ -675,16 +643,16 @@ typedef struct php_driver_type_
     union {
         struct
         {
-            php5to7_zval value_type;
+            zval value_type;
         } collection;
         struct
         {
-            php5to7_zval value_type;
+            zval value_type;
         } set;
         struct
         {
-            php5to7_zval key_type;
-            php5to7_zval value_type;
+            zval key_type;
+            zval value_type;
         } map;
         struct
         {
@@ -716,30 +684,28 @@ typedef struct
     php_driver_value_hash_t hash_value;
 } php_driver_value_handlers;
 
-extern PHP_DRIVER_API zend_class_entry *php_driver_value_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_numeric_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_bigint_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_smallint_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_tinyint_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_blob_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_decimal_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_float_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_inet_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_timestamp_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_date_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_time_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_uuid_interface_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_uuid_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_timeuuid_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_varint_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_custom_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_duration_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_value_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_numeric_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_bigint_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_smallint_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_tinyint_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_blob_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_decimal_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_float_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_inet_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_scylladb_timestamp_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_uuid_interface_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_uuid_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_timeuuid_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_varint_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_custom_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_duration_ce;
 
-extern PHP_DRIVER_API zend_class_entry *php_driver_set_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_map_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_collection_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_tuple_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_user_type_value_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_set_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_map_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_collection_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_tuple_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_user_type_value_ce;
 
 /* Exceptions */
 void php_driver_define_Exception();
@@ -781,67 +747,63 @@ void php_driver_define_Float();
 void php_driver_define_Inet();
 void php_driver_define_Map();
 void php_driver_define_Set();
-void php_driver_define_Timestamp();
-void php_driver_define_Date();
-void php_driver_define_Time();
 void php_driver_define_Tuple();
 void php_driver_define_UserTypeValue();
 void php_driver_define_UuidInterface();
 void php_driver_define_Uuid();
-void php_driver_define_Timeuuid();
 void php_driver_define_Varint();
 void php_driver_define_Custom();
 void php_driver_define_Duration();
 
 /* Classes */
-extern PHP_DRIVER_API zend_class_entry *php_driver_core_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_cluster_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_default_cluster_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_cluster_builder_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_default_cluster_builder_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_ssl_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_ssl_builder_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_future_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_future_prepared_statement_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_future_rows_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_future_session_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_future_value_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_future_close_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_session_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_default_session_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_exception_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_runtime_exception_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_timeout_exception_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_logic_exception_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_domain_exception_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_invalid_argument_exception_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_server_exception_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_overloaded_exception_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_is_bootstrapping_exception_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_execution_exception_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_truncate_exception_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_write_timeout_exception_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_read_timeout_exception_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_truncate_exception_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_unavailable_exception_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_validation_exception_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_invalid_syntax_exception_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_unauthorized_exception_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_invalid_query_exception_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_configuration_exception_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_already_exists_exception_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_unprepared_exception_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_protocol_exception_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_authentication_exception_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_divide_by_zero_exception_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_range_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_core_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_cluster_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_default_cluster_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_cluster_builder_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_default_cluster_builder_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_ssl_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_ssl_builder_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_future_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_future_prepared_statement_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_future_rows_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_future_session_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_future_value_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_future_close_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_session_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_default_session_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_runtime_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_timeout_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_logic_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_domain_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_invalid_argument_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_server_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_overloaded_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_is_bootstrapping_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_execution_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_truncate_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_write_timeout_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_read_timeout_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_truncate_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_unavailable_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_validation_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_invalid_syntax_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_unauthorized_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_invalid_query_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_configuration_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_already_exists_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_unprepared_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_protocol_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_authentication_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_divide_by_zero_exception_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_range_exception_ce;
 
-extern PHP_DRIVER_API zend_class_entry *php_driver_statement_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_simple_statement_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_prepared_statement_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_batch_statement_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_execution_options_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_rows_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_statement_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_simple_statement_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_prepared_statement_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_batch_statement_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_execution_options_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_rows_ce;
 
 void php_driver_define_Core();
 void php_driver_define_Future();
@@ -861,22 +823,22 @@ void php_driver_define_BatchStatement();
 void php_driver_define_ExecutionOptions();
 void php_driver_define_Rows();
 
-extern PHP_DRIVER_API zend_class_entry *php_driver_schema_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_default_schema_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_keyspace_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_default_keyspace_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_table_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_default_table_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_column_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_default_column_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_index_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_default_index_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_materialized_view_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_default_materialized_view_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_function_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_default_function_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_aggregate_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_default_aggregate_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_schema_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_default_schema_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_keyspace_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_default_keyspace_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_table_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_default_table_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_column_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_default_column_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_index_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_default_index_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_materialized_view_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_default_materialized_view_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_function_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_default_function_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_aggregate_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_default_aggregate_ce;
 
 void php_driver_define_Schema();
 void php_driver_define_DefaultSchema();
@@ -895,14 +857,14 @@ void php_driver_define_DefaultFunction();
 void php_driver_define_Aggregate();
 void php_driver_define_DefaultAggregate();
 
-extern PHP_DRIVER_API zend_class_entry *php_driver_type_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_type_scalar_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_type_collection_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_type_set_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_type_map_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_type_tuple_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_type_user_type_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_type_custom_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_type_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_type_scalar_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_type_collection_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_type_set_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_type_map_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_type_tuple_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_type_user_type_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_type_custom_ce;
 
 void php_driver_define_Type();
 void php_driver_define_TypeScalar();
@@ -913,11 +875,11 @@ void php_driver_define_TypeTuple();
 void php_driver_define_TypeUserType();
 void php_driver_define_TypeCustom();
 
-extern PHP_DRIVER_API zend_class_entry *php_driver_retry_policy_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_retry_policy_default_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_retry_policy_downgrading_consistency_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_retry_policy_fallthrough_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_retry_policy_logging_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_retry_policy_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_retry_policy_default_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_retry_policy_downgrading_consistency_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_retry_policy_fallthrough_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_retry_policy_logging_ce;
 
 void php_driver_define_RetryPolicy();
 void php_driver_define_RetryPolicyDefault();
@@ -925,9 +887,9 @@ void php_driver_define_RetryPolicyDowngradingConsistency();
 void php_driver_define_RetryPolicyFallthrough();
 void php_driver_define_RetryPolicyLogging();
 
-extern PHP_DRIVER_API zend_class_entry *php_driver_timestamp_gen_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_timestamp_gen_monotonic_ce;
-extern PHP_DRIVER_API zend_class_entry *php_driver_timestamp_gen_server_side_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_timestamp_gen_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_timestamp_gen_monotonic_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_driver_timestamp_gen_server_side_ce;
 
 void php_driver_define_TimestampGenerator();
 void php_driver_define_TimestampGeneratorMonotonic();

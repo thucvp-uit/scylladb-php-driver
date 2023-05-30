@@ -238,12 +238,12 @@ ZEND_METHOD(Cassandra_Cluster_Builder, build)
 
     if (self->persist)
     {
-        php5to7_zend_resource_le resource;
+        zval resource;
 
         ZVAL_NEW_PERSISTENT_RES(&resource, 0, cluster->cluster, php_le_php_driver_cluster());
 
         PHP5TO7_ZEND_HASH_UPDATE(&EG(persistent_list), cluster->hash_key, cluster->hash_key_len + 1, &resource,
-                                 sizeof(php5to7_zend_resource_le));
+                                 sizeof(zval));
         PHP_DRIVER_G(persistent_clusters)++;
     }
 }
