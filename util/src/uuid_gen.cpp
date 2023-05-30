@@ -18,7 +18,7 @@
 #include <php_driver.h>
 #include <php_driver_globals.h>
 
-#include "uuid_gen.h"
+#include <util/uuid_gen.h>
 
 static CassUuidGen*
 get_uuid_gen()

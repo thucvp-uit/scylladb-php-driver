@@ -12,6 +12,7 @@ include(CheckIncludeFile)
 include(CMakePackageConfigHelpers)
 include(cmake/CPM.cmake)
 include(cmake/TargetOptimizations.cmake)
+include(cmake/ScyllaDBPHPLibrary.cmake)
 
 set(PHP_SCYLLADB_VERSION_MAJOR 1)
 set(PHP_SCYLLADB_VERSION_MINOR 3)
@@ -113,34 +114,8 @@ add_subdirectory(src/Type)
 file(GLOB_RECURSE HEADERS_LIST FOLLOW_SYMLINKS include/*.h)
 
 add_library(ext_scylladb SHARED)
-scylladb_php_target_optimize(ext_scylladb ${PHP_SCYLLADB_OPTIMISE_FOR_CURRENT_MACHINE} OFF)
-target_compile_options(
-        ext_scylladb PRIVATE
-        -fPIC -Wall -Wextra -Wno-long-long -Wno-deprecated-declarations -Wno-unused-parameter -Wno-unused-result -Wno-variadic-macros -Wno-extra-semi -pthread -Wimplicit-function-declaration
-)
+scylladb_php_library(ext_scylladb ${PHP_SCYLLADB_ENABLE_SANITIZERS} ${PHP_SCYLLADB_OPTIMISE_FOR_CURRENT_MACHINE} OFF)
 
-if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    target_compile_definitions(ext_scylladb PRIVATE -DDEBUG)
-    target_compile_options(ext_scylladb PRIVATE -g3 -gdwarf-4 -fno-inline -fno-omit-frame-pointer)
-elseif (${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo" OR ${CMAKE_BUILD_TYPE} STREQUAL "Release")
-    target_compile_definitions(ext_scylladb PRIVATE -DRELEASE)
-endif ()
-
-if (PHP_SCYLLADB_ENABLE_SANITIZERS)
-    add_sanitize_undefined(ext_scylladb)
-    add_sanitize_address(ext_scylladb)
-endif ()
-
-scylladb_php_find_php_config("${CUSTOM_PHP_CONFIG}" "${PHP_VERSION_FOR_PHP_CONFIG}" ${PHP_DEBUG_FOR_PHP_CONFIG} ${PHP_THREAD_SAFE_FOR_PHP_CONFIG})
-scylladb_php_find_php(${PHP_CONFIG_EXECUTABLE})
-target_include_directories(
-        ext_scylladb PUBLIC
-        ${PROJECT_SOURCE_DIR}/include
-        ${PROJECT_BINARY_DIR}
-        ${libuv_SOURCE_DIR}/include
-        ${libscylladb_SOURCE_DIR}/include
-        ${PHP_INCLUDES}
-)
 target_sources(ext_scylladb PUBLIC FILE_SET headers TYPE HEADERS FILES "${HEADERS_LIST}" "${PROJECT_BINARY_DIR}/config.h")
 target_sources(ext_scylladb PRIVATE php_driver.cpp)
 

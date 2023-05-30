@@ -84,7 +84,7 @@ static HashTable *php_driver_type_custom_gc(
 #if PHP_MAJOR_VERSION >= 8
     zend_object *object,
 #else
-    zval *object,
+    zendObject *object,
 #endif
     zval **table, int *n) {
   *table = NULL;
@@ -121,7 +121,7 @@ static void php_driver_type_custom_free(zend_object *object) {
     self->data.custom.class_name = NULL;
   }
 
-  zend_object_std_dtor(&self->zval);
+  zend_object_std_dtor(&self->zendObject);
 
 }
 

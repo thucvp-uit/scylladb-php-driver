@@ -87,7 +87,7 @@ static HashTable *php_driver_cluster_builder_properties(zend_object *object)
     ZVAL_DOUBLE(&requestTimeout, (double)self->request_timeout / 1000);
     if (self->ssl_options != nullptr)
     {
-        ZVAL_OBJ_COPY(&sslOptions, &self->ssl_options->zval);
+        ZVAL_OBJ_COPY(&sslOptions, &self->ssl_options->zendObject);
     }
     else
     {
@@ -125,7 +125,7 @@ static HashTable *php_driver_cluster_builder_properties(zend_object *object)
 
     if (self->retry_policy != nullptr)
     {
-        ZVAL_OBJ_COPY(&retryPolicy, &self->retry_policy->zval);
+        ZVAL_OBJ_COPY(&retryPolicy, &self->retry_policy->zendObject);
     }
     else
     {
@@ -170,7 +170,7 @@ static HashTable *php_driver_cluster_builder_properties(zend_object *object)
 
     if (self->timestamp_gen != nullptr)
     {
-        ZVAL_OBJ_COPY(&timestampGen, &self->timestamp_gen->zval);
+        ZVAL_OBJ_COPY(&timestampGen, &self->timestamp_gen->zendObject);
     }
     else
     {
@@ -292,7 +292,7 @@ static void php_driver_cluster_builder_free(zend_object *object)
 
     if (self->ssl_options != nullptr)
     {
-        zend_object_release(&self->ssl_options->zval);
+        zend_object_release(&self->ssl_options->zendObject);
         self->ssl_options = nullptr;
     }
 
@@ -304,13 +304,13 @@ static void php_driver_cluster_builder_free(zend_object *object)
 
     if (self->retry_policy != nullptr)
     {
-        zend_object_release(&self->retry_policy->zval);
+        zend_object_release(&self->retry_policy->zendObject);
         self->retry_policy = nullptr;
     }
 
     if (self->timestamp_gen)
     {
-        zend_object_release(&self->timestamp_gen->zval);
+        zend_object_release(&self->timestamp_gen->zendObject);
         self->timestamp_gen = nullptr;
     }
 }
@@ -356,15 +356,15 @@ zend_object* php_driver_cluster_builder_new(zend_class_entry *ce)
 
     ZVAL_UNDEF(&self->default_timeout);
 
-    zend_object_std_init(&self->zval, ce);
-    self->zval.handlers = &php_driver_cluster_builder_handlers;
+    zend_object_std_init(&self->zendObject, ce);
+    self->zendObject.handlers = &php_driver_cluster_builder_handlers;
 
     if (zend_object_properties_size(ce) > 0)
     {
-        object_properties_init(&self->zval, ce);
+        object_properties_init(&self->zendObject, ce);
     }
 
-    return &self->zval;
+    return &self->zendObject;
 }
 
 END_EXTERN_C()
@@ -375,6 +375,6 @@ void php_driver_initialize_cluster_builder_handlers()
     php_driver_cluster_builder_handlers.get_properties = php_driver_cluster_builder_properties;
     php_driver_cluster_builder_handlers.get_gc = php_driver_cluster_builder_gc;
     php_driver_cluster_builder_handlers.compare = php_driver_cluster_builder_compare;
-    php_driver_cluster_builder_handlers.offset = XtOffsetOf(php_driver_cluster_builder, zval);
+    php_driver_cluster_builder_handlers.offset = XtOffsetOf(php_driver_cluster_builder, zendObject);
     php_driver_cluster_builder_handlers.free_obj = php_driver_cluster_builder_free;
 }

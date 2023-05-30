@@ -404,7 +404,7 @@ static HashTable *php_driver_varint_gc(
 #if PHP_MAJOR_VERSION >= 8
     zend_object *object,
 #else
-    zval *object,
+    zendObject *object,
 #endif
     zval** table, int *n )
 {
@@ -417,7 +417,7 @@ static HashTable *php_driver_varint_properties(
 #if PHP_MAJOR_VERSION >= 8
     zend_object *object
 #else
-    zval *object
+    zendObject *object
 #endif
 )
 {
@@ -504,7 +504,7 @@ static void php_driver_varint_free(zend_object *object )
 
     mpz_clear(self->data.varint.value);
 
-    zend_object_std_dtor(&self->zval );
+    zend_object_std_dtor(&self->zendObject);
 
 }
 

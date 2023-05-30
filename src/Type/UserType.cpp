@@ -276,7 +276,7 @@ php_driver_type_user_type_gc(
 #if PHP_MAJOR_VERSION >= 8
         zend_object *object,
 #else
-        zval *object,
+        zendObject *object,
 #endif
         zval** table, int *n
 )
@@ -291,7 +291,7 @@ php_driver_type_user_type_properties(
 #if PHP_MAJOR_VERSION >= 8
         zend_object *object
 #else
-        zval *object
+        zendObject *object
 #endif
 )
 {
@@ -336,7 +336,7 @@ php_driver_type_user_type_free(zend_object *object )
   if (self->data.udt.type_name) efree(self->data.udt.type_name);
   zend_hash_destroy(&self->data.udt.types);
 
-  zend_object_std_dtor(&self->zval );
+  zend_object_std_dtor(&self->zendObject);
 
 }
 

@@ -138,7 +138,7 @@ ZEND_METHOD(Cassandra_Date, fromDateTime) {
   ZEND_PARSE_PARAMETERS_END();
   // clang-format on
 
-  zval getTimeStampResult = {0};
+  zval getTimeStampResult = {};
   zend_call_method_with_0_params(Z_OBJ_P(datetime), Z_OBJCE_P(datetime), nullptr, "gettimestamp",
                                  &getTimeStampResult);
 
@@ -208,7 +208,7 @@ static unsigned php_scylladb_date_hash_value(zval *obj) {
 static zend_object *php_scylladb_date_new(zend_class_entry *ce) {
   auto *self = ZendCPP::Allocate<php_scylladb_date>(ce, &php_scylladb_date_handlers);
   self->date = 0;
-  return &self->zval;
+  return &self->zendObject;
 }
 
 void php_driver_define_Date() {

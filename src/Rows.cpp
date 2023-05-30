@@ -469,7 +469,7 @@ static HashTable *php_driver_rows_properties(
 #if PHP_MAJOR_VERSION >= 8
     zend_object *object
 #else
-    zval *object
+    zendObject *object
 #endif
 )
 {
@@ -502,7 +502,7 @@ static void php_driver_rows_free(zend_object *object )
     PHP5TO7_ZVAL_MAYBE_DESTROY(self->next_rows);
     PHP5TO7_ZVAL_MAYBE_DESTROY(self->future_next_page);
 
-    zend_object_std_dtor(&self->zval );
+    zend_object_std_dtor(&self->zendObject);
 
 }
 

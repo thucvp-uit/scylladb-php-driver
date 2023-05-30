@@ -99,11 +99,11 @@ typedef unsigned long ulong;
 #define PHP5TO7_ZEND_OBJECT_INIT_EX(type_name, name, self, ce)                                                         \
     do                                                                                                                 \
     {                                                                                                                  \
-        zend_object_std_init(&self->zval, ce);                                                               \
-        ((zend_object_handlers *)&php_driver_##name##_handlers)->offset = XtOffsetOf(php_driver_##type_name, zval);    \
+        zend_object_std_init(&self->zendObject, ce);                                                               \
+        ((zend_object_handlers *)&php_driver_##name##_handlers)->offset = XtOffsetOf(php_driver_##type_name, zendObject);    \
         ((zend_object_handlers *)&php_driver_##name##_handlers)->free_obj = php_driver_##name##_free;                  \
-        self->zval.handlers = (zend_object_handlers *)&php_driver_##name##_handlers;                                   \
-        return &self->zval;                                                                                            \
+        self->zendObject.handlers = (zend_object_handlers *)&php_driver_##name##_handlers;                                   \
+        return &self->zendObject;                                                                                            \
     } while (0)
 
 #define PHP5TO7_ADD_ASSOC_ZVAL_EX(zv, key, len, val) add_assoc_zval_ex((zv), (key), (size_t)(len - 1), val)

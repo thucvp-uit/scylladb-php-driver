@@ -249,7 +249,7 @@ static unsigned php_driver_timestamp_hash_value(zval *obj) {
 static zend_object *php_driver_timestamp_new(zend_class_entry *ce) {
   auto self = ZendCPP::Allocate<php_scylladb_timestamp>(ce, &php_driver_timestamp_handlers);
   self->timestamp = -1;
-  return &self->zval;
+  return &self->zendObject;
 }
 
 void php_driver_define_Timestamp() {

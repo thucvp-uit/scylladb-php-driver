@@ -238,7 +238,7 @@ php_driver_duration_properties(
 #if PHP_MAJOR_VERSION >= 8
         zend_object *object
 #else
-        zval *object
+        zendObject *object
 #endif
 )
 {
@@ -320,7 +320,7 @@ php_driver_duration_free(zend_object *object )
 
   /* Clean up */
 
-  zend_object_std_dtor(&self->zval );
+  zend_object_std_dtor(&self->zendObject);
 
 }
 

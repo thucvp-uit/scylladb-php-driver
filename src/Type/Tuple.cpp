@@ -169,7 +169,7 @@ php_driver_type_tuple_gc(
 #if PHP_MAJOR_VERSION >= 8
   zend_object* object,
 #else
-  zval* object,
+  zendObject* object,
 #endif
   zval** table,
   int* n )
@@ -184,7 +184,7 @@ php_driver_type_tuple_properties(
 #if PHP_MAJOR_VERSION >= 8
   zend_object* object
 #else
-  zval* object
+  zendObject* object
 #endif
 )
 {
@@ -227,7 +227,7 @@ php_driver_type_tuple_free(zend_object* object )
     cass_data_type_free(self->data_type);
   zend_hash_destroy(&self->data.tuple.types);
 
-  zend_object_std_dtor(&self->zval );
+  zend_object_std_dtor(&self->zendObject);
 
 }
 

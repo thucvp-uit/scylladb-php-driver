@@ -217,7 +217,7 @@ static unsigned php_driver_time_hash_value(zval *obj) {
 static zend_object *php_driver_time_new(zend_class_entry *ce) {
   auto *self = ZendCPP::Allocate<php_scylladb_time>(ce, &php_driver_time_handlers);
   self->time = -1;
-  return &self->zval;
+  return &self->zendObject;
 }
 
 void php_driver_define_Time() {

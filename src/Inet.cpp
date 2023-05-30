@@ -112,7 +112,7 @@ php_driver_inet_gc(
 #if PHP_MAJOR_VERSION >= 8
         zend_object *object,
 #else
-        zval *object,
+        zendObject *object,
 #endif
         zval** table, int *n
 )
@@ -127,7 +127,7 @@ php_driver_inet_properties(
 #if PHP_MAJOR_VERSION >= 8
         zend_object *object
 #else
-        zval *object
+        zendObject *object
 #endif
 )
 {
@@ -188,7 +188,7 @@ php_driver_inet_free(zend_object *object )
 {
   php_driver_inet *self = PHP5TO7_ZEND_OBJECT_GET(inet, object);
 
-  zend_object_std_dtor(&self->zval );
+  zend_object_std_dtor(&self->zendObject);
 
 }
 

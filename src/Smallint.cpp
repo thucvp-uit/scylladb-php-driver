@@ -470,7 +470,7 @@ static HashTable *php_driver_smallint_gc(
 #if PHP_MAJOR_VERSION >= 8
     zend_object *object,
 #else
-    zval *object,
+    zendObject *object,
 #endif
     zval** table, int *n )
 {
@@ -483,7 +483,7 @@ static HashTable *php_driver_smallint_properties(
 #if PHP_MAJOR_VERSION >= 8
     zend_object *object
 #else
-    zval *object
+    zendObject *object
 #endif
 )
 {
@@ -568,7 +568,7 @@ static void php_driver_smallint_free(zend_object *object )
 {
     php_driver_numeric *self = PHP5TO7_ZEND_OBJECT_GET(numeric, object);
 
-    zend_object_std_dtor(&self->zval );
+    zend_object_std_dtor(&self->zendObject);
 
 }
 

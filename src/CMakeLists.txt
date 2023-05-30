@@ -1,5 +1,7 @@
 add_library(src STATIC)
 add_library(ext_scylladb::src ALIAS src)
+scylladb_php_library(src OFF ${PHP_SCYLLADB_OPTIMISE_FOR_CURRENT_MACHINE} ON)
+
 target_sources(
         src
         PRIVATE
@@ -60,29 +62,3 @@ target_sources(
         Varint.cpp
 
 )
-
-find_package(PHP REQUIRED)
-find_package(Sanitizers REQUIRED)
-
-set_target_properties(src PROPERTIES POSITION_INDEPENDENT_CODE ON)
-target_include_directories(
-        src
-        PUBLIC
-        ${PHP_INCLUDES}
-        ${PROJECT_SOURCE_DIR}/include
-        ${PROJECT_BINARY_DIR}
-        ${libscylladb_SOURCE_DIR}/include
-        ${PROJECT_SOURCE_DIR}
-)
-
-if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    target_compile_definitions(src PRIVATE -DDEBUG)
-elseif (${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo" OR ${CMAKE_BUILD_TYPE} STREQUAL "Release")
-    target_compile_definitions(src PRIVATE -DRELEASE)
-endif ()
-
-if (PHP_SCYLLADB_ENABLE_SANITIZERS)
-    add_sanitize_undefined(src)
-    add_sanitize_address(src)
-endif ()
-

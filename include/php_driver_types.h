@@ -96,11 +96,11 @@ typedef struct php_driver_numeric_
             long scale;
         } decimal;
     } data;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_numeric;
 static zend_always_inline php_driver_numeric *php_driver_numeric_object_fetch(zend_object *obj)
 {
-    return (php_driver_numeric *)((char *)obj - ((size_t)(&(((php_driver_numeric *)0)->zval))));
+    return (php_driver_numeric *)((char *)obj - ((size_t)(&(((php_driver_numeric *)0)->zendObject))));
 }
 
 
@@ -108,31 +108,31 @@ typedef struct php_driver_blob_
 {
     cass_byte_t *data;
     size_t size;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_blob;
 static zend_always_inline php_driver_blob *php_driver_blob_object_fetch(zend_object *obj)
 {
-    return (php_driver_blob *)((char *)obj - ((size_t)(&(((php_driver_blob *)0)->zval))));
+    return (php_driver_blob *)((char *)obj - ((size_t)(&(((php_driver_blob *)0)->zendObject))));
 }
 
 typedef struct php_driver_uuid_
 {
     CassUuid uuid;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_uuid;
 static zend_always_inline php_driver_uuid *php_driver_uuid_object_fetch(zend_object *obj)
 {
-    return (php_driver_uuid *)((char *)obj - ((size_t)(&(((php_driver_uuid *)0)->zval))));
+    return (php_driver_uuid *)((char *)obj - ((size_t)(&(((php_driver_uuid *)0)->zendObject))));
 }
 
 typedef struct php_driver_inet_
 {
     CassInet inet;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_inet;
 static zend_always_inline php_driver_inet *php_driver_inet_object_fetch(zend_object *obj)
 {
-    return (php_driver_inet *)((char *)obj - ((size_t)(&(((php_driver_inet *)0)->zval))));
+    return (php_driver_inet *)((char *)obj - ((size_t)(&(((php_driver_inet *)0)->zendObject))));
 }
 
 typedef struct php_driver_duration_
@@ -140,11 +140,11 @@ typedef struct php_driver_duration_
     cass_int32_t months;
     cass_int32_t days;
     cass_int64_t nanos;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_duration;
 static zend_always_inline php_driver_duration *php_driver_duration_object_fetch(zend_object *obj)
 {
-    return (php_driver_duration *)((char *)obj - ((size_t)(&(((php_driver_duration *)0)->zval))));
+    return (php_driver_duration *)((char *)obj - ((size_t)(&(((php_driver_duration *)0)->zendObject))));
 }
 
 typedef struct php_driver_collection_
@@ -153,11 +153,11 @@ typedef struct php_driver_collection_
     HashTable values;
     unsigned hashv;
     int dirty;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_collection;
 static zend_always_inline php_driver_collection *php_driver_collection_object_fetch(zend_object *obj)
 {
-    return (php_driver_collection *)((char *)obj - ((size_t)(&(((php_driver_collection *)0)->zval))));
+    return (php_driver_collection *)((char *)obj - ((size_t)(&(((php_driver_collection *)0)->zendObject))));
 }
 
 typedef struct php_driver_map_entry_ php_driver_map_entry;
@@ -170,11 +170,11 @@ typedef struct php_driver_map_
     int dirty;
     php_driver_map_entry *iter_curr;
     php_driver_map_entry *iter_temp;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_map;
 static zend_always_inline php_driver_map *php_driver_map_object_fetch(zend_object *obj)
 {
-    return (php_driver_map *)((char *)obj - ((size_t)(&(((php_driver_map *)0)->zval))));
+    return (php_driver_map *)((char *)obj - ((size_t)(&(((php_driver_map *)0)->zendObject))));
 }
 
 typedef struct php_driver_set_entry_ php_driver_set_entry;
@@ -188,11 +188,11 @@ typedef struct php_driver_set_
     php_driver_set_entry *iter_curr;
     php_driver_set_entry *iter_temp;
     int iter_index;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_set;
 static zend_always_inline php_driver_set *php_driver_set_object_fetch(zend_object *obj)
 {
-    return (php_driver_set *)((char *)obj - ((size_t)(&(((php_driver_set *)0)->zval))));
+    return (php_driver_set *)((char *)obj - ((size_t)(&(((php_driver_set *)0)->zendObject))));
 }
 
 typedef struct php_driver_tuple_
@@ -202,11 +202,11 @@ typedef struct php_driver_tuple_
     HashPosition pos;
     unsigned hashv;
     int dirty;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_tuple;
 static zend_always_inline php_driver_tuple *php_driver_tuple_object_fetch(zend_object *obj)
 {
-    return (php_driver_tuple *)((char *)obj - ((size_t)(&(((php_driver_tuple *)0)->zval))));
+    return (php_driver_tuple *)((char *)obj - ((size_t)(&(((php_driver_tuple *)0)->zendObject))));
 }
 
 typedef struct php_driver_user_type_value_
@@ -216,11 +216,11 @@ typedef struct php_driver_user_type_value_
     HashPosition pos;
     unsigned hashv;
     int dirty;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_user_type_value;
 static zend_always_inline php_driver_user_type_value *php_driver_user_type_value_object_fetch(zend_object *obj)
 {
-    return (php_driver_user_type_value *)((char *)obj - ((size_t)(&(((php_driver_user_type_value *)0)->zval))));
+    return (php_driver_user_type_value *)((char *)obj - ((size_t)(&(((php_driver_user_type_value *)0)->zendObject))));
 }
 
 typedef struct php_driver_cluster_
@@ -233,11 +233,11 @@ typedef struct php_driver_cluster_
     cass_bool_t persist;
     char *hash_key;
     int hash_key_len;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_cluster;
 static zend_always_inline php_driver_cluster *php_driver_cluster_object_fetch(zend_object *obj)
 {
-    return (php_driver_cluster *)((char *)obj - offsetof(php_driver_cluster, zval));
+    return (php_driver_cluster *)((char *)obj - offsetof(php_driver_cluster, zendObject));
 }
 
 typedef enum
@@ -265,11 +265,11 @@ typedef struct php_driver_statement_
             HashTable statements;
         } batch;
     } data;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_statement;
 static zend_always_inline php_driver_statement *php_driver_statement_object_fetch(zend_object *obj)
 {
-    return (php_driver_statement *)((char *)obj - ((size_t)(&(((php_driver_statement *)0)->zval))));
+    return (php_driver_statement *)((char *)obj - ((size_t)(&(((php_driver_statement *)0)->zendObject))));
 }
 
 typedef struct
@@ -289,11 +289,11 @@ typedef struct php_driver_execution_options_
     zval arguments;
     zval retry_policy;
     cass_int64_t timestamp;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_execution_options;
 static zend_always_inline php_driver_execution_options *php_driver_execution_options_object_fetch(zend_object *obj)
 {
-    return (php_driver_execution_options *)((char *)obj - ((size_t)(&(((php_driver_execution_options *)0)->zval))));
+    return (php_driver_execution_options *)((char *)obj - ((size_t)(&(((php_driver_execution_options *)0)->zendObject))));
 }
 
 typedef enum /* : uint8_t */
@@ -321,11 +321,11 @@ typedef struct php_driver_rows_
     php_driver_ref *result;
     php_driver_ref *next_result;
     zval future_next_page;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_rows;
 static zend_always_inline php_driver_rows *php_driver_rows_object_fetch(zend_object *obj)
 {
-    return (php_driver_rows *)((char *)obj - ((size_t)(&(((php_driver_rows *)0)->zval))));
+    return (php_driver_rows *)((char *)obj - ((size_t)(&(((php_driver_rows *)0)->zendObject))));
 }
 
 typedef struct php_driver_future_rows_
@@ -335,41 +335,41 @@ typedef struct php_driver_future_rows_
     zval rows;
     php_driver_ref *result;
     CassFuture *future;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_future_rows;
 static zend_always_inline php_driver_future_rows *php_driver_future_rows_object_fetch(zend_object *obj)
 {
-    return (php_driver_future_rows *)((char *)obj - ((size_t)(&(((php_driver_future_rows *)0)->zval))));
+    return (php_driver_future_rows *)((char *)obj - ((size_t)(&(((php_driver_future_rows *)0)->zendObject))));
 }
 
 typedef struct php_driver_retry_policy_
 {
     CassRetryPolicy *policy;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_retry_policy;
 static zend_always_inline php_driver_retry_policy *php_driver_retry_policy_object_fetch(zend_object *obj)
 {
-    return (php_driver_retry_policy *)((char *)obj - ((size_t)(&(((php_driver_retry_policy *)0)->zval))));
+    return (php_driver_retry_policy *)((char *)obj - ((size_t)(&(((php_driver_retry_policy *)0)->zendObject))));
 }
 
 typedef struct php_driver_ssl_
 {
     CassSsl *ssl;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_ssl;
 static zend_always_inline php_driver_ssl *php_driver_ssl_object_fetch(zend_object *obj)
 {
-    return (php_driver_ssl *)((char *)obj - ((size_t)(&(((php_driver_ssl *)0)->zval))));
+    return (php_driver_ssl *)((char *)obj - ((size_t)(&(((php_driver_ssl *)0)->zendObject))));
 }
 
 typedef struct php_driver_timestamp_gen_
 {
     CassTimestampGen *gen;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_timestamp_gen;
 static zend_always_inline php_driver_timestamp_gen *php_driver_timestamp_gen_object_fetch(zend_object *obj)
 {
-    return (php_driver_timestamp_gen *)((char *)obj - ((size_t)(&(((php_driver_timestamp_gen *)0)->zval))));
+    return (php_driver_timestamp_gen *)((char *)obj - ((size_t)(&(((php_driver_timestamp_gen *)0)->zendObject))));
 }
 
 typedef struct php_driver_cluster_builder_
@@ -411,45 +411,45 @@ typedef struct php_driver_cluster_builder_
     php_driver_ssl *ssl_options;
     zval default_timeout;
 
-    zend_object zval;
+    zend_object zendObject;
 
 } php_driver_cluster_builder;
 static zend_always_inline php_driver_cluster_builder *php_driver_cluster_builder_object_fetch(zend_object *obj)
 {
-    return (php_driver_cluster_builder *)((char *)obj - offsetof(php_driver_cluster_builder, zval));
+    return (php_driver_cluster_builder *)((char *)obj - offsetof(php_driver_cluster_builder, zendObject));
 }
 
 typedef struct php_driver_future_prepared_statement_
 {
     CassFuture *future;
     zval prepared_statement;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_future_prepared_statement;
 static zend_always_inline php_driver_future_prepared_statement *php_driver_future_prepared_statement_object_fetch(
     zend_object *obj)
 {
     return (php_driver_future_prepared_statement *)((char *)obj -
-                                                    ((size_t)(&(((php_driver_future_prepared_statement *)0)->zval))));
+                                                    ((size_t)(&(((php_driver_future_prepared_statement *)0)->zendObject))));
 }
 
 typedef struct php_driver_future_value_
 {
     zval value;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_future_value;
 static zend_always_inline php_driver_future_value *php_driver_future_value_object_fetch(zend_object *obj)
 {
-    return (php_driver_future_value *)((char *)obj - ((size_t)(&(((php_driver_future_value *)0)->zval))));
+    return (php_driver_future_value *)((char *)obj - ((size_t)(&(((php_driver_future_value *)0)->zendObject))));
 }
 
 typedef struct php_driver_future_close_
 {
     CassFuture *future;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_future_close;
 static zend_always_inline php_driver_future_close *php_driver_future_close_object_fetch(zend_object *obj)
 {
-    return (php_driver_future_close *)((char *)obj - ((size_t)(&(((php_driver_future_close *)0)->zval))));
+    return (php_driver_future_close *)((char *)obj - ((size_t)(&(((php_driver_future_close *)0)->zendObject))));
 }
 
 typedef struct php_driver_future_session_
@@ -464,11 +464,11 @@ typedef struct php_driver_future_session_
     CassError exception_code;
     char *session_keyspace;
     char *session_hash_key;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_future_session;
 static zend_always_inline php_driver_future_session *php_driver_future_session_object_fetch(zend_object *obj)
 {
-    return (php_driver_future_session *)((char *)obj - ((size_t)(&(((php_driver_future_session *)0)->zval))));
+    return (php_driver_future_session *)((char *)obj - ((size_t)(&(((php_driver_future_session *)0)->zendObject))));
 }
 
 typedef struct
@@ -492,11 +492,11 @@ typedef struct php_driver_session_
     char *hash_key;
     zval default_timeout;
     cass_bool_t persist;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_session;
 static zend_always_inline php_driver_session *php_driver_session_object_fetch(zend_object *obj)
 {
-    return (php_driver_session *)((char *)obj - offsetof(php_driver_session, zval));
+    return (php_driver_session *)((char *)obj - offsetof(php_driver_session, zendObject));
 }
 
 typedef struct php_driver_ssl_builder_
@@ -507,32 +507,32 @@ typedef struct php_driver_ssl_builder_
     char *client_cert;
     char *private_key;
     char *passphrase;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_ssl_builder;
 static zend_always_inline php_driver_ssl_builder *php_driver_ssl_builder_object_fetch(zend_object *obj)
 {
-    return (php_driver_ssl_builder *)((char *)obj - ((size_t)(&(((php_driver_ssl_builder *)0)->zval))));
+    return (php_driver_ssl_builder *)((char *)obj - ((size_t)(&(((php_driver_ssl_builder *)0)->zendObject))));
 }
 
 typedef struct php_driver_schema_
 {
     php_driver_ref *schema;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_schema;
 static zend_always_inline php_driver_schema *php_driver_schema_object_fetch(zend_object *obj)
 {
-    return (php_driver_schema *)((char *)obj - ((size_t)(&(((php_driver_schema *)0)->zval))));
+    return (php_driver_schema *)((char *)obj - ((size_t)(&(((php_driver_schema *)0)->zendObject))));
 }
 
 typedef struct php_driver_keyspace_
 {
     php_driver_ref *schema;
     const CassKeyspaceMeta *meta;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_keyspace;
 static zend_always_inline php_driver_keyspace *php_driver_keyspace_object_fetch(zend_object *obj)
 {
-    return (php_driver_keyspace *)((char *)obj - ((size_t)(&(((php_driver_keyspace *)0)->zval))));
+    return (php_driver_keyspace *)((char *)obj - ((size_t)(&(((php_driver_keyspace *)0)->zendObject))));
 }
 
 typedef struct php_driver_table_
@@ -545,11 +545,11 @@ typedef struct php_driver_table_
     zval clustering_order;
     php_driver_ref *schema;
     const CassTableMeta *meta;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_table;
 static zend_always_inline php_driver_table *php_driver_table_object_fetch(zend_object *obj)
 {
-    return (php_driver_table *)((char *)obj - ((size_t)(&(((php_driver_table *)0)->zval))));
+    return (php_driver_table *)((char *)obj - ((size_t)(&(((php_driver_table *)0)->zendObject))));
 }
 
 typedef struct php_driver_materialized_view_
@@ -563,11 +563,11 @@ typedef struct php_driver_materialized_view_
     zval base_table;
     php_driver_ref *schema;
     const CassMaterializedViewMeta *meta;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_materialized_view;
 static zend_always_inline php_driver_materialized_view *php_driver_materialized_view_object_fetch(zend_object *obj)
 {
-    return (php_driver_materialized_view *)((char *)obj - ((size_t)(&(((php_driver_materialized_view *)0)->zval))));
+    return (php_driver_materialized_view *)((char *)obj - ((size_t)(&(((php_driver_materialized_view *)0)->zendObject))));
 }
 
 typedef struct php_driver_column_
@@ -578,11 +578,11 @@ typedef struct php_driver_column_
     int frozen;
     php_driver_ref *schema;
     const CassColumnMeta *meta;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_column;
 static zend_always_inline php_driver_column *php_driver_column_object_fetch(zend_object *obj)
 {
-    return (php_driver_column *)((char *)obj - ((size_t)(&(((php_driver_column *)0)->zval))));
+    return (php_driver_column *)((char *)obj - ((size_t)(&(((php_driver_column *)0)->zendObject))));
 }
 
 typedef struct php_driver_index_
@@ -593,11 +593,11 @@ typedef struct php_driver_index_
     zval options;
     php_driver_ref *schema;
     const CassIndexMeta *meta;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_index;
 static zend_always_inline php_driver_index *php_driver_index_object_fetch(zend_object *obj)
 {
-    return (php_driver_index *)((char *)obj - ((size_t)(&(((php_driver_index *)0)->zval))));
+    return (php_driver_index *)((char *)obj - ((size_t)(&(((php_driver_index *)0)->zendObject))));
 }
 
 typedef struct php_driver_function_
@@ -610,11 +610,11 @@ typedef struct php_driver_function_
     zval body;
     php_driver_ref *schema;
     const CassFunctionMeta *meta;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_function;
 static zend_always_inline php_driver_function *php_driver_function_object_fetch(zend_object *obj)
 {
-    return (php_driver_function *)((char *)obj - ((size_t)(&(((php_driver_function *)0)->zval))));
+    return (php_driver_function *)((char *)obj - ((size_t)(&(((php_driver_function *)0)->zendObject))));
 }
 
 typedef struct php_driver_aggregate_
@@ -629,11 +629,11 @@ typedef struct php_driver_aggregate_
     zval signature;
     php_driver_ref *schema;
     const CassAggregateMeta *meta;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_aggregate;
 static zend_always_inline php_driver_aggregate *php_driver_aggregate_object_fetch(zend_object *obj)
 {
-    return (php_driver_aggregate *)((char *)obj - ((size_t)(&(((php_driver_aggregate *)0)->zval))));
+    return (php_driver_aggregate *)((char *)obj - ((size_t)(&(((php_driver_aggregate *)0)->zendObject))));
 }
 
 typedef struct php_driver_type_
@@ -669,11 +669,11 @@ typedef struct php_driver_type_
             HashTable types;
         } tuple;
     } data;
-    zend_object zval;
+    zend_object zendObject;
 } php_driver_type;
 static zend_always_inline php_driver_type *php_driver_type_object_fetch(zend_object *obj)
 {
-    return (php_driver_type *)((char *)obj - ((size_t)(&(((php_driver_type *)0)->zval))));
+    return (php_driver_type *)((char *)obj - ((size_t)(&(((php_driver_type *)0)->zendObject))));
 }
 
 typedef unsigned (*php_driver_value_hash_t)(zval *obj);
