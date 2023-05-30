@@ -29,9 +29,16 @@ option(PHP_SCYLLADB_ENABLE_SANITIZERS "Enable sanitizers" OFF)
 option(PHP_SCYLLADB_ENABLE_COVERAGE "Enable coverage" OFF)
 option(PHP_SCYLLADB_OPTIMISE_FOR_CURRENT_MACHINE "Optimise for current machine" OFF)
 
+set(CUSTOM_PHP_CONFIG "" CACHE STRING "Custom PHP config path")
+set(PHP_VERSION_FOR_PHP_CONFIG "8.2" CACHE STRING "PHP version")
+option(PHP_DEBUG_FOR_PHP_CONFIG "Debug or Release" ON)
+option(PHP_THREAD_SAFE_FOR_PHP_CONFIG "ZTS(zts) or NTS(nts)" OFF)
+
+
 option(PHP_SCYLLADB_LIBUV_STATIC "Statically link libuv" OFF)
 option(PHP_SCYLLADB_LIBSCYLLADB_STATIC "Statically link libscylladb" OFF)
 
+find_package(PHPConfig REQUIRED)
 find_package(PHP REQUIRED)
 find_package(Sanitizers REQUIRED)
 
@@ -53,7 +60,6 @@ CPMAddPackage(
         "LIBUV_BUILD_SHARED ${LIBUV_BUILD_SHARED}"
         "CMAKE_C_FLAGS ${CMAKE_C_FLAGS} -fPIC"
         "CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fPIC"
-
 )
 
 set(LIBUV_ROOT_DIR ${libuv_BINARY_DIR})
@@ -107,10 +113,11 @@ add_subdirectory(src/Type)
 file(GLOB_RECURSE HEADERS_LIST FOLLOW_SYMLINKS include/*.h)
 
 add_library(ext_scylladb SHARED)
-target_optimize(ext_scylladb ${PHP_SCYLLADB_OPTIMISE_FOR_CURRENT_MACHINE})
-target_compile_options(ext_scylladb PRIVATE
+scylladb_php_target_optimize(ext_scylladb ${PHP_SCYLLADB_OPTIMISE_FOR_CURRENT_MACHINE} OFF)
+target_compile_options(
+        ext_scylladb PRIVATE
         -fPIC -Wall -Wextra -Wno-long-long -Wno-deprecated-declarations -Wno-unused-parameter -Wno-unused-result -Wno-variadic-macros -Wno-extra-semi -pthread -Wimplicit-function-declaration
-        )
+)
 
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     target_compile_definitions(ext_scylladb PRIVATE -DDEBUG)
@@ -120,11 +127,12 @@ elseif (${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo" OR ${CMAKE_BUILD_TYPE} STR
 endif ()
 
 if (PHP_SCYLLADB_ENABLE_SANITIZERS)
-    message("Adding sanitizers")
     add_sanitize_undefined(ext_scylladb)
     add_sanitize_address(ext_scylladb)
 endif ()
 
+scylladb_php_find_php_config("${CUSTOM_PHP_CONFIG}" "${PHP_VERSION_FOR_PHP_CONFIG}" ${PHP_DEBUG_FOR_PHP_CONFIG} ${PHP_THREAD_SAFE_FOR_PHP_CONFIG})
+scylladb_php_find_php(${PHP_CONFIG_EXECUTABLE})
 target_include_directories(
         ext_scylladb PUBLIC
         ${PROJECT_SOURCE_DIR}/include
@@ -174,7 +182,6 @@ check_include_file("string.h" HAVE_STRING_H)
 check_include_file("unistd.h" HAVE_UNISTD_H)
 
 set(HAVE_STRINGS_H 0)
-
 
 configure_file(
         config.in
