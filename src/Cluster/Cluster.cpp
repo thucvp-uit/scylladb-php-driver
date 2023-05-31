@@ -16,6 +16,8 @@
 
 #include "Cluster.h"
 
+#include <php.h>
+
 BEGIN_EXTERN_C()
 #include "ClusterInterface_arginfo.h"
 

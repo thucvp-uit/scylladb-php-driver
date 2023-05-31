@@ -7,6 +7,7 @@ target_sources(
         Time.cpp
         Timestamp.cpp
         Timeuuid.cpp
+        DateTimeInternal.cpp
 )
 
 find_package(PHP REQUIRED)

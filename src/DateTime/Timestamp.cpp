@@ -131,8 +131,7 @@ ZEND_METHOD(Cassandra_Timestamp, microtime) {
 
   char ret[128];
   memset(ret, 0, sizeof(ret));
-  size_t len = std::snprintf(ret, sizeof(ret) - 1, "%.8F %" PRId64, usec, sec);
-
+  size_t len = snprintf(ret, sizeof(ret) - 1, "%.8F %" PRId64, usec, sec);
   RETURN_STRINGL_FAST(ret, len);
 }
 

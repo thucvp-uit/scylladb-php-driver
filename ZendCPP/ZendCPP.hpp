@@ -1,6 +1,6 @@
 #pragma once
 
-#include <php.h>
+#include <zend_API.h>
 
 #if defined(__GNUC__)
 #if __GNUC__ >= 3
@@ -22,6 +22,16 @@
 #define ZENDCPP_NEVER_INLINE
 #endif
 #endif
+
+#ifdef __cplusplus
+#define EXTERN_C() extern "C" {
+#define END_EXTERN_C() }
+#else
+#define BEGIN_EXTERN_C()
+#define END_EXTERN_C()
+#endif
+
+
 
 #ifndef ZEND_OBJECT_OFFSET_MEMBER
 #define ZEND_OBJECT_OFFSET_MEMBER zval
