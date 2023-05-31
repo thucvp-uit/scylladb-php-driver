@@ -128,6 +128,7 @@ ZEND_METHOD(Cassandra_Time, __construct) {
   if (php_scylladb_time_initialize(self, nanosecondsStr, nanoseconds) == FAILURE) {
     zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,
                             "Cannot create Cassandra\\Time from invalid value");
+    RETURN_THROWS();
   }
 }
 
@@ -155,7 +156,7 @@ ZEND_METHOD(Cassandra_Time, fromDateTime) {
                                      "getTimestamp", &getTimeStampResult) == nullptr) {
     zend_throw_exception(php_driver_runtime_exception_ce, "Failed to get timestamp from DateTime",
                          0);
-    return;
+    RETURN_THROWS();
   }
 
   auto self = php_scylladb_time_instantiate(return_value);
@@ -163,7 +164,7 @@ ZEND_METHOD(Cassandra_Time, fromDateTime) {
   if (self == nullptr) {
     zval_ptr_dtor(&getTimeStampResult);
     zend_throw_exception(php_driver_runtime_exception_ce, "Failed to create Cassandra\\Time", 0);
-    return;
+    RETURN_THROWS();
   }
 
   self->time = cass_date_from_epoch(Z_LVAL(getTimeStampResult));

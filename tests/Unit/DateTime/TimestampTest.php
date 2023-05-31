@@ -80,10 +80,6 @@ it('Cassandra\\Date::toDateTime', function () {
     expect($date->toDateTime())
         ->toBeInstanceOf(DateTimeInterface::class)
         ->not()
-        ->toBeNull()
-        ->and($date->toDateTime())
-        ->toBeInstanceOf(DateTimeInterface::class)
-        ->not()
         ->toBeNull();
 });
 
