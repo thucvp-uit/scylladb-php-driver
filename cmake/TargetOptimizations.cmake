@@ -14,6 +14,7 @@ function(scylladb_php_target_optimization_flags target native_arch lto)
     endif ()
 
     if (native_arch)
+        message(WARNING "Be careful when using `-march=native`, it may cause problems when running on different CPUs")
         check_cxx_compiler_flag(-march=native SUPPORT_MARCH_NATIVE)
         if (SUPPORT_MARCH_NATIVE)
             target_compile_options(${target} PRIVATE -march=native)
