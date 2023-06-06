@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "types.h"
+#include <util/types.h>
 
 #include <php_driver.h>
 #include <php_driver_globals.h>

@@ -132,7 +132,7 @@ static HashTable* php_driver_type_collection_gc(
 #if PHP_MAJOR_VERSION >= 8
     zend_object* object,
 #else
-    zval* object,
+    zendObject* object,
 #endif
     zval** table, int* n) {
   *table = NULL;
@@ -144,7 +144,7 @@ static HashTable* php_driver_type_collection_properties(
 #if PHP_MAJOR_VERSION >= 8
     zend_object* object
 #else
-    zval* object
+    zendObject* object
 #endif
 ) {
 #if PHP_MAJOR_VERSION >= 8
@@ -178,7 +178,7 @@ static void php_driver_type_collection_free(zend_object* object) {
   if (self->data_type) cass_data_type_free(self->data_type);
   PHP5TO7_ZVAL_MAYBE_DESTROY(self->data.collection.value_type);
 
-  zend_object_std_dtor(&self->zval);
+  zend_object_std_dtor(&self->zendObject);
 
 }
 

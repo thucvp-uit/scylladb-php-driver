@@ -57,10 +57,10 @@ zend_object *php_driver_default_cluster_new(zend_class_entry *ce)
 
     ZVAL_UNDEF(&self->default_timeout);
 
-    zend_object_std_init(&self->zval, ce);
-    self->zval.handlers = &php_driver_default_cluster_handlers;
+    zend_object_std_init(&self->zendObject, ce);
+    self->zendObject.handlers = &php_driver_default_cluster_handlers;
 
-    return &self->zval;
+    return &self->zendObject;
 }
 
 END_EXTERN_C()
@@ -71,5 +71,5 @@ void php_driver_initialize_default_cluster_handlers()
     php_driver_default_cluster_handlers.get_properties = php_driver_default_cluster_properties;
     php_driver_default_cluster_handlers.compare = php_driver_default_cluster_compare;
     php_driver_default_cluster_handlers.free_obj = php_driver_default_cluster_free;
-    php_driver_default_cluster_handlers.offset = XtOffsetOf(php_driver_cluster, zval);
+    php_driver_default_cluster_handlers.offset = offsetof(php_driver_cluster, zendObject);
 }

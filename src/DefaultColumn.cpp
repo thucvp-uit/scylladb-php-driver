@@ -225,7 +225,7 @@ php_driver_type_default_column_gc(
 #if PHP_MAJOR_VERSION >= 8
         zend_object *object,
 #else
-        zval *object,
+        zendObject *object,
 #endif
         zval** table, int *n
 )
@@ -240,7 +240,7 @@ php_driver_default_column_properties(
 #if PHP_MAJOR_VERSION >= 8
         zend_object *object
 #else
-        zval *object
+        zendObject *object
 #endif
 )
 {
@@ -275,7 +275,7 @@ php_driver_default_column_free(zend_object *object )
   }
   self->meta = NULL;
 
-  zend_object_std_dtor(&self->zval );
+  zend_object_std_dtor(&self->zendObject);
 
 }
 

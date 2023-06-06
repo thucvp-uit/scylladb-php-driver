@@ -38,7 +38,7 @@ php_driver_prepared_statement_properties(
 #if PHP_MAJOR_VERSION >= 8
         zend_object *object
 #else
-        zval *object
+        zendObject *object
 #endif
 )
 {
@@ -67,7 +67,7 @@ php_driver_prepared_statement_free(zend_object *object )
   if (self->data.prepared.prepared)
     cass_prepared_free(self->data.prepared.prepared);
 
-  zend_object_std_dtor(&self->zval );
+  zend_object_std_dtor(&self->zendObject);
 
 }
 

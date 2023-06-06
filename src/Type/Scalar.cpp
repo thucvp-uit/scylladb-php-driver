@@ -123,7 +123,7 @@ static void php_driver_type_scalar_free(zend_object *object) {
 
   if (self->data_type) cass_data_type_free(self->data_type);
 
-  zend_object_std_dtor(&self->zval);
+  zend_object_std_dtor(&self->zendObject);
 
 }
 

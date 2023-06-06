@@ -472,7 +472,7 @@ ZEND_METHOD(Cassandra_Cluster_Builder, withSSL)
 
     if (self->ssl_options != nullptr)
     {
-        zend_object_release(&self->ssl_options->zval);
+        zend_object_release(&self->ssl_options->zendObject);
     }
 
     self->ssl_options = ssl;
@@ -651,7 +651,7 @@ ZEND_METHOD(Cassandra_Cluster_Builder, withRetryPolicy)
 
     if (self->retry_policy != nullptr)
     {
-        zend_object_release(&self->retry_policy->zval);
+        zend_object_release(&self->retry_policy->zendObject);
     }
 
     self->retry_policy = policy;
@@ -670,7 +670,7 @@ ZEND_METHOD(Cassandra_Cluster_Builder, withTimestampGenerator)
 
     if (self->timestamp_gen != nullptr)
     {
-        zend_object_release(&self->timestamp_gen->zval);
+        zend_object_release(&self->timestamp_gen->zendObject);
     }
 
     php_driver_timestamp_gen *timestamp_generator = php_driver_timestamp_gen_object_fetch(Z_OBJ_P(timestamp_gen));

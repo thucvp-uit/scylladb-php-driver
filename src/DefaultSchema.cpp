@@ -117,7 +117,7 @@ php_driver_default_schema_properties(
 #if PHP_MAJOR_VERSION >= 8
         zend_object *object
 #else
-        zval *object
+        zendObject *object
 #endif
 )
 {
@@ -148,7 +148,7 @@ php_driver_default_schema_free(zend_object *object )
     self->schema = NULL;
   }
 
-  zend_object_std_dtor(&self->zval );
+  zend_object_std_dtor(&self->zendObject);
 
 }
 

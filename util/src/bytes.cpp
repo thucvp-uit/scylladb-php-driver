@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "bytes.h"
+#include <util/bytes.h>
 
 #include <php.h>
 

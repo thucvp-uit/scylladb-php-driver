@@ -837,7 +837,7 @@ PHP_METHOD(DefaultSession, prepare) {
         resource.type = php_le_php_driver_prepared_statement();
         resource.ptr = pprepared_statement;
         PHP5TO7_ZEND_HASH_UPDATE(&EG(persistent_list), hash_key, hash_key_len + 1, resource,
-                                 sizeof(zval));
+                                 sizeof(zendObject));
         PHP_DRIVER_G(persistent_prepared_statements)
         ++;
 #endif
@@ -1012,7 +1012,7 @@ static HashTable* php_driver_default_session_properties(
 #if PHP_MAJOR_VERSION >= 8
     zend_object* object
 #else
-    zval* object
+    zendObject* object
 #endif
 ) {
   HashTable* props = zend_std_get_properties(object);
@@ -1035,7 +1035,7 @@ static void php_driver_default_session_free(zend_object* object) {
   php_driver_del_peref(&self->session, 1);
   PHP5TO7_ZVAL_MAYBE_DESTROY(self->default_timeout);
 
-  zend_object_std_dtor(&self->zval);
+  zend_object_std_dtor(&self->zendObject);
 }
 
 static zend_object* php_driver_default_session_new(zend_class_entry* ce) {
