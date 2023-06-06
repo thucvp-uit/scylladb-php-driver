@@ -7,15 +7,11 @@
           <list>
             <DockerEnvVarImpl>
               <option name="name" value="PHP_VERSION" />
-              <option name="value" value="8.2.5" />
+              <option name="value" value="8.2.6" />
             </DockerEnvVarImpl>
             <DockerEnvVarImpl>
               <option name="name" value="PHP_ZTS" />
-              <option name="value" value="no" />
-            </DockerEnvVarImpl>
-            <DockerEnvVarImpl>
-              <option name="name" value="PHP_DEBUG" />
-              <option name="value" value="no" />
+              <option name="value" value="nts" />
             </DockerEnvVarImpl>
           </list>
         </option>

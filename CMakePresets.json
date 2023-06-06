@@ -54,6 +54,26 @@
         "SANITIZE_UNDEFINED": "ON",
         "SANITIZE_ADDRESS": "ON"
       }
+    },
+    {
+      "name": "CI",
+      "displayName": "GithubActions CI",
+      "description": "",
+      "generator": "Ninja",
+      "environment": {},
+      "binaryDir": "${sourceDir}/out/${presetName}",
+      "cacheVariables": {
+        "CUSTOM_PHP_CONFIG": "/root/php/bin/php-config",
+        "CMAKE_BUILD_TYPE": "RelWithInfo",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+        "PHP_SCYLLADB_LIBUV_STATIC": "ON",
+        "PHP_SCYLLADB_LIBSCYLLADB_STATIC": "ON",
+        "PHP_SCYLLADB_ENABLE_SANITIZERS": "ON",
+        "CASS_CPP_STANDARD": "17",
+        "CASS_USE_STATIC_LIBS": "ON",
+        "SANITIZE_UNDEFINED": "ON",
+        "SANITIZE_ADDRESS": "ON"
+      }
     }
   ]
 }
