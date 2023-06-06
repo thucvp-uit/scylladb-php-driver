@@ -30,11 +30,6 @@ option(PHP_SCYLLADB_ENABLE_SANITIZERS "Enable sanitizers" OFF)
 option(PHP_SCYLLADB_ENABLE_COVERAGE "Enable coverage" OFF)
 option(PHP_SCYLLADB_OPTIMISE_FOR_CURRENT_MACHINE "Optimise for current machine" OFF)
 
-set(CUSTOM_PHP_CONFIG "" CACHE STRING "Custom PHP config path")
-set(PHP_VERSION_FOR_PHP_CONFIG "8.2" CACHE STRING "PHP version")
-option(PHP_DEBUG_FOR_PHP_CONFIG "Debug or Release" ON)
-option(PHP_THREAD_SAFE_FOR_PHP_CONFIG "ZTS(zts) or NTS(nts)" OFF)
-
 
 option(PHP_SCYLLADB_LIBUV_STATIC "Statically link libuv" OFF)
 option(PHP_SCYLLADB_LIBSCYLLADB_STATIC "Statically link libscylladb" OFF)

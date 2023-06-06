@@ -1,41 +1,43 @@
-function(scylladb_php_find_php_config custom_path php_version php_debug php_thread_safe)
-    if (NOT ${custom_path} STREQUAL "")
-        if (EXISTS ${custom_path})
-            message(STATUS "Found php-config: ${PHP_CONFIG_EXECUTABLE}")
-            set(PHP_CONFIG_EXECUTABLE ${custom_path} PARENT_SCOPE)
-            set(PHP_CONFIG_FOUND ON PARENT_SCOPE)
-        else ()
-            message(FATAL_ERROR "php-config not found")
-            set(PHP_CONFIG_FOUND OFF PARENT_SCOPE)
-        endif ()
+set(CUSTOM_PHP_CONFIG "" CACHE STRING "Custom PHP config path")
+set(PHP_VERSION_FOR_PHP_CONFIG "8.2" CACHE STRING "PHP version")
+option(PHP_DEBUG_FOR_PHP_CONFIG "Debug or Release" ON)
+option(PHP_THREAD_SAFE_FOR_PHP_CONFIG "ZTS(zts) or NTS(nts)" OFF)
+
+if (NOT ${CUSTOM_PHP_CONFIG} STREQUAL "")
+    if (EXISTS ${custom_path})
+        set(PHP_CONFIG_EXECUTABLE ${CUSTOM_PHP_CONFIG})
+        set(PHP_CONFIG_FOUND ON)
     else ()
-        if (${php_version} STREQUAL "")
-            message(FATAL_ERROR "PHP version not defined: ${php_version}")
-        endif ()
-
-        set(hint "${PROJECT_SOURCE_DIR}/php/${php_version}")
-
-        if (${php_debug})
-            set(hint "${hint}-debug")
-        else ()
-            set(hint "${hint}-release")
-        endif ()
-
-        if (${php_thread_safe})
-            set(hint "${hint}-zts")
-        else ()
-            set(hint "${hint}-nts")
-        endif ()
-
-        find_program(
-                PHP_CONFIG_EXECUTABLE php-config
-                HINTS ${hint}
-                PATH_SUFFIXES bin
-                NO_DEFAULT_PATH
-                REQUIRED
-        )
-        message(STATUS "Found php-config: ${PHP_CONFIG_EXECUTABLE}")
-        set(PHP_CONFIG_EXECUTABLE ${PHP_CONFIG_EXECUTABLE} PARENT_SCOPE)
-        set(PHP_CONFIG_FOUND ON PARENT_SCOPE)
+        message(FATAL_ERROR "php-config not found")
+        set(PHP_CONFIG_FOUND OFF)
     endif ()
-endfunction()
+else ()
+    if (${PHP_VERSION_FOR_PHP_CONFIG} STREQUAL "")
+        message(FATAL_ERROR "PHP version not defined: ${PHP_VERSION_FOR_PHP_CONFIG}")
+    endif ()
+
+    set(hint "${PROJECT_SOURCE_DIR}/php/${PHP_VERSION_FOR_PHP_CONFIG}")
+
+    if (${PHP_DEBUG_FOR_PHP_CONFIG})
+        set(hint "${hint}-debug")
+    else ()
+        set(hint "${hint}-release")
+    endif ()
+
+    if (${PHP_THREAD_SAFE_FOR_PHP_CONFIG})
+        set(hint "${hint}-zts")
+    else ()
+        set(hint "${hint}-nts")
+    endif ()
+
+    find_program(
+            PHP_CONFIG_EXECUTABLE php-config
+            HINTS ${hint}
+            PATH_SUFFIXES bin
+            NO_DEFAULT_PATH
+            REQUIRED
+    )
+    message(STATUS "Found php-config: ${PHP_CONFIG_EXECUTABLE}")
+    set(PHP_CONFIG_EXECUTABLE ${PHP_CONFIG_EXECUTABLE})
+    set(PHP_CONFIG_FOUND ON)
+endif ()

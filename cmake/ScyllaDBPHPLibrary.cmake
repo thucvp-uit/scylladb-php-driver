@@ -3,9 +3,6 @@ include(CheckCXXCompilerFlag)
 include(CheckCCompilerFlag)
 
 function(scylladb_php_library target enable_sanitizers native_arch lto)
-    scylladb_php_find_php_config("${CUSTOM_PHP_CONFIG}" "${PHP_VERSION_FOR_PHP_CONFIG}" ${PHP_DEBUG_FOR_PHP_CONFIG} ${PHP_THREAD_SAFE_FOR_PHP_CONFIG})
-    scylladb_php_find_php(${PHP_CONFIG_EXECUTABLE})
-
     target_include_directories(
             ${target}
             PUBLIC
@@ -16,15 +13,11 @@ function(scylladb_php_library target enable_sanitizers native_arch lto)
             ${PROJECT_SOURCE_DIR}
     )
 
-    target_compile_features(
-            ${target}
-            PUBLIC
-            cxx_std_20
-            c_std_17
-    )
+    target_compile_features(${target} PUBLIC cxx_std_20 c_std_17)
+
     target_compile_options(
             ${target} PRIVATE
-            -fPIC -Wall -Wextra -Wno-long-long -Wno-deprecated-declarations -Wchanges-meaning -Wno-unused-parameter -Wno-unused-result -Wno-variadic-macros -Wno-extra-semi -pthread
+            -fPIC -Wall -Wextra -Wno-long-long -Wno-deprecated-declarations -Wno-unused-parameter -Wno-unused-result -Wno-variadic-macros -Wno-extra-semi -pthread
     )
 
     if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
