@@ -22,7 +22,6 @@ target_sources(
         DefaultKeyspace.cpp
         DefaultMaterializedView.cpp
         DefaultSchema.cpp
-        DefaultSession.cpp
         DefaultTable.cpp
 )
 

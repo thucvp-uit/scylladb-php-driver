@@ -5,6 +5,7 @@ scylladb_php_library(exceptions OFF ${PHP_SCYLLADB_OPTIMISE_FOR_CURRENT_MACHINE}
 target_sources(
         exceptions
         PRIVATE
+        Exception.cpp
         AlreadyExistsException.cpp
         AuthenticationException.cpp
         ConfigurationException.cpp

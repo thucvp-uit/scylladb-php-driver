@@ -10,7 +10,6 @@ target_sources(
         Collection.cpp
         Core.cpp
         Custom.cpp
-        Exception.cpp
         ExecutionOptions.cpp
         Future.cpp
         FuturePreparedStatement.cpp
@@ -20,6 +19,7 @@ target_sources(
         FutureValue.cpp
         Inet.cpp
         Map.cpp
+        DefaultSession.cpp
         PreparedStatement.cpp
         Session.cpp
         Set.cpp
