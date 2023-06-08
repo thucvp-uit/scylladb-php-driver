@@ -1,7 +1,7 @@
 FROM ubuntu:22.04 as base
 
 ARG PHP_VERSION=8.2.6
-ARG PHP_ZTS="nts"
+ARG PHP_ZTS="no"
 
 ENV PATH="$PATH:$HOME/.local/bin:$HOME/php/bin"
 
