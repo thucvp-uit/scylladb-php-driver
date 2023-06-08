@@ -15,7 +15,7 @@
  */
 
 #pragma once
-#include <php.h>
+#include "main/php.h"
 
 BEGIN_EXTERN_C()
 void php_driver_varint_init(INTERNAL_FUNCTION_PARAMETERS);

@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-#include "php_driver.h"
-#include "php_driver_types.h"
-
-#include "util/hash.h"
-#include "util/math.h"
-#include "util/types.h"
-
-#include <ext/spl/spl_exceptions.h>
 #include <float.h>
 #include <gmp.h>
 #include <math.h>
+
+#include "ext/spl/spl_exceptions.h"
+#include "php_driver.h"
+#include "php_driver_types.h"
+#include "util/hash.h"
+#include "util/math.h"
+#include "util/types.h"
 BEGIN_EXTERN_C()
 zend_class_entry *php_driver_decimal_ce = NULL;
 

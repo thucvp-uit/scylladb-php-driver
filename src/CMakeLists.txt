@@ -7,13 +7,11 @@ target_sources(
         PRIVATE
         Aggregate.cpp
         BatchStatement.cpp
-        Bigint.cpp
         Blob.cpp
         Collection.cpp
         Column.cpp
         Core.cpp
         Custom.cpp
-        Decimal.cpp
         DefaultAggregate.cpp
         DefaultColumn.cpp
         DefaultFunction.cpp
@@ -25,7 +23,6 @@ target_sources(
         DefaultTable.cpp
         Exception.cpp
         ExecutionOptions.cpp
-        Float.cpp
         Function.cpp
         Future.cpp
         FuturePreparedStatement.cpp
@@ -38,7 +35,6 @@ target_sources(
         Keyspace.cpp
         Map.cpp
         MaterializedView.cpp
-        Numeric.cpp
         PreparedStatement.cpp
         RetryPolicy.cpp
         Rows.cpp
@@ -46,18 +42,14 @@ target_sources(
         Session.cpp
         Set.cpp
         SimpleStatement.cpp
-        Smallint.cpp
         SSLOptions.cpp
         Statement.cpp
         Table.cpp
         TimestampGenerator.cpp
-        Tinyint.cpp
         Tuple.cpp
         Type.cpp
         UserTypeValue.cpp
         Uuid.cpp
         UuidInterface.cpp
         Value.cpp
-        Varint.cpp
-
 )
