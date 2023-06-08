@@ -1,16 +1,10 @@
-#include "php_driver.h"
-#include "php_driver_types.h"
-
-#include "util/hash.h"
-#include "util/math.h"
-#include "util/types.h"
-
 #include "Duration.h"
 
-#if !defined(HAVE_STDINT_H) && !defined(_MSC_STDINT_H_)
-#  define INT32_MAX 2147483647L
-#  define INT32_MIN (-INT32_MAX-1)
-#endif
+#include <php_driver.h>
+#include <php_driver_types.h>
+#include <util/hash.h>
+#include <util/math.h>
+#include <util/types.h>
 
 BEGIN_EXTERN_C()
 

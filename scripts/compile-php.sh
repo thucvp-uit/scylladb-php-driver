@@ -9,10 +9,11 @@ print_usage() {
   echo "-z (yes|no) Use ZTS"
   echo "-d (yes|no) Compile in debug mode"
   echo "-k keep PHP source code"
+  echo "-a compile PHP without version suffix"
   echo "-s Use Memory and Undefined Sanitizers"
   echo "----------"
-  echo "Example: compiling PHP 8.2.3 in debug mode with Thread Safety"
-  echo "./compile-php.sh -v 8.2.3 -s -d yes -z yes"
+  echo "Example: compiling PHP 8.2.7 in debug mode with Thread Safety"
+  echo "./compile-php.sh -v 8.2.7 -s -d yes -z yes"
   echo ""
 }
 
@@ -82,6 +83,7 @@ compile_php() {
   local WITH_DEBUG="$2"
   local KEEP_PHP_SOURCE="$3"
 
+  local PHP_BASE_VERSION=$(echo "$PHP_VERSION" | cut -d. -f1,2)
   local config=(
     --enable-embed=static
     --enable-phpdbg
@@ -111,7 +113,7 @@ compile_php() {
   local OUTPUT_PATH="$OUTPUT/php/"
 
   if [[ "$WITHOUT_VERSION" == "yes" ]]; then
-    OUTPUT_PATH="$OUTPUT_PATH/$PHP_VERSION"
+    OUTPUT_PATH="$OUTPUT_PATH/$PHP_BASE_VERSION"
     if [[ "$WITH_DEBUG" == "yes" ]]; then
       OUTPUT_PATH="$OUTPUT_PATH-debug"
       config+=("--enable-debug")

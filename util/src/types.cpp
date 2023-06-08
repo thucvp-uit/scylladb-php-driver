@@ -28,7 +28,7 @@
 #include "src/Blob.h"
 #include "src/DateTime/Timeuuid.h"
 #include "src/Decimal.h"
-#include "src/Duration.h"
+#include "src/DateTime/Duration.h"
 #include "src/Float.h"
 #include "src/Inet.h"
 #include "src/Smallint.h"

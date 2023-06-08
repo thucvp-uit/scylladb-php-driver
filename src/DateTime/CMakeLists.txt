@@ -10,5 +10,6 @@ target_sources(
         Timestamp.cpp
         Timeuuid.cpp
         DateTimeInternal.cpp
+        Duration.cpp
 )
 

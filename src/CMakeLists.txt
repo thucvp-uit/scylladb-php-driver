@@ -23,7 +23,6 @@ target_sources(
         DefaultSchema.cpp
         DefaultSession.cpp
         DefaultTable.cpp
-        Duration.cpp
         Exception.cpp
         ExecutionOptions.cpp
         Float.cpp

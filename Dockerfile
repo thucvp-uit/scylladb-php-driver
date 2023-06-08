@@ -31,7 +31,7 @@ COPY ./scripts /tmp/scripts
 
 WORKDIR /tmp
 
-RUN ./scripts/compile-php.sh -k -v $PHP_VERSION -o $HOME -s -d no -zts $PHP_ZTS \
+RUN ./scripts/compile-php.sh -a -k -v $PHP_VERSION -o $HOME -s -d no -zts $PHP_ZTS \
     && $HOME/php/bin/php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
     && $HOME/php/bin/php composer-setup.php --install-dir=/bin --filename=composer \
     && $HOME/php/bin/php -r "unlink('composer-setup.php');" \
