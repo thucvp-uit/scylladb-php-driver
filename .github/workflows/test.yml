@@ -29,6 +29,9 @@ jobs:
         with:
           fetch-depth: 1
           submodules: recursive
+      - name: Set new PATH
+        run: |
+          export PATH=$PATH:/usr/local/bin:/root/php/bin
       - name: Compile using CMake
         run: |
           ./scripts/compile-extension.sh
