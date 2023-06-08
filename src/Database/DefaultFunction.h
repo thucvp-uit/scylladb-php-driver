@@ -15,8 +15,11 @@
  */
 
 #pragma once
+#include <cassandra.h>
+#include <php.h>
 
-#include <php_driver.h>
+#include <php_driver_types.h>
+
 BEGIN_EXTERN_C()
-zval php_driver_create_index(php_driver_ref *schema, const CassIndexMeta *meta);
+zval php_driver_create_function(php_driver_ref *schema, const CassFunctionMeta *meta );
 END_EXTERN_C()

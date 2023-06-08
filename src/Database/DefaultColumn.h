@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-#pragma once
+#include "php_driver.h"
+
 BEGIN_EXTERN_C()
-zval php_driver_create_function(php_driver_ref *schema, const CassFunctionMeta *meta );
+zval php_driver_create_column(php_driver_ref *schema, const CassColumnMeta *meta );
 END_EXTERN_C()

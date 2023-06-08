@@ -16,11 +16,10 @@
 
 #include "php_driver.h"
 #include "php_driver_types.h"
+#include "src/FutureRows.h"
 #include "util/future.h"
 #include "util/ref.h"
 #include "util/result.h"
-
-#include "FutureRows.h"
 BEGIN_EXTERN_C()
 zend_class_entry *php_driver_rows_ce = NULL;
 

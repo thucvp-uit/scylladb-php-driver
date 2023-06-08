@@ -10,4 +10,5 @@ target_sources(
         Cluster.cpp
         DefaultCluster.cpp
         DefaultClusterHandlers.cpp
+        SSLOptions.cpp
 )

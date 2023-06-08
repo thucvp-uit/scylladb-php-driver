@@ -9,4 +9,5 @@ target_sources(
         DowngradingConsistency.cpp
         Logging.cpp
         Fallthrough.cpp
+        RetryPolicy.cpp
 )

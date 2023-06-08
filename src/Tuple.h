@@ -15,8 +15,8 @@
  */
 
 #pragma once
-#include <php.h>
-#include <php_driver_types.h>
+#include "main/php.h"
+#include "php_driver_types.h"
 
 BEGIN_EXTERN_C()
 void php_driver_tuple_set(php_driver_tuple *tuple, ulong index, zval *object);

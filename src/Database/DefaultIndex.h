@@ -15,8 +15,8 @@
  */
 
 #pragma once
-#include <php_driver.h>
 
+#include "php_driver.h"
 BEGIN_EXTERN_C()
-zval php_driver_create_table(php_driver_ref *schema, const CassTableMeta *meta );
+zval php_driver_create_index(php_driver_ref *schema, const CassIndexMeta *meta);
 END_EXTERN_C()

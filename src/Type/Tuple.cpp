@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
+#include "src/Tuple.h"
+
 #include <php_driver.h>
 #include <php_driver_types.h>
-#include <zend_smart_str.h>
-
 #include <util/collections.h>
 #include <util/types.h>
-
-#include "src/Tuple.h"
+#include <zend_smart_str.h>
 BEGIN_EXTERN_C()
 zend_class_entry* php_driver_type_tuple_ce = NULL;
 

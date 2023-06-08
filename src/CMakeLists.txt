@@ -5,47 +5,26 @@ scylladb_php_library(src OFF ${PHP_SCYLLADB_OPTIMISE_FOR_CURRENT_MACHINE} ON)
 target_sources(
         src
         PRIVATE
-        Aggregate.cpp
         BatchStatement.cpp
         Blob.cpp
         Collection.cpp
-        Column.cpp
         Core.cpp
         Custom.cpp
-        DefaultAggregate.cpp
-        DefaultColumn.cpp
-        DefaultFunction.cpp
-        DefaultIndex.cpp
-        DefaultKeyspace.cpp
-        DefaultMaterializedView.cpp
-        DefaultSchema.cpp
-        DefaultSession.cpp
-        DefaultTable.cpp
         Exception.cpp
         ExecutionOptions.cpp
-        Function.cpp
         Future.cpp
         FuturePreparedStatement.cpp
         FutureRows.cpp
         FutureSession.cpp
         FutureClose.cpp
         FutureValue.cpp
-        Index.cpp
         Inet.cpp
-        Keyspace.cpp
         Map.cpp
-        MaterializedView.cpp
         PreparedStatement.cpp
-        RetryPolicy.cpp
-        Rows.cpp
-        Schema.cpp
         Session.cpp
         Set.cpp
         SimpleStatement.cpp
-        SSLOptions.cpp
         Statement.cpp
-        Table.cpp
-        TimestampGenerator.cpp
         Tuple.cpp
         Type.cpp
         UserTypeValue.cpp

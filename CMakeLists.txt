@@ -100,6 +100,7 @@ add_subdirectory(util)
 add_subdirectory(src)
 add_subdirectory(src/Cluster)
 add_subdirectory(src/DateTime)
+add_subdirectory(src/Database)
 add_subdirectory(src/Numbers)
 add_subdirectory(src/Exception)
 add_subdirectory(src/RetryPolicy)
@@ -121,12 +122,13 @@ target_link_libraries(
         ext_scylladb::utils
         ext_scylladb::type
         ext_scylladb::datetime
+        ext_scylladb::database
+        ext_scylladb::numbers
         ext_scylladb::ssl_options
         ext_scylladb::exceptions
         ext_scylladb::cluster::builder
         ext_scylladb::retry_policy
         ext_scylladb::timestamp_generator
-        ext_scylladb::numbers
 )
 
 if (PHP_SCYLLADB_LIBUV_STATIC)

@@ -16,9 +16,8 @@
 
 #pragma once
 
-#include <php.h>
-#include <php_driver_types.h>
-
+#include "main/php.h"
+#include "php_driver_types.h"
 
 BEGIN_EXTERN_C()
 int php_driver_map_set(php_driver_map* map, zval* zkey, zval* zvalue);

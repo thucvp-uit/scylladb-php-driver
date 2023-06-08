@@ -7,4 +7,5 @@ target_sources(
         PRIVATE
         Monotonic.cpp
         ServerSide.cpp
+        TimestampGenerator.cpp
 )

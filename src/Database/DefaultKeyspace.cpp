@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-#include <php_driver.h>
-#include <php_driver_types.h>
-#include <util/ref.h>
-#include <util/result.h>
-#include <util/types.h>
-
 #include "DefaultFunction.h"
 #include "DefaultMaterializedView.h"
 #include "DefaultTable.h"
+#include "php_driver.h"
+#include "php_driver_types.h"
+#include "util/ref.h"
+#include "util/result.h"
+#include "util/types.h"
 
 BEGIN_EXTERN_C()
-#include <zend_smart_str.h>
+#include "Zend/zend_smart_str.h"
 
 zend_class_entry *php_driver_default_keyspace_ce = NULL;
 
