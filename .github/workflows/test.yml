@@ -38,7 +38,7 @@ jobs:
       - name: Composer install
         working-directory: ./tests
         run: |
-          /root/php/bin/php composer install
+          /root/php/bin/php /bin/composer install
       - name: Run tests
         working-directory: ./tests
         run: |
