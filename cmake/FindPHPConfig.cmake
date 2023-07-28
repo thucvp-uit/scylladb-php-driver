@@ -33,9 +33,8 @@ else ()
 
     find_program(
             PHP_CONFIG_EXECUTABLE php-config
-            HINTS ${hint}
+            HINTS ${hint} "/root/php" "/usr" "/usr/local" "${PROJECT_SOURCE_DIR}/php"
             PATH_SUFFIXES bin
-            NO_DEFAULT_PATH
             REQUIRED
     )
     message(STATUS "Found php-config: ${PHP_CONFIG_EXECUTABLE}")
