@@ -1,8 +1,3 @@
-set(CUSTOM_PHP_CONFIG "" CACHE STRING "Custom PHP config path")
-set(PHP_VERSION_FOR_PHP_CONFIG "8.2" CACHE STRING "PHP version")
-option(PHP_DEBUG_FOR_PHP_CONFIG "Debug or Release" ON)
-option(PHP_THREAD_SAFE_FOR_PHP_CONFIG "ZTS(zts) or NTS(nts)" OFF)
-
 if (NOT ${CUSTOM_PHP_CONFIG} STREQUAL "")
     message(STATUS "Using custom php config: ${CUSTOM_PHP_CONFIG}")
     if (EXISTS ${CUSTOM_PHP_CONFIG})

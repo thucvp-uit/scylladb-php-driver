@@ -27,10 +27,16 @@ set(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake" "${PROJECT_SOURCE_DIR}/third-party/sanitizers-cmake/cmake")
 
+# Library Options
 option(PHP_SCYLLADB_ENABLE_SANITIZERS "Enable sanitizers" OFF)
 option(PHP_SCYLLADB_ENABLE_COVERAGE "Enable coverage" OFF)
 option(PHP_SCYLLADB_OPTIMISE_FOR_CURRENT_MACHINE "Optimise for current machine" OFF)
 
+# PHP Options
+option(PHP_DEBUG_FOR_PHP_CONFIG "Debug or Release" ON)
+option(PHP_THREAD_SAFE_FOR_PHP_CONFIG "ZTS(zts) or NTS(nts)" OFF)
+set(CUSTOM_PHP_CONFIG "" CACHE STRING "Custom PHP config path")
+set(PHP_VERSION_FOR_PHP_CONFIG "8.2" CACHE STRING "PHP version")
 
 option(PHP_SCYLLADB_LIBUV_STATIC "Statically link libuv" OFF)
 option(PHP_SCYLLADB_LIBUV_FROM_SRC "Build LibUV from Source" OFF)
