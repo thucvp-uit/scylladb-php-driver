@@ -56,3 +56,4 @@ cassandra.log
 /**/vendor/
 /**/.idea/
 /**/.idea/
+php-old/
