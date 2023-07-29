@@ -9,8 +9,8 @@ function(scylladb_php_library target enable_sanitizers native_arch lto)
             ${PHP_INCLUDES}
             ${PROJECT_SOURCE_DIR}/include
             ${PROJECT_BINARY_DIR}
-            ${libscylladb_SOURCE_DIR}/include
             ${PROJECT_SOURCE_DIR}
+            ${PHP_INCLUDES}
     )
 
     target_compile_features(${target} PUBLIC cxx_std_20 c_std_17)

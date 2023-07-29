@@ -11,10 +11,6 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
-        "PHP_SCYLLADB_LIBUV_STATIC": "ON",
-        "PHP_SCYLLADB_LIBSCYLLADB_STATIC": "ON",
-        "CASS_CPP_STANDARD": "17",
-        "CASS_USE_STATIC_LIBS": "ON",
         "PHP_SCYLLADB_ENABLE_SANITIZERS": "ON",
         "SANITIZE_UNDEFINED": "ON",
         "SANITIZE_ADDRESS": "ON"
@@ -30,10 +26,24 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
-        "PHP_SCYLLADB_LIBUV_STATIC": "ON",
-        "PHP_SCYLLADB_LIBSCYLLADB_STATIC": "ON",
-        "CASS_CPP_STANDARD": "17",
-        "CASS_USE_STATIC_LIBS": "ON"
+        "PHP_SCYLLADB_USE_LIBCASSANDRA": "OFF",
+        "SANITIZE_UNDEFINED": "OFF",
+        "SANITIZE_ADDRESS": "OFF"
+      }
+    },
+    {
+      "name": "ReleaseLibCassandra",
+      "displayName": "ReleaseLibCassandra",
+      "description": "Use LibCassandra instead of LibScyllaDB",
+      "generator": "Ninja",
+      "environment": {},
+      "binaryDir": "${sourceDir}/out/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+        "PHP_SCYLLADB_USE_LIBCASSANDRA": "ON",
+        "SANITIZE_UNDEFINED": "OFF",
+        "SANITIZE_ADDRESS": "OFF"
       }
     },
     {
@@ -46,11 +56,7 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithInfo",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
-        "PHP_SCYLLADB_LIBUV_STATIC": "ON",
-        "PHP_SCYLLADB_LIBSCYLLADB_STATIC": "ON",
         "PHP_SCYLLADB_ENABLE_SANITIZERS": "ON",
-        "CASS_CPP_STANDARD": "17",
-        "CASS_USE_STATIC_LIBS": "ON",
         "SANITIZE_UNDEFINED": "ON",
         "SANITIZE_ADDRESS": "ON"
       }
@@ -63,14 +69,9 @@
       "environment": {},
       "binaryDir": "${sourceDir}/out/${presetName}",
       "cacheVariables": {
-        "CUSTOM_PHP_CONFIG": "/root/php/bin/php-config",
         "CMAKE_BUILD_TYPE": "RelWithInfo",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
-        "PHP_SCYLLADB_LIBUV_STATIC": "ON",
-        "PHP_SCYLLADB_LIBSCYLLADB_STATIC": "ON",
         "PHP_SCYLLADB_ENABLE_SANITIZERS": "ON",
-        "CASS_CPP_STANDARD": "17",
-        "CASS_USE_STATIC_LIBS": "ON",
         "SANITIZE_UNDEFINED": "ON",
         "SANITIZE_ADDRESS": "ON"
       }
