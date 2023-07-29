@@ -8,6 +8,8 @@ if (NOT ${CUSTOM_PHP_CONFIG} STREQUAL "")
         set(PHP_CONFIG_FOUND OFF)
     endif ()
 else ()
+    message(STATUS "Searching php-config PHP-VERSION: ${PHP_VERSION_FOR_PHP_CONFIG}")
+
     if (${PHP_VERSION_FOR_PHP_CONFIG} STREQUAL "")
         message(FATAL_ERROR "PHP version not defined: ${PHP_VERSION_FOR_PHP_CONFIG}")
     endif ()
