@@ -43,6 +43,8 @@ jobs:
       - name: Run tests
         working-directory: ./tests
         run: |
+          export PATH="$PATH:/usr/local/bin:/root/php/bin"
+          export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/lib/x86_64-linux-gnu:/usr/local/lib/:/usr/lib:/lib:/usr/local/lib/x86_64-linux-gnu"
           /root/php/bin/php ./vendor/bin/pest
         env:
           SCYLLADB_HOSTS: scylladb
