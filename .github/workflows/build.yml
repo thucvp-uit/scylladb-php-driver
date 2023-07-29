@@ -6,7 +6,7 @@ on:
       php:
         description: 'PHP Version'
         required: true
-        default: '8.2.5'
+        default: '8.2.8'
       zts:
         description: 'ZTS (Zend Thread Safety)'
         required: true
