@@ -58,7 +58,6 @@ else ()
         pkg_check_modules(LIBSCYLLADB REQUIRED IMPORTED_TARGET scylla-cpp-driver)
     endif ()
 
-    message(STATUS "LIBSCYLLADB_LIBRARIES: ${LIBSCYLLADB_LIBRARIES}|${LIBSCYLLADB_INCLUDE_DIRS}|${LIBSCYLLADB_LDFLAGS}")
     target_link_libraries(ext_scylladb PRIVATE ${LIBSCYLLADB_LIBRARIES})
     target_link_directories(ext_scylladb PRIVATE ${LIBSCYLLADB_LIBRARY_DIRS})
     target_include_directories(ext_scylladb PUBLIC ${LIBSCYLLADB_INCLUDE_DIRS})

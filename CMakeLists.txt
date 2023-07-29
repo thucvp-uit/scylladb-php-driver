@@ -44,13 +44,14 @@ option(PHP_SCYLLADB_LIBCASSANDRA_FROM_SRC "Build LibCassandra from Source" OFF)
 find_package(PHPConfig REQUIRED)
 find_package(PHP REQUIRED)
 find_package(Sanitizers REQUIRED)
+find_package(LibUV REQUIRED)
 
 if (PHP_SCYLLADB_USE_LIBCASSANDRA)
     find_package(CassandraDriver REQUIRED)
 else ()
     find_package(ScyllaDBDriver REQUIRED)
 endif ()
-#
+
 
 add_subdirectory(ZendCPP)
 add_subdirectory(util)
@@ -86,13 +87,6 @@ target_link_libraries(
         ext_scylladb::retry_policy
         ext_scylladb::timestamp_generator
 )
-
-#if (PHP_SCYLLADB_LIBUV_STATIC)
-#    target_compile_definitions(ext_scylladb PRIVATE -DUV_STATIC)
-#    target_link_libraries(ext_scylladb PRIVATE uv_a)
-#else ()
-#    target_link_libraries(ext_scylladb PRIVATE uv)
-#endif ()
 
 
 check_include_file("dlfcn.h" HAVE_DLFCN_H)
