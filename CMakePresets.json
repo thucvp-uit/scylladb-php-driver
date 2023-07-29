@@ -73,7 +73,8 @@
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
         "PHP_SCYLLADB_ENABLE_SANITIZERS": "ON",
         "SANITIZE_UNDEFINED": "ON",
-        "SANITIZE_ADDRESS": "ON"
+        "SANITIZE_ADDRESS": "ON",
+        "CUSTOM_PHP_CONFIG": "/root/php/bin/php-config"
       }
     }
   ]

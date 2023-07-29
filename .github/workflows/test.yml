@@ -32,6 +32,7 @@ jobs:
       - name: Set new PATH
         run: |
           export PATH=$PATH:/usr/local/bin:/root/php/bin
+          export LD_LIBRARY_PATH="/lib/x86_64-linux-gnu:/usr/local/lib/:/usr/lib:/lib:/usr/local/lib/x86_64-linux-gnu"
       - name: Compile using CMake
         run: |
           ./scripts/compile-extension.sh

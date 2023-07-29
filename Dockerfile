@@ -4,6 +4,7 @@ ARG PHP_VERSION=8.2.8
 ARG PHP_ZTS="no"
 
 ENV PATH="$PATH:$HOME/.local/bin:$HOME/php/bin"
+ENV LD_LIBRARY_PATH="/lib/x86_64-linux-gnu/:/usr/local/lib/:/usr/lib:/lib:/lib64"
 
 RUN apt-get update -y \
     && apt-get upgrade -y \
