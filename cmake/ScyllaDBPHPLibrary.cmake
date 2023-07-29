@@ -15,9 +15,26 @@ function(scylladb_php_library target enable_sanitizers native_arch lto)
 
     target_compile_features(${target} PUBLIC cxx_std_20 c_std_17)
 
+    set(CMAKE_CXX_STANDARD 20)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    set(CMAKE_CXX_EXTENSIONS OFF)
+
+    set(CMAKE_C_STANDARD 17)
+    set(CMAKE_C_STANDARD_REQUIRED ON)
+    set(CMAKE_C_EXTENSIONS OFF)
+
     target_compile_options(
             ${target} PRIVATE
-            -fPIC -Wall -Wextra -Wno-long-long -Wno-deprecated-declarations -Wno-unused-parameter -Wno-unused-result -Wno-variadic-macros -Wno-extra-semi -pthread
+            -fPIC
+            -Wall
+            -Wextra
+            -Wno-long-long
+            -Wno-deprecated-declarations
+            -Wno-unused-parameter
+            -Wno-unused-result
+            -Wno-variadic-macros
+            -Wno-extra-semi
+            -pthread
     )
 
     if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
