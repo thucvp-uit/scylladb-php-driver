@@ -7,7 +7,6 @@ on:
   pull_request:
     branches:
       - v1.3.x
-
 jobs:
   test_php81:
     uses: he4rt/scylladb-php-driver/.github/workflows/test.yml@v1.3.x
@@ -25,3 +24,11 @@ jobs:
     uses: he4rt/scylladb-php-driver/.github/workflows/test.yml@v1.3.x
     with:
       image: php-8.2.6-zts
+  test_php83:
+    uses: he4rt/scylladb-php-driver/.github/workflows/test.yml@v1.3.x
+    with:
+      image: php-8.3.0beta1
+  test_php83_zts:
+    uses: he4rt/scylladb-php-driver/.github/workflows/test.yml@v1.3.x
+    with:
+      image: php-8.3.0beta1
