@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
 project(php-ext-scylladb LANGUAGES C CXX)
+add_library(ext_scylladb SHARED)
 
 # if build type is not set, default to debug
 if (NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
@@ -32,68 +33,24 @@ option(PHP_SCYLLADB_OPTIMISE_FOR_CURRENT_MACHINE "Optimise for current machine" 
 
 
 option(PHP_SCYLLADB_LIBUV_STATIC "Statically link libuv" OFF)
-option(PHP_SCYLLADB_LIBSCYLLADB_STATIC "Statically link libscylladb" OFF)
+option(PHP_SCYLLADB_LIBUV_FROM_SRC "Build LibUV from Source" OFF)
+option(PHP_SCYLLADB_LIBSCYLLADB_STATIC "Statically link LibScyllaDB" OFF)
+option(PHP_SCYLLADB_LIBSCYLLADB_FROM_SRC "Build LibScyllaDB from Source" OFF)
+
+option(PHP_SCYLLADB_USE_LIBCASSANDRA "Use DataStax LibCassandra instead of LibScyllaDB" OFF)
+option(PHP_SCYLLADB_LIBCASSANDRA_STATIC "Statically link LibCassandra" OFF)
+option(PHP_SCYLLADB_LIBCASSANDRA_FROM_SRC "Build LibCassandra from Source" OFF)
 
 find_package(PHPConfig REQUIRED)
 find_package(PHP REQUIRED)
 find_package(Sanitizers REQUIRED)
 
-if (PHP_SCYLLADB_LIBUV_STATIC)
-    set(LIBUV_BUILD_SHARED OFF)
+if (PHP_SCYLLADB_USE_LIBCASSANDRA)
+    find_package(CassandraDriver REQUIRED)
 else ()
-    set(LIBUV_BUILD_SHARED ON)
+    find_package(ScyllaDBDriver REQUIRED)
 endif ()
-
-
-CPMAddPackage(
-        NAME libuv
-        VERSION 1.44.2
-        URL https://github.com/libuv/libuv/tarball/v1.44.2
-        URL_HASH MD5=3e22e24d53aab67252907dfa004a6b53
-        OPTIONS
-        "BUILD_TESTING OFF"
-        "BUILD_BENCHMARKS OFF"
-        "LIBUV_BUILD_SHARED ${LIBUV_BUILD_SHARED}"
-        "CMAKE_C_FLAGS ${CMAKE_C_FLAGS} -fPIC"
-        "CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fPIC"
-)
-
-set(LIBUV_ROOT_DIR ${libuv_BINARY_DIR})
-if (PHP_SCYLLADB_LIBUV_STATIC)
-    set(LIBUV_LIBRARY "${libuv_BINARY_DIR}/libuv_a.a")
-else ()
-    set(LIBUV_LIBRARY "${libuv_BINARY_DIR}/libuv.so")
-endif ()
-
-
-if (PHP_SCYLLADB_LIBSCYLLADB_STATIC)
-    set(CASS_BUILD_STATIC ON)
-    set(CASS_BUILD_SHARED OFF)
-else ()
-    set(CASS_BUILD_STATIC OFF)
-    set(CASS_BUILD_SHARED ON)
-endif ()
-
-message(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
-
-CPMAddPackage(
-        NAME libscylladb
-        VERSION 2.16.2
-        URL https://github.com/scylladb/cpp-driver/tarball/2.16.2b
-        URL_HASH MD5=67e6c74cdd6c9692b2745bfc28dccdaa
-        OPTIONS
-        "CASS_CPP_STANDARD 17"
-        "CASS_BUILD_STATIC ${CASS_BUILD_STATIC}"
-        "CASS_BUILD_SHARED ${CASS_BUILD_SHARED}"
-        "CASS_USE_STD_ATOMIC ON"
-        "CASS_USE_TIMERFD ON"
-        "CASS_USE_LIBSSH2 ON"
-        "CASS_USE_ZLIB ON"
-        "CMAKE_C_FLAGS ${CMAKE_C_FLAGS} -fPIC"
-        "CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fPIC -Wno-error=redundant-move"
-        "LIBUV_LIBRARY ${LIBUV_LIBRARY}"
-        "LIBUV_INCLUDE_DIR ${libuv_SOURCE_DIR}/include"
-)
+#
 
 add_subdirectory(ZendCPP)
 add_subdirectory(util)
@@ -110,7 +67,6 @@ add_subdirectory(src/Type)
 
 file(GLOB_RECURSE HEADERS_LIST FOLLOW_SYMLINKS include/*.h)
 
-add_library(ext_scylladb SHARED)
 scylladb_php_library(ext_scylladb ${PHP_SCYLLADB_ENABLE_SANITIZERS} ${PHP_SCYLLADB_OPTIMISE_FOR_CURRENT_MACHINE} OFF)
 
 target_sources(ext_scylladb PUBLIC FILE_SET headers TYPE HEADERS FILES "${HEADERS_LIST}" "${PROJECT_BINARY_DIR}/config.h")
@@ -131,19 +87,13 @@ target_link_libraries(
         ext_scylladb::timestamp_generator
 )
 
-if (PHP_SCYLLADB_LIBUV_STATIC)
-    target_compile_definitions(ext_scylladb PRIVATE -DUV_STATIC)
-    target_link_libraries(ext_scylladb PRIVATE uv_a)
-else ()
-    target_link_libraries(ext_scylladb PRIVATE uv)
-endif ()
+#if (PHP_SCYLLADB_LIBUV_STATIC)
+#    target_compile_definitions(ext_scylladb PRIVATE -DUV_STATIC)
+#    target_link_libraries(ext_scylladb PRIVATE uv_a)
+#else ()
+#    target_link_libraries(ext_scylladb PRIVATE uv)
+#endif ()
 
-if (PHP_SCYLLADB_LIBSCYLLADB_STATIC)
-    target_compile_definitions(ext_scylladb PRIVATE -DSCYLLADB_STATIC)
-    target_link_libraries(ext_scylladb PRIVATE cassandra_static)
-else ()
-    target_link_libraries(ext_scylladb PRIVATE "libscylla-cpp-driver.so")
-endif ()
 
 check_include_file("dlfcn.h" HAVE_DLFCN_H)
 check_include_file("stdio.h" HAVE_STDIO_H)
