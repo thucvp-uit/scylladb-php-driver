@@ -19,8 +19,12 @@ zend_result scylladb_php_to_datetime_internal(
 
   auto timestamp = std::to_string(get_timestamp());
 
-  if (!php_date_initialize(datetime_obj, timestamp.c_str(), timestamp.size(), format, nullptr, 0))
-      [[unlikely]] {
+  const char* timestampStr = timestamp.c_str();
+  size_t timestampLen = timestamp.size();
+
+  if (!php_date_initialize(datetime_obj, timestampStr, timestampLen, format, nullptr, PHP_DATE_INIT_CTOR)) [[unlikely]] {
+    zend_object_std_dtor(&datetime_obj->std);
+    zval_ptr_dtor(&datetime);
     return FAILURE;
   }
 

@@ -142,7 +142,7 @@ ZEND_METHOD(Cassandra_Timestamp, toDateTime) {
   auto self = ZendCPP::ObjectFetch<php_scylladb_timestamp>(getThis());
 
   zend_result status =
-      scylladb_php_to_datetime_internal(&datetime, "Uu", [self]() { return self->timestamp; });
+      scylladb_php_to_datetime_internal(&datetime, "U", [self]() { return self->timestamp; });
 
   if (status == FAILURE) [[unlikely]] {
     zend_throw_exception(php_driver_runtime_exception_ce, "Failed to create DateTime object", 0);
@@ -172,8 +172,7 @@ ZEND_METHOD(Cassandra_Timestamp, fromDateTime) {
   if (ret == nullptr) {
     zval_ptr_dtor(&getTimeStampResult);
     zval_ptr_dtor(&format);
-    zend_throw_exception(php_driver_runtime_exception_ce, "Failed to get Timestamp from DateTime",
-                         0);
+    zend_throw_exception(php_driver_runtime_exception_ce, "Failed to get Timestamp from DateTime",0);
     RETURN_THROWS();
   };
 
