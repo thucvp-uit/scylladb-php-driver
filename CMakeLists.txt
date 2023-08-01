@@ -81,6 +81,7 @@ target_sources(ext_scylladb PRIVATE php_driver.cpp)
 
 target_link_libraries(
         ext_scylladb PRIVATE
+        Zend
         ext_scylladb::src
         ext_scylladb::utils
         ext_scylladb::type

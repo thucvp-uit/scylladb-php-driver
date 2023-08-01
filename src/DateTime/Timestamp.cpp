@@ -19,6 +19,7 @@
 #include <util/types.h>
 
 #include <ZendCPP/ZendCPP.hpp>
+#include <ZendCPP/String/Builder.h>
 
 #include "DateTime/Date.h"
 #include "DateTimeInternal.h"
@@ -138,11 +139,20 @@ ZEND_METHOD(Cassandra_Timestamp, microtime) {
 ZEND_METHOD(Cassandra_Timestamp, toDateTime) {
   ZEND_PARSE_PARAMETERS_NONE();
 
-  zval datetime;
   auto self = ZendCPP::ObjectFetch<php_scylladb_timestamp>(getThis());
 
-  zend_result status =
-      scylladb_php_to_datetime_internal(&datetime, "U", [self]() { return self->timestamp; });
+  zval datetime;
+  zend_result status = scylladb_php_to_datetime_internal(&datetime, "U.v", [self]() {
+    ZendCPP::StringBuilder builder;
+    int64_t sec = self->timestamp / 1000;
+    int64_t millisec = (self->timestamp - (sec * 1000));
+
+    return builder.Append(sec).
+        Append('.').
+        Append(millisec).
+        Build().
+        ZendString();
+  });
 
   if (status == FAILURE) [[unlikely]] {
     zend_throw_exception(php_driver_runtime_exception_ce, "Failed to create DateTime object", 0);

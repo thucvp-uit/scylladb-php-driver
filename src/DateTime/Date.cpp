@@ -20,6 +20,7 @@
 #include <util/types.h>
 
 #include <ZendCPP/ZendCPP.hpp>
+#include <ZendCPP/String/Builder.h>
 #include <ctime>
 
 #include "DateTimeInternal.h"
@@ -116,7 +117,9 @@ ZEND_METHOD(Cassandra_Date, toDateTime) {
   zval datetime;
 
   zend_result status = scylladb_php_to_datetime_internal(&datetime, "U", [self, time_obj]() {
-    return cass_date_time_to_epoch(self->date, time_obj != nullptr ? time_obj->time : 0);
+    ZendCPP::StringBuilder builder;
+    builder.Append(cass_date_time_to_epoch(self->date, time_obj != nullptr ? time_obj->time : 0));
+    return builder.Build().ZendString();
   });
 
   if (status == FAILURE) [[unlikely]] {

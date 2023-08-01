@@ -14,4 +14,4 @@ END_EXTERN_C()
 #include <string_view>
 
 zend_result scylladb_php_to_datetime_internal(
-    zval* dst, const char* format, const std::function<int64_t()>& get_timestamp) noexcept;
+    zval* dst, const char* format, const std::function<zend_string*()>& get_timestamp) noexcept;
