@@ -25,7 +25,7 @@ BEGIN_EXTERN_C()
 zend_class_entry *php_driver_retry_policy_logging_ce = nullptr;
 static zend_object_handlers php_driver_retry_policy_logging_handlers;
 
-PHP_METHOD(Logging, __construct)
+ZEND_METHOD(Cassandra_RetryPolicy_Logging, __construct)
 {
   zval *child_policy = nullptr;
 
