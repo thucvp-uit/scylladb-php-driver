@@ -329,7 +329,7 @@ void throw_invalid_argument(zval *object, const char *object_name, const char *e
     }
   } else if (Z_TYPE_P(object) == IS_STRING) {
     zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,
-                            "%s must be %s, '%Z' given", object_name, expected_type, object);
+                            "%s must be %s, %Z given", object_name, expected_type, object);
   } else {
     zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0, "%s must be %s, %Z given",
                             object_name, expected_type, object);

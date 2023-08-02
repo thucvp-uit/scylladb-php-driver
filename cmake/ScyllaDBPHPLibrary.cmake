@@ -33,7 +33,7 @@ function(scylladb_php_library target enable_sanitizers native_arch lto)
             -Wno-unused-parameter
             -Wno-unused-result
             -Wno-variadic-macros
-            -Wno-extra-semi
+            -Wno-format
             -pthread
     )
 
