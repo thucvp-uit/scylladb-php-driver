@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-#include "php_driver.h"
-#include "php_driver_types.h"
+#include <php_driver.h>
+#include <php_driver_types.h>
+
+#include <ZendCPP/ZendCPP.hpp>
 
 BEGIN_EXTERN_C()
 
@@ -23,31 +25,28 @@ BEGIN_EXTERN_C()
 
 zend_class_entry *php_driver_retry_policy_downgrading_consistency_ce = nullptr;
 
-static zend_function_entry php_driver_retry_policy_downgrading_consistency_methods[] = {PHP_FE_END};
-
 static zend_object_handlers php_driver_retry_policy_downgrading_consistency_handlers;
 
-static void php_driver_retry_policy_downgrading_consistency_free(php5to7_zend_object_free *object)
+static void php_driver_retry_policy_downgrading_consistency_free(zend_object *object)
 {
-  php_driver_retry_policy *self = PHP5TO7_ZEND_OBJECT_GET(retry_policy, object);
+  auto *self = ZendCPP::ObjectFetch<php_driver_retry_policy>(object);
 
   cass_retry_policy_free(self->policy);
   zend_object_std_dtor(&self->zendObject);
 }
 
-static zend_object* php_driver_retry_policy_downgrading_consistency_new(
-    zend_class_entry *ce) {
-  php_driver_retry_policy *self = PHP5TO7_ZEND_OBJECT_ECALLOC(retry_policy, ce);
-
+static zend_object* php_driver_retry_policy_downgrading_consistency_new(zend_class_entry *ce) {
+  auto *self = ZendCPP::Allocate<php_driver_retry_policy>(ce, &php_driver_retry_policy_downgrading_consistency_handlers);
   self->policy = cass_retry_policy_downgrading_consistency_new();
 
-  PHP5TO7_ZEND_OBJECT_INIT_EX(retry_policy, retry_policy_downgrading_consistency, self, ce);
+  return &self->zendObject;
 }
 
 void php_driver_define_RetryPolicyDowngradingConsistency() {
   php_driver_retry_policy_downgrading_consistency_ce = register_class_Cassandra_RetryPolicy_DowngradingConsistency(php_driver_retry_policy_downgrading_consistency_ce);
   php_driver_retry_policy_downgrading_consistency_ce->create_object = php_driver_retry_policy_downgrading_consistency_new;
+  ZendCPP::InitHandlers<php_driver_retry_policy>(&php_driver_retry_policy_downgrading_consistency_handlers);
 
-  ZendCPP::InitHandlers(&php_driver_retry_policy_downgrading_consistency_handlers);
+  php_driver_retry_policy_downgrading_consistency_handlers.free_obj = php_driver_retry_policy_downgrading_consistency_free;
 }
 END_EXTERN_C()
