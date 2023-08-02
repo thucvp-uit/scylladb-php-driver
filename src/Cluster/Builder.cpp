@@ -644,7 +644,7 @@ ZEND_METHOD(Cassandra_Cluster_Builder, withRetryPolicy)
     zval *retry_policy = nullptr;
 
     ZEND_PARSE_PARAMETERS_START(1, 1)
-    Z_PARAM_OBJECT_OF_CLASS(retry_policy, php_driver_retry_policy_ce)
+    Z_PARAM_OBJECT_OF_CLASS(retry_policy, php_scylladb_retry_policy_ce)
     ZEND_PARSE_PARAMETERS_END();
 
     php_driver_cluster_builder *self = PHP_DRIVER_GET_CLUSTER_BUILDER(getThis());

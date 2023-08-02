@@ -534,8 +534,8 @@ PHP_MINIT_FUNCTION(php_driver) {
   php_driver_define_TypeUserType();
   php_driver_define_TypeCustom();
 
-  auto * retry_policy_interface = php_driver_define_RetryPolicy();
-  php_driver_define_RetryPolicyDefault(retry_policy_interface);
+  auto * retry_policy_interface = php_scylladb_define_RetryPolicy();
+  php_scylladb_define_RetryPolicyDefault(retry_policy_interface);
   php_driver_define_RetryPolicyDowngradingConsistency(retry_policy_interface);
   php_driver_define_RetryPolicyFallthrough(retry_policy_interface);
   php_driver_define_RetryPolicyLogging(retry_policy_interface);

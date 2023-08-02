@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-#include <php_driver.h>
-#include <php_driver_types.h>
-
+#include <RetryPolicy/RetryPolicy.h>
 #include <ZendCPP/ZendCPP.hpp>
 
 BEGIN_EXTERN_C()
@@ -26,6 +24,21 @@ BEGIN_EXTERN_C()
 zend_class_entry *php_driver_retry_policy_downgrading_consistency_ce = nullptr;
 
 static zend_object_handlers php_driver_retry_policy_downgrading_consistency_handlers;
+
+PHP_SCYLLADB_API php_driver_retry_policy *php_scylladb_retry_policy_downgrading_consistency_instantiate(zval *dst)
+{
+  zval val;
+
+  if (object_init_ex(&val, php_scylladb_retry_policy_default_ce) == FAILURE) {
+    return nullptr;
+  }
+
+  ZVAL_OBJ(dst, Z_OBJ(val));
+
+  auto* obj = ZendCPP::ObjectFetch<php_driver_retry_policy>(dst);
+  obj->policy = cass_retry_policy_downgrading_consistency_new();
+  return obj;
+}
 
 static void php_driver_retry_policy_downgrading_consistency_free(zend_object *object)
 {

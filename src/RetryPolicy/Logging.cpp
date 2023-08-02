@@ -31,7 +31,7 @@ PHP_METHOD(Logging, __construct)
 
   //clang-format off
   ZEND_PARSE_PARAMETERS_START(1,1)
-      Z_PARAM_OBJECT_OF_CLASS(child_policy, php_driver_retry_policy_ce)
+      Z_PARAM_OBJECT_OF_CLASS(child_policy, php_scylladb_retry_policy_ce)
   ZEND_PARSE_PARAMETERS_END();
   //clang-format on
 
@@ -60,6 +60,21 @@ php_driver_retry_policy_logging_new(zend_class_entry *ce)
   auto *self = ZendCPP::Allocate<php_driver_retry_policy>(ce, &php_driver_retry_policy_logging_handlers);
   self->policy = nullptr;
   return &self->zendObject;
+}
+
+PHP_SCYLLADB_API php_driver_retry_policy *php_scylladb_retry_policy_logging_instantiate(zval *dst, php_driver_retry_policy *retry_policy)
+{
+  zval val;
+
+  if (object_init_ex(&val, php_scylladb_retry_policy_default_ce) == FAILURE) {
+    return nullptr;
+  }
+
+  ZVAL_OBJ(dst, Z_OBJ(val));
+
+  auto* obj = ZendCPP::ObjectFetch<php_driver_retry_policy>(dst);
+  obj->policy = cass_retry_policy_logging_new(retry_policy->policy);
+  return obj;
 }
 
 void php_driver_define_RetryPolicyLogging(zend_class_entry* retry_policy_interface)

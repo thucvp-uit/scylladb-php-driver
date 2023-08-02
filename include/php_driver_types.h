@@ -18,6 +18,7 @@
 
 #include <php.h>
 #include <php_driver.h>
+#include <RetryPolicy/RetryPolicy.h>
 
 BEGIN_EXTERN_C()
 
@@ -340,12 +341,6 @@ static zend_always_inline php_driver_future_rows *php_driver_future_rows_object_
 {
     return (php_driver_future_rows *)((char *)obj - ((size_t)(&(((php_driver_future_rows *)0)->zendObject))));
 }
-
-typedef struct
-{
-    CassRetryPolicy *policy;
-    zend_object zendObject;
-} php_driver_retry_policy;
 
 
 typedef struct php_driver_ssl_
@@ -871,14 +866,14 @@ void php_driver_define_TypeTuple();
 void php_driver_define_TypeUserType();
 void php_driver_define_TypeCustom();
 
-extern PHP_SCYLLADB_API zend_class_entry *php_driver_retry_policy_ce;
-extern PHP_SCYLLADB_API zend_class_entry *php_driver_retry_policy_default_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_scylladb_retry_policy_ce;
+extern PHP_SCYLLADB_API zend_class_entry *php_scylladb_retry_policy_default_ce;
 extern PHP_SCYLLADB_API zend_class_entry *php_driver_retry_policy_downgrading_consistency_ce;
 extern PHP_SCYLLADB_API zend_class_entry *php_driver_retry_policy_fallthrough_ce;
 extern PHP_SCYLLADB_API zend_class_entry *php_driver_retry_policy_logging_ce;
 
-zend_class_entry* php_driver_define_RetryPolicy(void);
-void php_driver_define_RetryPolicyDefault(zend_class_entry* retry_policy_interface);
+zend_class_entry*php_scylladb_define_RetryPolicy(void);
+void php_scylladb_define_RetryPolicyDefault(zend_class_entry* retry_policy_interface);
 void php_driver_define_RetryPolicyDowngradingConsistency(zend_class_entry* retry_policy_interface);
 void php_driver_define_RetryPolicyFallthrough(zend_class_entry* retry_policy_interface);
 void php_driver_define_RetryPolicyLogging(zend_class_entry* retry_policy_interface);
