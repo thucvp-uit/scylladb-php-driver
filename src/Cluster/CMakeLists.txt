@@ -1,5 +1,7 @@
 add_library(cluster_builder STATIC BuilderHandlers.h)
 add_library(ext_scylladb::cluster::builder ALIAS cluster_builder)
+scylladb_php_library(cluster_builder OFF ${PHP_SCYLLADB_OPTIMISE_FOR_CURRENT_MACHINE} ON)
+
 target_sources(
         cluster_builder
         PRIVATE
@@ -8,29 +10,5 @@ target_sources(
         Cluster.cpp
         DefaultCluster.cpp
         DefaultClusterHandlers.cpp
+        SSLOptions.cpp
 )
-
-find_package(PHP REQUIRED)
-find_package(Sanitizers REQUIRED)
-
-set_target_properties(cluster_builder PROPERTIES POSITION_INDEPENDENT_CODE ON)
-target_include_directories(
-        cluster_builder
-        PUBLIC
-        ${PHP_INCLUDES}
-        ${PROJECT_SOURCE_DIR}/include
-        ${PROJECT_BINARY_DIR}
-        ${libscylladb_SOURCE_DIR}/include
-        ${PROJECT_SOURCE_DIR}
-)
-
-if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    target_compile_definitions(cluster_builder PRIVATE -DDEBUG)
-elseif (${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo" OR ${CMAKE_BUILD_TYPE} STREQUAL "Release")
-    target_compile_definitions(cluster_builder PRIVATE -DRELEASE)
-endif ()
-
-if (PHP_SCYLLADB_ENABLE_SANITIZERS)
-    add_sanitize_undefined(cluster_builder)
-    add_sanitize_address(cluster_builder)
-endif ()

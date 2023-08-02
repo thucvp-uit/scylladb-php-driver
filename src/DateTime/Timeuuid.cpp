@@ -236,7 +236,7 @@ static unsigned php_driver_timeuuid_hash_value(zval *obj) {
 
 static void php_driver_timeuuid_free(zend_object *object) {
   php_driver_uuid *self = PHP5TO7_ZEND_OBJECT_GET(uuid, object);
-  zend_object_std_dtor(&self->zval);
+  zend_object_std_dtor(&self->zendObject);
 }
 
 static zend_object* php_driver_timeuuid_new(zend_class_entry *ce) {

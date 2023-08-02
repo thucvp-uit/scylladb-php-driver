@@ -5,14 +5,15 @@ print_usage() {
   echo ""
   echo "Usage: compile-php.sh [OPTION] [ARG]"
   echo "-v ARG php version"
-  echo "-o ARG output path, default: $HOME"
+  echo "-o ARG output path, default: $(pwd)"
   echo "-z (yes|no) Use ZTS"
   echo "-d (yes|no) Compile in debug mode"
   echo "-k keep PHP source code"
+  echo "-a compile PHP without version suffix"
   echo "-s Use Memory and Undefined Sanitizers"
   echo "----------"
-  echo "Example: compiling PHP 8.2.3 in debug mode with Thread Safety"
-  echo "./compile-php.sh -v 8.2.3 -s -d yes -z yes"
+  echo "Example: compiling PHP 8.2.7 in debug mode with Thread Safety"
+  echo "./compile-php.sh -v 8.2.7 -s -d yes -z yes"
   echo ""
 }
 
@@ -82,6 +83,7 @@ compile_php() {
   local WITH_DEBUG="$2"
   local KEEP_PHP_SOURCE="$3"
 
+  local PHP_BASE_VERSION=$(echo "$PHP_VERSION" | cut -d. -f1,2)
   local config=(
     --enable-embed=static
     --enable-phpdbg
@@ -108,20 +110,23 @@ compile_php() {
     --with-sodium
   )
 
-  local OUTPUT_PATH="$OUTPUT/php/$PHP_BASE_VERSION"
+  local OUTPUT_PATH="$OUTPUT/php/"
 
-  if [[ "$WITH_DEBUG" == "yes" ]]; then
-    OUTPUT_PATH="$OUTPUT_PATH-debug"
-    config+=("--enable-debug")
-  else
-    OUTPUT_PATH="$OUTPUT_PATH-release"
-  fi
+  if [[ "$WITHOUT_VERSION" == "yes" ]]; then
+    OUTPUT_PATH="$OUTPUT_PATH/$PHP_BASE_VERSION"
+    if [[ "$WITH_DEBUG" == "yes" ]]; then
+      OUTPUT_PATH="$OUTPUT_PATH-debug"
+      config+=("--enable-debug")
+    else
+      OUTPUT_PATH="$OUTPUT_PATH-release"
+    fi
 
-  if [[ "$ZTS" == "yes" ]]; then
-    OUTPUT_PATH="$OUTPUT_PATH-zts"
-    config+=("--enable-zts")
-  else
-    OUTPUT_PATH="$OUTPUT_PATH-nts"
+    if [[ "$ZTS" == "yes" || "$ZTS" == "zts" ]]; then
+      OUTPUT_PATH="$OUTPUT_PATH-zts"
+      config+=("--enable-zts")
+    else
+      OUTPUT_PATH="$OUTPUT_PATH-nts"
+    fi
   fi
 
   if [[ "$ENABLE_SANITIZERS" == "yes" ]]; then
@@ -132,7 +137,7 @@ compile_php() {
   mkdir -p "$OUTPUT_PATH" || exit 1
 
   if [ ! -f "php-$PHP_VERSION.tar.gz" ]; then
-    wget -O "php-$PHP_VERSION.tar.gz" "https://github.com/php/php-src/archive/refs/tags/php-$PHP_VERSION.tar.gz" || exit 1
+    wget -O "php-$PHP_VERSION.tar.gz" "https://github.com/php/php-src/archive/refs/tags/php-$PHP_VERSION.tar.gz" >>/dev/null || exit 1
   fi
 
   tar -C "$OUTPUT_PATH" -xzf "php-$PHP_VERSION.tar.gz" || exit 1
@@ -145,42 +150,13 @@ compile_php() {
   pushd "$OUTPUT_PATH/src" || exit 1
 
   {
-    ./buildconf --force || exit 1
-    ./configure CFLAGS="$CFLAGS" CXXFLAGS="$CXXFLAGS" --prefix="$OUTPUT_PATH" "${config[@]}" || exit 1
+    ./buildconf --force >>/dev/null || exit 1
+    ./configure CFLAGS="$CFLAGS" CXXFLAGS="$CXXFLAGS" --prefix="$OUTPUT_PATH" "${config[@]}" >>/dev/null || exit 1
     make "-j$(nproc)" || exit 1
     make install || exit 1
   } >>/dev/null
 
   popd || exit 1
-
-  rm -rf "/tmp/php-src-php-$PHP_VERSION" >>/dev/null
-
-  if is_linux; then
-    {
-      if [ "$(command -v update-alternatives)" ]; then
-        sudo update-alternatives --remove php "$OUTPUT_PATH/bin/php"
-        sudo update-alternatives --remove phpize "$OUTPUT_PATH/bin/phpize"
-        sudo update-alternatives --remove php-config "$OUTPUT_PATH/bin/php-config"
-        sudo update-alternatives --remove php-cgi "$OUTPUT_PATH/bin/php-cgi"
-        sudo update-alternatives --remove phpdbg "$OUTPUT_PATH/bin/phpdbg"
-
-        sudo update-alternatives --install /bin/php php "$OUTPUT_PATH/bin/php" 1
-        sudo update-alternatives --install /bin/php-config php-config "$OUTPUT_PATH/bin/php-config" 1
-        sudo update-alternatives --install /bin/phpize phpize "$OUTPUT_PATH/bin/phpize" 1
-        sudo update-alternatives --install /bin/php-cgi php-cgi "$OUTPUT_PATH/bin/php-cgi" 1
-        sudo update-alternatives --install /bin/phpdbg phpdbg "$OUTPUT_PATH/bin/phpdbg" 1
-      else
-        sudo rm -f /bin/php /bin/phpize /bin/php-config /bin/php-cgi /bin/phpdbg
-
-        sudo ln -sf "$OUTPUT_PATH/bin/php" /bin/php
-        sudo ln -sf "$OUTPUT_PATH/bin/phpize" /bin/phpize
-        sudo ln -sf "$OUTPUT_PATH/bin/php-config" /bin/php-config
-        sudo ln -sf "$OUTPUT_PATH/bin/php-cgi" /bin/php-cgi
-        sudo ln -sf "$OUTPUT_PATH/bin/phpdbg" /bin/phpdbg
-      fi
-
-    } >>/dev/null
-  fi
 }
 
 check_deps() {
@@ -193,17 +169,22 @@ check_deps() {
 
 check_deps
 
-while getopts "v:z:o:sd:k" option; do
+while getopts "v:z:o:sd:ka" option; do
   case "$option" in
   "v") PHP_VERSION="$OPTARG" ;;
   "z") PHP_ZTS="$OPTARG" ;;
   "o") OUTPUT="$OPTARG" ;;
-  "d") ENABLE_DEBUG="yes" ;;
+  "d") ENABLE_DEBUG="$OPTARG" ;;
   "k") KEEP_PHP_SOURCE="yes" ;;
   "s") ENABLE_SANITIZERS="yes" ;;
+  "a") WITHOUT_VERSION="yes" ;;
   *) print_usage ;;
   esac
 done
+
+if [[ -z "$WITHOUT_VERSION" ]]; then
+  WITHOUT_VERSION="no"
+fi
 
 if [[ -z "$PHP_ZTS" ]]; then
   PHP_ZTS="no"
@@ -218,7 +199,7 @@ if [[ -z "$ENABLE_DEBUG" ]]; then
 fi
 
 if [[ -z "$OUTPUT" ]]; then
-  OUTPUT="$HOME"
+  OUTPUT="$(pwd)"
 fi
 
 if [[ -z "$ENABLE_SANITIZERS" ]]; then
@@ -232,8 +213,6 @@ fi
 
 CFLAGS="-g -ggdb -g3 -gdwarf-4 -fno-omit-frame-pointer"
 CXXFLAGS="-g -ggdb -g3 -gdwarf-4 -fno-omit-frame-pointer"
-
-PHP_BASE_VERSION=$(echo "$PHP_VERSION" | cut -d. -f1,2)
 
 install_deps || exit 1
 

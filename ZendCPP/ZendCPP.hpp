@@ -1,6 +1,6 @@
 #pragma once
 
-#include <php.h>
+#include <zend_API.h>
 
 #if defined(__GNUC__)
 #if __GNUC__ >= 3
@@ -23,8 +23,18 @@
 #endif
 #endif
 
+#ifdef __cplusplus
+#define EXTERN_C() extern "C" {
+#define END_EXTERN_C() }
+#else
+#define BEGIN_EXTERN_C()
+#define END_EXTERN_C()
+#endif
+
+
+
 #ifndef ZEND_OBJECT_OFFSET_MEMBER
-#define ZEND_OBJECT_OFFSET_MEMBER zval
+#define ZEND_OBJECT_OFFSET_MEMBER zendObject
 #endif
 
 namespace ZendCPP {
@@ -49,7 +59,7 @@ ZENDCPP_ALWAYS_INLINE T *Allocate(zend_class_entry *ce, zend_object_handlers *ha
     object_properties_init(&self->ZEND_OBJECT_OFFSET_MEMBER, ce);
   }
 
-  self->zval.handlers = handlers;
+  self->zendObject.handlers = handlers;
 
   return self;
 }
@@ -63,7 +73,7 @@ ZENDCPP_ALWAYS_INLINE T *Allocate(zend_class_entry *ce, THandlers *handlers) {
     object_properties_init(&self->ZEND_OBJECT_OFFSET_MEMBER, ce);
   }
 
-  self->zval.handlers = (zend_object_handlers *)handlers;
+  self->zendObject.handlers = (zend_object_handlers *)handlers;
 
   return self;
 }

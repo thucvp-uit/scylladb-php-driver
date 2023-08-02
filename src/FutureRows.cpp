@@ -107,7 +107,7 @@ php_driver_future_rows_properties(
 #if PHP_MAJOR_VERSION >= 8
         zend_object *object
 #else
-        zval *object
+        zendObject *object
 #endif
 )
 {
@@ -143,7 +143,7 @@ php_driver_future_rows_free(zend_object *object )
     cass_future_free(self->future);
   }
 
-  zend_object_std_dtor(&self->zval );
+  zend_object_std_dtor(&self->zendObject);
 
 }
 

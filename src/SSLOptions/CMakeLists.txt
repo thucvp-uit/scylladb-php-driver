@@ -1,32 +1,9 @@
 add_library(ssl_options STATIC)
 add_library(ext_scylladb::ssl_options ALIAS ssl_options)
+scylladb_php_library(ssl_options OFF ${PHP_SCYLLADB_OPTIMISE_FOR_CURRENT_MACHINE} ON)
+
 target_sources(
         ssl_options
         PRIVATE
         Builder.cpp
 )
-
-find_package(PHP REQUIRED)
-find_package(Sanitizers REQUIRED)
-
-set_target_properties(ssl_options PROPERTIES POSITION_INDEPENDENT_CODE ON)
-target_include_directories(
-        ssl_options
-        PUBLIC
-        ${PHP_INCLUDES}
-        ${PROJECT_SOURCE_DIR}/include
-        ${PROJECT_BINARY_DIR}
-        ${libscylladb_SOURCE_DIR}/include
-        ${PROJECT_SOURCE_DIR}
-)
-
-if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    target_compile_definitions(ssl_options PRIVATE -DDEBUG)
-elseif (${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo" OR ${CMAKE_BUILD_TYPE} STREQUAL "Release")
-    target_compile_definitions(ssl_options PRIVATE -DRELEASE)
-endif ()
-
-if (PHP_SCYLLADB_ENABLE_SANITIZERS)
-    add_sanitize_undefined(ssl_options)
-    add_sanitize_address(ssl_options)
-endif ()

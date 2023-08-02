@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
+#include "src/Tuple.h"
+
 #include <php_driver.h>
 #include <php_driver_types.h>
-#include <zend_smart_str.h>
-
 #include <util/collections.h>
 #include <util/types.h>
-
-#include "src/Tuple.h"
+#include <zend_smart_str.h>
 BEGIN_EXTERN_C()
 zend_class_entry* php_driver_type_tuple_ce = NULL;
 
@@ -169,7 +168,7 @@ php_driver_type_tuple_gc(
 #if PHP_MAJOR_VERSION >= 8
   zend_object* object,
 #else
-  zval* object,
+  zendObject* object,
 #endif
   zval** table,
   int* n )
@@ -184,7 +183,7 @@ php_driver_type_tuple_properties(
 #if PHP_MAJOR_VERSION >= 8
   zend_object* object
 #else
-  zval* object
+  zendObject* object
 #endif
 )
 {
@@ -227,7 +226,7 @@ php_driver_type_tuple_free(zend_object* object )
     cass_data_type_free(self->data_type);
   zend_hash_destroy(&self->data.tuple.types);
 
-  zend_object_std_dtor(&self->zval );
+  zend_object_std_dtor(&self->zendObject);
 
 }
 

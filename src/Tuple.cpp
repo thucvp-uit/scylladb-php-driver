@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
+#include "src/Type/Tuple.h"
+
+#include "Tuple.h"
+#include "Zend/zend_hash.h"
 #include "php_driver.h"
 #include "php_driver_types.h"
 #include "util/collections.h"
 #include "util/hash.h"
 #include "util/types.h"
-
-#include "src/Type/Tuple.h"
-#include "src/Tuple.h"
-
-#include <zend_hash.h>
 BEGIN_EXTERN_C()
 zend_class_entry *php_driver_tuple_ce = NULL;
 
@@ -324,7 +323,7 @@ php_driver_tuple_gc(
 #if PHP_MAJOR_VERSION >= 8
         zend_object *object,
 #else
-        zval *object,
+        zendObject *object,
 #endif
         zval** table, int *n
 )
@@ -339,7 +338,7 @@ php_driver_tuple_properties(
 #if PHP_MAJOR_VERSION >= 8
         zend_object *object
 #else
-        zval *object
+        zendObject *object
 #endif
 )
 {
@@ -441,7 +440,7 @@ php_driver_tuple_free(zend_object *object )
   zend_hash_destroy(&self->values);
   PHP5TO7_ZVAL_MAYBE_DESTROY(self->type);
 
-  zend_object_std_dtor(&self->zval );
+  zend_object_std_dtor(&self->zendObject);
 
 }
 

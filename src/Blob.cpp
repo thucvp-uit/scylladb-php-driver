@@ -119,7 +119,7 @@ static HashTable *php_driver_blob_gc(
 #if PHP_MAJOR_VERSION >= 8
     zend_object *object,
 #else
-    zval *object,
+    zendObject *object,
 #endif
     zval** table, int *n) {
   *table = NULL;
@@ -131,7 +131,7 @@ static HashTable *php_driver_blob_properties(
 #if PHP_MAJOR_VERSION >= 8
     zend_object *object
 #else
-    zval *object
+    zendObject *object
 #endif
 ) {
   char *hex;
@@ -194,7 +194,7 @@ static void php_driver_blob_free(zend_object *object) {
     efree(self->data);
   }
 
-  zend_object_std_dtor(&self->zval);
+  zend_object_std_dtor(&self->zendObject);
 
 }
 

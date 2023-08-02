@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#include <src/Cluster/Cluster.h>
+#include <src/DateTime/DateTimeInternal.h>
+
 #include <fcntl.h>
 #include <php_driver.h>
 #include <php_driver_globals.h>
@@ -25,8 +28,6 @@
 
 #include <ctime>
 
-#include "src/Cluster/Cluster.h"
-#include "src/DateTime/DateTimeInternal.h"
 
 BEGIN_EXTERN_C()
 #include <ext/standard/info.h>

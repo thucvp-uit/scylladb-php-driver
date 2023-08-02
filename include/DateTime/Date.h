@@ -9,17 +9,17 @@
 BEGIN_EXTERN_C()
 typedef struct {
   cass_uint32_t date;
-  zend_object zval;
+  zend_object zendObject;
 } php_scylladb_date;
 
 typedef struct {
   cass_int64_t time;
-  zend_object zval;
+  zend_object zendObject;
 } php_scylladb_time;
 
 typedef struct {
   cass_int64_t timestamp;
-  zend_object zval;
+  zend_object zendObject;
 } php_scylladb_timestamp;
 
 extern PHP_SCYLLADB_API zend_class_entry *php_scylladb_date_ce;

@@ -20,6 +20,7 @@
 #include <util/types.h>
 
 #include <ZendCPP/ZendCPP.hpp>
+#include <ZendCPP/String/Builder.h>
 #include <ctime>
 
 #include "DateTimeInternal.h"
@@ -82,11 +83,8 @@ ZEND_METHOD(Cassandra_Date, __construct) {
                                    seconds) == FAILURE) {
     zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,
                             "Invalid seconds value: '%s'", ZSTR_VAL(secondsStr));
+    RETURN_THROWS();
   }
-
-  //  if (secondsStr != nullptr) {
-  //    zend_string_release(secondsStr);
-  //  }
 }
 ZEND_METHOD(Cassandra_Date, type) {
   zval type = php_driver_type_scalar(CASS_VALUE_TYPE_DATE);
@@ -110,7 +108,7 @@ ZEND_METHOD(Cassandra_Date, toDateTime) {
 
   php_scylladb_time *time_obj = nullptr;
 
-  if (ztime != nullptr) {
+  if (ztime != nullptr) [[likely]] {
     time_obj = ZendCPP::ObjectFetch<php_scylladb_time>(ztime);
   }
 
@@ -118,12 +116,15 @@ ZEND_METHOD(Cassandra_Date, toDateTime) {
 
   zval datetime;
 
-  zend_result status = php_scylladb_to_datetime_internal(&datetime, [self, time_obj]() {
-    return cass_date_time_to_epoch(self->date, time_obj != nullptr ? time_obj->time : 0);
+  zend_result status = scylladb_php_to_datetime_internal(&datetime, "U", [self, time_obj]() {
+    ZendCPP::StringBuilder builder;
+    builder.Append(cass_date_time_to_epoch(self->date, time_obj != nullptr ? time_obj->time : 0));
+    return builder.Build().ZendString();
   });
 
-  if (status == FAILURE) {
+  if (status == FAILURE) [[unlikely]] {
     zend_throw_exception(php_driver_runtime_exception_ce, "Failed to create DateTime object", 0);
+    RETURN_THROWS();
   }
 
   RETURN_ZVAL(&datetime, 0, 1);
@@ -138,7 +139,7 @@ ZEND_METHOD(Cassandra_Date, fromDateTime) {
   ZEND_PARSE_PARAMETERS_END();
   // clang-format on
 
-  zval getTimeStampResult = {0};
+  zval getTimeStampResult = {};
   zend_call_method_with_0_params(Z_OBJ_P(datetime), Z_OBJCE_P(datetime), nullptr, "gettimestamp",
                                  &getTimeStampResult);
 
@@ -148,7 +149,7 @@ ZEND_METHOD(Cassandra_Date, fromDateTime) {
     zval_ptr_dtor(&getTimeStampResult);
     zend_throw_exception(php_driver_runtime_exception_ce, "Failed to create Cassandra\\Date object",
                          0);
-    return;
+    RETURN_THROWS();
   }
 
   self->date = cass_date_from_epoch(Z_LVAL(getTimeStampResult));
@@ -208,7 +209,7 @@ static unsigned php_scylladb_date_hash_value(zval *obj) {
 static zend_object *php_scylladb_date_new(zend_class_entry *ce) {
   auto *self = ZendCPP::Allocate<php_scylladb_date>(ce, &php_scylladb_date_handlers);
   self->date = 0;
-  return &self->zval;
+  return &self->zendObject;
 }
 
 void php_driver_define_Date() {

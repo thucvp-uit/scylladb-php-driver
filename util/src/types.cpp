@@ -14,29 +14,28 @@
  * limitations under the License.
  */
 
-#include "types.h"
-
 #include <php_driver.h>
 #include <php_driver_globals.h>
 #include <php_driver_types.h>
+#include <util/types.h>
 #include <zend_smart_str.h>
 
 #include <ZendCPP/ZendCPP.hpp>
 
 #include "DateTime/Date.h"
-#include "src/Bigint.h"
 #include "src/Blob.h"
+#include "src/DateTime/Duration.h"
 #include "src/DateTime/Timeuuid.h"
-#include "src/Decimal.h"
-#include "src/Duration.h"
-#include "src/Float.h"
 #include "src/Inet.h"
-#include "src/Smallint.h"
-#include "src/Tinyint.h"
+#include "src/Numbers/Bigint.h"
+#include "src/Numbers/Decimal.h"
+#include "src/Numbers/Float.h"
+#include "src/Numbers/Smallint.h"
+#include "src/Numbers/Tinyint.h"
+#include "src/Numbers/Varint.h"
 #include "src/Type/Tuple.h"
 #include "src/Type/UserType.h"
 #include "src/Uuid.h"
-#include "src/Varint.h"
 
 #define PHP_DRIVER_SCALAR_TYPES_MAP(XX)    \
   XX(ascii, CASS_VALUE_TYPE_ASCII)         \

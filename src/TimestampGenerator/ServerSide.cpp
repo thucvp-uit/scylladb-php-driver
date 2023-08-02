@@ -33,7 +33,7 @@ php_driver_timestamp_gen_server_side_free(zend_object *object )
 
   cass_timestamp_gen_free(self->gen);
 
-  zend_object_std_dtor(&self->zval );
+  zend_object_std_dtor(&self->zendObject);
 
 }
 

@@ -160,7 +160,7 @@ php_driver_type_map_gc(
 #if PHP_MAJOR_VERSION >= 8
         zend_object *object,
 #else
-        zval *object,
+        zendObject *object,
 #endif
         zval** table, int *n
 )
@@ -175,7 +175,7 @@ php_driver_type_map_properties(
 #if PHP_MAJOR_VERSION >= 8
         zend_object *object
 #else
-        zval *object
+        zendObject *object
 #endif
 )
 {
@@ -220,7 +220,7 @@ php_driver_type_map_free(zend_object *object )
   PHP5TO7_ZVAL_MAYBE_DESTROY(self->data.map.key_type);
   PHP5TO7_ZVAL_MAYBE_DESTROY(self->data.map.value_type);
 
-  zend_object_std_dtor(&self->zval );
+  zend_object_std_dtor(&self->zendObject);
 
 }
 

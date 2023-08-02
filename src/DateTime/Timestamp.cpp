@@ -19,6 +19,7 @@
 #include <util/types.h>
 
 #include <ZendCPP/ZendCPP.hpp>
+#include <ZendCPP/String/Builder.h>
 
 #include "DateTime/Date.h"
 #include "DateTimeInternal.h"
@@ -95,6 +96,7 @@ ZEND_METHOD(Cassandra_Timestamp, __construct) {
     zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,
                             "Failed to create Timestamp: seconds(%ld) microseconds(%ld)", seconds,
                             microseconds);
+    RETURN_THROWS();
   }
 }
 
@@ -130,23 +132,31 @@ ZEND_METHOD(Cassandra_Timestamp, microtime) {
 
   char ret[128];
   memset(ret, 0, sizeof(ret));
-  size_t len = std::snprintf(ret, sizeof(ret), "%.8F %" PRId64, usec, sec);
-
+  size_t len = snprintf(ret, sizeof(ret) - 1, "%.8F %" PRId64, usec, sec);
   RETURN_STRINGL_FAST(ret, len);
 }
 
 ZEND_METHOD(Cassandra_Timestamp, toDateTime) {
   ZEND_PARSE_PARAMETERS_NONE();
 
-  zval datetime;
   auto self = ZendCPP::ObjectFetch<php_scylladb_timestamp>(getThis());
 
-  zend_result status = php_scylladb_to_datetime_internal(
-      &datetime, [self]() { return (int64_t)(self->timestamp / 1000); });
+  zval datetime;
+  zend_result status = scylladb_php_to_datetime_internal(&datetime, "U.v", [self]() {
+    ZendCPP::StringBuilder builder;
+    int64_t sec = self->timestamp / 1000;
+    int64_t millisec = (self->timestamp - (sec * 1000));
 
-  if (status == FAILURE) {
+    return builder.Append(sec).
+        Append('.').
+        Append(millisec).
+        Build().
+        ZendString();
+  });
+
+  if (status == FAILURE) [[unlikely]] {
     zend_throw_exception(php_driver_runtime_exception_ce, "Failed to create DateTime object", 0);
-    return;
+    RETURN_THROWS();
   }
 
   RETURN_ZVAL(&datetime, 1, 1);
@@ -172,9 +182,8 @@ ZEND_METHOD(Cassandra_Timestamp, fromDateTime) {
   if (ret == nullptr) {
     zval_ptr_dtor(&getTimeStampResult);
     zval_ptr_dtor(&format);
-    zend_throw_exception(php_driver_runtime_exception_ce, "Failed to get Timestamp from DateTime",
-                         0);
-    return;
+    zend_throw_exception(php_driver_runtime_exception_ce, "Failed to get Timestamp from DateTime",0);
+    RETURN_THROWS();
   };
 
   auto self = php_scylladb_timestamp_instantiate(return_value);
@@ -184,7 +193,7 @@ ZEND_METHOD(Cassandra_Timestamp, fromDateTime) {
     zval_ptr_dtor(&format);
     zend_throw_exception(php_driver_runtime_exception_ce, "Failed to create Cassandra\\Timestamp",
                          0);
-    return;
+    RETURN_THROWS();
   }
 
   self->timestamp = std::strtoll(Z_STRVAL(getTimeStampResult), nullptr, 10);
@@ -249,7 +258,7 @@ static unsigned php_driver_timestamp_hash_value(zval *obj) {
 static zend_object *php_driver_timestamp_new(zend_class_entry *ce) {
   auto self = ZendCPP::Allocate<php_scylladb_timestamp>(ce, &php_driver_timestamp_handlers);
   self->timestamp = -1;
-  return &self->zval;
+  return &self->zendObject;
 }
 
 void php_driver_define_Timestamp() {
