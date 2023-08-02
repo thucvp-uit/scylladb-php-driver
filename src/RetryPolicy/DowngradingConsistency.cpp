@@ -30,23 +30,22 @@ static zend_object_handlers php_driver_retry_policy_downgrading_consistency_hand
 static void php_driver_retry_policy_downgrading_consistency_free(zend_object *object)
 {
   auto *self = ZendCPP::ObjectFetch<php_driver_retry_policy>(object);
-
   cass_retry_policy_free(self->policy);
-  zend_object_std_dtor(&self->zendObject);
 }
 
 static zend_object* php_driver_retry_policy_downgrading_consistency_new(zend_class_entry *ce) {
   auto *self = ZendCPP::Allocate<php_driver_retry_policy>(ce, &php_driver_retry_policy_downgrading_consistency_handlers);
   self->policy = cass_retry_policy_downgrading_consistency_new();
 
+  zend_object_std_init(&self->zendObject, ce);
   return &self->zendObject;
 }
 
-void php_driver_define_RetryPolicyDowngradingConsistency() {
-  php_driver_retry_policy_downgrading_consistency_ce = register_class_Cassandra_RetryPolicy_DowngradingConsistency(php_driver_retry_policy_downgrading_consistency_ce);
+void php_driver_define_RetryPolicyDowngradingConsistency(zend_class_entry* retry_policy_interface) {
+  php_driver_retry_policy_downgrading_consistency_ce = register_class_Cassandra_RetryPolicy_DowngradingConsistency(retry_policy_interface);
   php_driver_retry_policy_downgrading_consistency_ce->create_object = php_driver_retry_policy_downgrading_consistency_new;
-  ZendCPP::InitHandlers<php_driver_retry_policy>(&php_driver_retry_policy_downgrading_consistency_handlers);
 
+  ZendCPP::InitHandlers<php_driver_retry_policy>(&php_driver_retry_policy_downgrading_consistency_handlers);
   php_driver_retry_policy_downgrading_consistency_handlers.free_obj = php_driver_retry_policy_downgrading_consistency_free;
 }
 END_EXTERN_C()

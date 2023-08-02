@@ -21,6 +21,7 @@
 #include <php_driver.h>
 #include <php_driver_globals.h>
 #include <php_driver_types.h>
+#include <ZendCPP/ZendCPP.hpp>
 #include <util/consistency.h>
 
 #include "BuilderHandlers.h"
@@ -647,7 +648,7 @@ ZEND_METHOD(Cassandra_Cluster_Builder, withRetryPolicy)
     ZEND_PARSE_PARAMETERS_END();
 
     php_driver_cluster_builder *self = PHP_DRIVER_GET_CLUSTER_BUILDER(getThis());
-    php_driver_retry_policy *policy = PHP_DRIVER_GET_RETRY_POLICY(retry_policy);
+    auto *policy = ZendCPP::ObjectFetch<php_driver_retry_policy>(retry_policy);
 
     if (self->retry_policy != nullptr)
     {
