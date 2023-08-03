@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
+#include <ZendCPP/String/Builder.h>
 #include <php_driver_types.h>
 #include <util/hash.h>
 #include <util/types.h>
 
 #include <ZendCPP/ZendCPP.hpp>
-#include <ZendCPP/String/Builder.h>
 
 #include "DateTime/Date.h"
 #include "DateTimeInternal.h"
@@ -143,15 +143,14 @@ ZEND_METHOD(Cassandra_Timestamp, toDateTime) {
 
   zval datetime;
   zend_result status = scylladb_php_to_datetime_internal(&datetime, "U.v", [self]() {
-    ZendCPP::StringBuilder builder;
     int64_t sec = self->timestamp / 1000;
     int64_t millisec = (self->timestamp - (sec * 1000));
 
-    return builder.Append(sec).
-        Append('.').
-        Append(millisec).
-        Build().
-        ZendString();
+    ZendCPP::StringBuilder builder(32);
+
+    auto str = builder.Append(sec).Append('.').Append(millisec).Build();
+    str.IncrementRef();
+    return str.ZendString();
   });
 
   if (status == FAILURE) [[unlikely]] {
@@ -182,7 +181,8 @@ ZEND_METHOD(Cassandra_Timestamp, fromDateTime) {
   if (ret == nullptr) {
     zval_ptr_dtor(&getTimeStampResult);
     zval_ptr_dtor(&format);
-    zend_throw_exception(php_driver_runtime_exception_ce, "Failed to get Timestamp from DateTime",0);
+    zend_throw_exception(php_driver_runtime_exception_ce, "Failed to get Timestamp from DateTime",
+                         0);
     RETURN_THROWS();
   };
 
