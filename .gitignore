@@ -56,3 +56,9 @@ cassandra.log
 /**/vendor/
 /**/.idea/
 /**/.idea/
+
+
+# Added by cargo
+
+/target
+/Cargo.lock
