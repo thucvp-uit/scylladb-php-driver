@@ -5,13 +5,10 @@
 
 #include "String.h"
 
-namespace ZendCPP
-{
-class StringBuilder
-{
+namespace ZendCPP {
+class StringBuilder {
  public:
-  struct str_with_size
-  {
+  struct str_with_size {
     const char* str;
     std::size_t size;
   };
@@ -29,7 +26,9 @@ class StringBuilder
 
   [[nodiscard]] String Build() noexcept;
 
+#if PHP_VERSION_ID > 80100
   [[nodiscard]] StringBuilder& TrimToSize() noexcept;
+#endif
 
   StringBuilder& operator<<(const char* str) noexcept;
   StringBuilder& operator<<(const str_with_size& str) noexcept;
@@ -90,4 +89,4 @@ class StringBuilder
       .a = 0,
   };
 };
-}
+}  // namespace ZendCPP
