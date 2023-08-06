@@ -2,15 +2,16 @@ use cc::Build;
 use walkdir::WalkDir;
 
 fn add_files(build: &mut Build, dir: &str) {
-    let dir = WalkDir::new(dir);
+    let dir = WalkDir::new(dir).follow_links(false);
 
-    dir
-        .into_iter()
+    dir.into_iter()
         .filter_map(|e| e.ok())
         .filter(|e| e.file_type().is_file())
         .filter(|e| e.path().extension().unwrap().to_str().unwrap() == "cpp")
         .filter(|e| e.path().extension().unwrap().to_str().unwrap() == "c")
-        .for_each(|e| { build.file(e.path()); });
+        .for_each(|e| {
+            build.file(e.path());
+        });
 }
 
 fn main() {

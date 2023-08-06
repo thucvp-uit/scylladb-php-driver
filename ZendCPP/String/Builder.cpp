@@ -23,7 +23,7 @@ std::size_t StringBuilder::Length() const noexcept {
   return m_builder.s ? ZSTR_LEN(m_builder.s) : 0;
 }
 
-#if PHP_VERSION_ID > 80100
+#if PHP_VERSION_ID > 80200
 [[nodiscard]] StringBuilder& StringBuilder::TrimToSize() noexcept {
   smart_str_trim_to_size(&m_builder);
   return *this;
