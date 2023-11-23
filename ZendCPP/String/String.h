@@ -4,10 +4,8 @@
 
 #include "ByteIterator.h"
 
-namespace Zend
+namespace ZendCPP
 {
-using string =
-  // TODO: Implement Forward iterator
   class String
 {
 private:
@@ -30,10 +28,6 @@ public:
   explicit String(const zend_string* other) noexcept;
 
   explicit String(zend_string* other) noexcept;
-
-  explicit String(std::string& other) noexcept;
-
-  explicit String(const std::string& other) noexcept;
 
   explicit String(const zval& zv) noexcept;
 
@@ -78,11 +72,11 @@ public:
 
   [[maybe_unused]] [[nodiscard]] String ToInterned() const noexcept;
 
-  operator const zend_string*() const noexcept;
+//  operator const zend_string*() const noexcept;
 
-  operator const char*() const noexcept;
+//  operator const char*() const noexcept;
 
-  operator zend_string*() const noexcept;
+//  operator zend_string*() const noexcept;
 
   operator zval() const noexcept;
 
@@ -98,9 +92,16 @@ public:
 
   bool operator!=(const String& rhs) const;
 
-  Zend::Internal::String::ByteIterator begin() noexcept;
+//  Zend::Internal::String::ByteIterator begin() noexcept;
 
-  Zend::Internal::String::ByteIterator end() noexcept;
+//  Zend::Internal::String::ByteIterator end() noexcept;
+
+  [[gnu::always_inline]] static String InternalNoCopy(const zend_string* other) noexcept
+  {
+    String str;
+    str.str = const_cast<zend_string*>(other);
+    return str;
+  }
 
   ~String() noexcept;
 };

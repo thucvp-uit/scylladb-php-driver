@@ -2,9 +2,11 @@
 
 * CMake used instead of autoconf and makefiles
 * Removed support for PHP 5.x
-* Version of the extension gets updated from CMakeLists.txt\
+* Version of the extension gets updated from CMakeLists.txt
 * Setup Pest Testing
-
+* Support for PHP 8.3
+* Default Dynamic Linking for LibUV and LibScyllaDB
+* Support for Cassandra 4.0 using LibCassandra from DataStax
 
 # 1.3.8
 

@@ -1,8 +1,6 @@
 #include "ByteIterator.h"
 
-#include <cstdint>
-
-using namespace Zend::Internal::String;
+using namespace ZendCPP::Internal::String;
 
 ByteIterator::reference ByteIterator::operator*() {
   return (reference)value[index];

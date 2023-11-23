@@ -21,6 +21,7 @@
 #include <php_driver.h>
 #include <php_driver_globals.h>
 #include <php_driver_types.h>
+#include <ZendCPP/ZendCPP.hpp>
 #include <util/consistency.h>
 
 #include "BuilderHandlers.h"
@@ -643,11 +644,11 @@ ZEND_METHOD(Cassandra_Cluster_Builder, withRetryPolicy)
     zval *retry_policy = nullptr;
 
     ZEND_PARSE_PARAMETERS_START(1, 1)
-    Z_PARAM_OBJECT_OF_CLASS(retry_policy, php_driver_retry_policy_ce)
+    Z_PARAM_OBJECT_OF_CLASS(retry_policy, php_scylladb_retry_policy_ce)
     ZEND_PARSE_PARAMETERS_END();
 
     php_driver_cluster_builder *self = PHP_DRIVER_GET_CLUSTER_BUILDER(getThis());
-    php_driver_retry_policy *policy = PHP_DRIVER_GET_RETRY_POLICY(retry_policy);
+    auto *policy = ZendCPP::ObjectFetch<php_driver_retry_policy>(retry_policy);
 
     if (self->retry_policy != nullptr)
     {

@@ -329,7 +329,7 @@ void throw_invalid_argument(zval *object, const char *object_name, const char *e
     }
   } else if (Z_TYPE_P(object) == IS_STRING) {
     zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0,
-                            "%s must be %s, '%Z' given", object_name, expected_type, object);
+                            "%s must be %s, %Z given", object_name, expected_type, object);
   } else {
     zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0, "%s must be %s, %Z given",
                             object_name, expected_type, object);
@@ -534,11 +534,11 @@ PHP_MINIT_FUNCTION(php_driver) {
   php_driver_define_TypeUserType();
   php_driver_define_TypeCustom();
 
-  php_driver_define_RetryPolicy();
-  php_driver_define_RetryPolicyDefault();
-  php_driver_define_RetryPolicyDowngradingConsistency();
-  php_driver_define_RetryPolicyFallthrough();
-  php_driver_define_RetryPolicyLogging();
+  auto * retry_policy_interface = php_scylladb_define_RetryPolicy();
+  php_scylladb_define_RetryPolicyDefault(retry_policy_interface);
+  php_driver_define_RetryPolicyDowngradingConsistency(retry_policy_interface);
+  php_driver_define_RetryPolicyFallthrough(retry_policy_interface);
+  php_driver_define_RetryPolicyLogging(retry_policy_interface);
 
   php_driver_define_TimestampGenerator();
   php_driver_define_TimestampGeneratorMonotonic();

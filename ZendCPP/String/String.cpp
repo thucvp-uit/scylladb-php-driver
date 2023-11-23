@@ -3,7 +3,7 @@
 
 #include "String.h"
 
-namespace Zend
+namespace ZendCPP
 {
 String::String(const char *other, size_t len) noexcept
     : str(zend_string_init(other, len, false)) {}
@@ -16,12 +16,6 @@ String::String(const zend_string *other) noexcept
 
 String::String(zend_string *other) noexcept
     : str(zend_string_copy(other)) {}
-
-String::String(std::string &other) noexcept
-    : str(zend_string_init(other.c_str(), other.length(), false)) {}
-
-String::String(const std::string &other) noexcept
-    : str(zend_string_init(other.c_str(), other.length(), false)) {}
 
 String::String(const zval &zv) noexcept {
   if (Z_TYPE(zv) == IS_STRING) {
@@ -99,12 +93,6 @@ String String::ToInterned() const noexcept {
 
   return newStr;
 }
-
-String::operator const zend_string *() const noexcept { return str; }
-
-String::operator const char *() const noexcept { return ZSTR_VAL(str); }
-
-String::operator zend_string *() const noexcept { return str; }
 
 String::operator zval() const noexcept {
   zval zv;
